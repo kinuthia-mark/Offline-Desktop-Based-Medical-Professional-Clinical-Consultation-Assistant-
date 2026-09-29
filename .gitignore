@@ -1,0 +1,39 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Secrets and local config
+.env
+*.key
+*.pem
+
+# NEVER commit models, audio, or any patient-like data
+models/
+*.gguf
+*.safetensors
+*.wav
+*.mp3
+*.flac
+*.m4a
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Editor (keep shared settings only)
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
