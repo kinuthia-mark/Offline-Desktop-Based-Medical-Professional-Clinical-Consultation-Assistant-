@@ -1,0 +1,23 @@
+# Amendment log
+
+Every deviation from the approved proposal is recorded here and applied to the document in a single final update. Status: planned, applied in code, applied in document.
+
+| ID | Proposal section(s) | Change | Reason | Status | PR |
+|---|---|---|---|---|---|
+| AMD-01 | 1.6, 1.7.1, 3.5, 3.7, 4.6 | Replace 'MedGemma 2B' with MedGemma 4B-IT; decide on evaluating MedGemma 1.5 (4B). | A 2B MedGemma variant does not exist (4B and 27B released May 2025; 1.5 4B in Jan 2026). | planned | |
+| AMD-02 | Abstract, 1.1, 1.5 | Replace 'Zero-Trust' with 'local-first, air-gapped by design'; remove 'autonomous diagnostic companion'. | Terminology accuracy; output is clinician-reviewed decision support. | planned | |
+| AMD-03 | 1.1, 1.5, 1.7.2, 2.3.3 | Replace QLoRA/NF4/Double Quantization/Paged Optimizers with post-training GGUF quantization (e.g. Q4_K_M); state no fine-tuning. | Those are fine-tuning techniques; deployment uses GGUF k-quants. | planned | |
+| AMD-04 | 2.2.1, 3.7 | Remove 'zero-latency' and 'near parity'; use measured latency targets. | Unsupported claims. | planned | |
+| AMD-05 | 1.5, 2.2.2 | State that local processing reduces transmission risk but does not by itself satisfy the Kenya Data Protection Act 2019; list remaining duties. | Overclaim. | planned | |
+| AMD-06 | 1.3.2 (obj 4), 3.2.1, 3.6 | Reconcile benchmark datasets with synthetic-only testing; replace PubMedQA with dialogue-to-note evaluation (ACI-Bench or PriMock57, check licences) plus scripted scenarios; WER and clinician rubric. | Evaluation must match the system's task. | planned | |
+| AMD-07 | 3.2.2 | Add NFR for sequential model load/unload and a peak-RAM target on a stated reference PC. | Two models in memory at once risks out-of-memory on 8 GB PCs. | planned | |
+| AMD-08 | 3.1.2, 3.2.5 | Present the V-model as one V per increment; add a real traceability matrix. | Iterative build needs a defensible method. | planned | |
+| AMD-09 | 3.5 | Fix the GUI as PyQt6 (or PySide6); state that no HTTP server (FastAPI) is used. | Removes ambiguity; avoids an unneeded network surface. | planned | |
+| AMD-10 | 3.6, 4.6 | Add Windows air-gap enforcement (outbound firewall rule and startup self-check); show Ollama's loopback port inside the boundary. | Disabling the adapter covers testing only; Ollama listens on loopback. | planned | |
+| AMD-11 | 4.3, 4.4, 4.5 | Add InputGuard (normalisation, injection screen, PII redaction, quarantine) and two clinician gates. | Untrusted transcript text reaches the LLM; human review is non-negotiable. | planned | |
+| AMD-12 | 4.7, 4.8 | Store model draft and clinician-final note separately; add guardrail_flags, asr_model, model_version; audit_logs hash chain; replace pin_hash with an Argon2id passphrase KDF and lockout; encrypt audio files. | A short PIN is brute-forceable; audio files are outside the database. | planned | |
+| AMD-13 | References | Cite Radford et al. for Whisper; add Davis (1989) and the MedGemma report; Dettmers only if QLoRA stays as background; fix the Journal of Rural Health attribution; remove duplicate Kedi and Zhang entries. | Citations do not match claims. | planned | |
+| AMD-14 | Structure | Confirm with the supervisor that the final report adds implementation, results, discussion and conclusion chapters; redraw Figs 2.1, 3.2 and 4.1 to 4.8. | Proposal structure differs from a final report. | planned | |
+| AMD-15 | 3.7, 4.6 | Deployment is a native Windows installer; Docker is not part of the product. | Docker Desktop overhead on clinic PCs; no microphone passthrough. | planned | |
+| AMD-16 | 4.7, 4.8 | Rename confidence_rank to rank; keep confidence_score for ASR only; add structured differentials (diagnosis, rationale, management, rank). | An LLM's ordering is not a calibrated confidence. | planned | |
+| AMD-17 | 4.8 | Record the SQLCipher-or-fallback decision as ADR-001 after the Windows spike. | Availability of a Windows SQLCipher build is unverified. | planned | |
