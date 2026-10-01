@@ -1,0 +1,17 @@
+# SYNTHETIC consultation invented for testing. Not a real patient.
+Doctor: Good morning. What brings you in today?
+Patient: I have had a fever for three days, and a headache that will not go away.
+Doctor: Any chills or sweating?
+Patient: Yes, chills mostly at night. My joints also ache.
+Doctor: Any cough, sore throat, vomiting or diarrhoea?
+Patient: No cough and no sore throat. I vomited once yesterday. No diarrhoea.
+Doctor: Any rash, or pain when you pass urine?
+Patient: No rash. No pain when passing urine.
+Doctor: Do you have any long-term illnesses or take regular medication?
+Patient: None. I took paracetamol twice, it helps for a few hours.
+Doctor: Any allergies to medicines?
+Patient: No.
+Doctor: Let me examine you. Your temperature is thirty-eight point six, pulse ninety-six, blood pressure one eighteen over seventy-six. You look tired but alert. Throat looks normal, chest is clear, abdomen is soft with mild tenderness under the ribs on the right.
+Patient: Is it serious?
+Doctor: I want to check for malaria and do a full blood count today. Keep taking paracetamol, drink plenty of fluids and rest. If you vomit repeatedly, get confused, or the fever worsens, come back immediately. Otherwise, see me again in two days with the results.
+Patient: Thank you, doctor.
