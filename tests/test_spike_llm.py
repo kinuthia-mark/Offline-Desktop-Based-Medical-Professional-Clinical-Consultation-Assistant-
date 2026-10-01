@@ -188,3 +188,47 @@ def test_concise_flag_changes_the_prompt_and_num_predict_is_passed(fake_host, tm
     request = FakeOllama.chat_requests[0]
     assert "Be concise" in request["messages"][0]["content"]
     assert request["options"]["num_predict"] == 321
+
+
+def _run_one(fake_host, tmp_path, *extra):
+    FakeOllama.chat_requests = []
+    llm_spike.main(
+        [
+            "--host",
+            fake_host,
+            "--model",
+            "fake:1b",
+            "--trials",
+            "1",
+            "--out-dir",
+            str(tmp_path),
+            *extra,
+        ]
+    )
+    return FakeOllama.chat_requests[0]
+
+
+def test_default_format_is_generic_json(fake_host, tmp_path):
+    assert _run_one(fake_host, tmp_path)["format"] == "json"
+
+
+def test_schema_format_constrains_to_soap_keys(fake_host, tmp_path):
+    fmt = _run_one(fake_host, tmp_path, "--format", "schema")["format"]
+    assert fmt["required"] == ["subjective", "objective", "assessment", "plan"]
+    assert fmt["additionalProperties"] is False
+
+
+def test_format_none_sends_no_format(fake_host, tmp_path):
+    assert "format" not in _run_one(fake_host, tmp_path, "--format", "none")
+
+
+def test_sampling_options_are_passed(fake_host, tmp_path):
+    options = _run_one(fake_host, tmp_path, "--temperature", "0.3", "--repeat-penalty", "1.1")[
+        "options"
+    ]
+    assert options["temperature"] == 0.3 and options["repeat_penalty"] == 1.1
+
+
+def test_fenced_json_counts_as_valid():
+    assert llm_spike.soap_is_valid("```json\n" + GOOD_NOTE + "\n```")
+    assert not llm_spike.soap_is_valid("```json\n{broken\n```")
