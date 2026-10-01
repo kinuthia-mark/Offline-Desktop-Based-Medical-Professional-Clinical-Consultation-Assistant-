@@ -19,6 +19,8 @@ GOOD_NOTE = json.dumps({"subjective": "s", "objective": "o", "assessment": "a", 
 
 
 class FakeOllama(BaseHTTPRequestHandler):
+    chat_requests: list = []
+
     def log_message(self, *args):  # keep test output quiet
         pass
 
@@ -42,8 +44,9 @@ class FakeOllama(BaseHTTPRequestHandler):
 
     def do_POST(self):
         length = int(self.headers.get("Content-Length", 0))
-        self.rfile.read(length)
+        body = self.rfile.read(length)
         if self.path == "/api/chat":
+            FakeOllama.chat_requests.append(json.loads(body))
             self._send(
                 {
                     "message": {"content": GOOD_NOTE},
@@ -60,6 +63,7 @@ class FakeOllama(BaseHTTPRequestHandler):
 
 @pytest.fixture
 def fake_host():
+    FakeOllama.chat_requests = []
     server = HTTPServer(("127.0.0.1", 0), FakeOllama)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
@@ -89,6 +93,31 @@ def test_full_run_against_fake_server(fake_host, tmp_path):
     assert report["trials"][0]["generation_tokens_per_s"] == 10.0
     assert report["trials"][0]["prefill_tokens_per_s"] == 100.0
     assert report["summary"]["all_outputs_valid_json"] is True
+    assert "peak_system_used_above_baseline_gb" in report["trials"][0]
+    assert "peak_ollama_private_gb" in report["summary"]
+    assert report["trials"][0]["near_context_limit"] is False
+    assert report["summary"]["any_trial_near_context_limit"] is False
+
+
+def test_context_limit_warning():
+    trial = {"near_context_limit": True}
+    assert llm_spike.summarize(
+        [
+            {
+                "cold_start": True,
+                "load_seconds": 1,
+                "wall_seconds": 1,
+                "generation_tokens_per_s": 1,
+                "prefill_tokens_per_s": 1,
+                "peak_ollama_rss_gb": 0,
+                "peak_ollama_private_gb": 0,
+                "peak_system_used_above_baseline_gb": 0,
+                "min_available_ram_gb": 1,
+                "valid_soap_json": True,
+                **trial,
+            }
+        ]
+    )["any_trial_near_context_limit"]
 
 
 def test_missing_model_is_reported(fake_host, tmp_path):
@@ -110,3 +139,24 @@ def test_soap_validation():
 def test_transcript_loader_strips_comment_lines():
     text = llm_spike.load_transcript(_path.parent / "transcripts" / "synthetic_consult_01.txt")
     assert text.startswith("Doctor:") and "SYNTHETIC" not in text
+
+
+def _system_prompts():
+    return [r["messages"][0]["content"] for r in FakeOllama.chat_requests]
+
+
+def test_prompts_differ_between_trials_by_default(fake_host, tmp_path):
+    llm_spike.main(
+        ["--host", fake_host, "--model", "fake:1b", "--trials", "3", "--out-dir", str(tmp_path)]
+    )
+    assert len(set(_system_prompts())) == 3
+
+
+def test_reuse_prompt_flag_sends_identical_prompts(fake_host, tmp_path):
+    llm_spike.main(
+        [
+            "--host", fake_host, "--model", "fake:1b", "--trials", "3",
+            "--reuse-prompt", "--out-dir", str(tmp_path),
+        ]
+    )  # fmt: skip
+    assert len(set(_system_prompts())) == 1

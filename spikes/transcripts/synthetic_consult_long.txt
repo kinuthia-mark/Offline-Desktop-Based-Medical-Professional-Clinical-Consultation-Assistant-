@@ -1,0 +1,83 @@
+# SYNTHETIC consultation invented for testing a realistic, longer visit. Not a real patient.
+Doctor: Good afternoon, please have a seat. I see you are here for your follow-up. How have you been since the last visit?
+Patient: Not so good, doctor. The headaches have come back, almost every evening for about three weeks now.
+Doctor: Tell me more about these headaches. Where do you feel them?
+Patient: At the back of my head and sometimes across the forehead. It is a heavy, pressing feeling. It is not sharp.
+Doctor: Does anything make it better or worse?
+Patient: Paracetamol helps a little. It is worse when I am stressed at work, or when I skip lunch.
+Doctor: Any vomiting, blurred vision, flashing lights, or weakness in your arms or legs?
+Patient: No vomiting and no weakness. Sometimes my vision is slightly blurry when I read in the evening, but it clears.
+Doctor: Any fever, neck stiffness, or a recent fall or knock to the head?
+Patient: No fever, no stiff neck, and I have not fallen.
+Doctor: Okay. You were started on amlodipine five milligrams once daily for your blood pressure at the last visit. Have you been taking it?
+Patient: Most days. I miss it maybe two or three times a week, especially when I travel to the shop in the morning and leave my tablets at home.
+Doctor: And the metformin, five hundred milligrams twice daily with meals?
+Patient: The morning one I take. The evening one I often forget.
+Doctor: Have you been checking your blood pressure at home?
+Patient: My neighbour has a machine. Last week it read one fifty over ninety, and another day one forty-eight over ninety-two.
+Doctor: Thank you, that is helpful. What about your blood sugar, do you have a glucometer?
+Patient: Yes, the small one you gave me. In the morning before eating it is around nine to ten. After meals I have seen twelve.
+Doctor: Any increased thirst, passing urine very often, or waking at night to pass urine?
+Patient: Yes, I wake up two times in the night to pass urine, and I am thirsty a lot. I thought it was the weather.
+Doctor: Any weight loss that you did not intend?
+Patient: A little. My belt is looser. Maybe two or three kilograms in two months.
+Doctor: Now, any numbness, tingling, or burning in your feet or hands?
+Patient: Yes, in my feet, mostly at night. It feels like pins and needles in both feet, the toes especially.
+Doctor: How long has that been going on?
+Patient: About two months, but it is getting worse.
+Doctor: Any wounds or sores on your feet that are slow to heal?
+Patient: No sores. I do not walk barefoot.
+Doctor: Good. Any chest pain, palpitations, or shortness of breath, particularly when you climb stairs?
+Patient: No chest pain. I get a bit tired on the stairs, but no pain.
+Doctor: Any swelling of the legs or face?
+Patient: Sometimes my ankles are a little swollen by the evening.
+Doctor: Let us talk about food. What does a normal day look like for you?
+Patient: Tea with two spoons of sugar and bread in the morning. Lunch is usually rice or ugali with stew. In the evening, the same, and I like fried fish. I drink soda almost every day.
+Doctor: How many sodas?
+Patient: One, sometimes two. The half litre ones.
+Doctor: And do you add a lot of salt to your food?
+Patient: My wife says I do. I like salty food.
+Doctor: Do you smoke or drink alcohol?
+Patient: I stopped smoking four years ago. I drink two or three beers on Saturdays.
+Doctor: Any exercise?
+Patient: Not really. I sit most of the day at the office. I walk to the stage in the morning, about ten minutes.
+Doctor: Any family history I should know about? Diabetes, high blood pressure, heart disease, stroke, kidney problems?
+Patient: My father had diabetes and died of a stroke at sixty-three. My mother has high blood pressure. My brother has diabetes too.
+Doctor: Thank you. Any other medicines, herbal remedies, or supplements?
+Patient: Only the ones you prescribed, and sometimes ibuprofen when the headache is very bad.
+Doctor: How often is sometimes?
+Patient: Maybe three times a week for the last two weeks.
+Doctor: I will come back to that. Any allergies to medicines?
+Patient: No allergies.
+Doctor: How is your mood and sleep, with the headaches and the night time urination?
+Patient: I sleep badly, maybe five hours. I am worried about my health, and about work. But I am not feeling very low.
+Doctor: Alright. Let me examine you now. Please roll up your sleeve. Your blood pressure today is one fifty-two over ninety-four. I will repeat it in a minute after you rest.
+Patient: Okay.
+Doctor: The second reading is one forty-eight over ninety-two. Your pulse is seventy-eight and regular. Your weight is eighty-two kilograms, which is three kilograms less than last time. Temperature is normal.
+Patient: Is the pressure very high?
+Doctor: It is above target, yes. Let me finish the examination. Heart sounds are normal, no murmur. Chest is clear. Abdomen is soft, no tenderness. There is mild pitting swelling at both ankles. Now I will check your feet. Please take off your shoes and socks.
+Patient: Okay.
+Doctor: The skin is intact, no ulcers. The pulses at the feet are present. Now I will touch the soles with this thin filament. Tell me when you feel it.
+Patient: I feel it here. Not here. Yes. I do not feel it on the toes.
+Doctor: So sensation is reduced on both big toes and the front of both feet. Ankle reflexes are reduced as well. Your random blood sugar from the finger prick is eleven point two millimoles per litre.
+Patient: Is that bad?
+Doctor: It is higher than we want. Let me explain what I think is happening. Your blood pressure and your sugar are both not well controlled, and the tingling in your feet suggests the diabetes may have started to affect your nerves. The headaches are most likely related to the high blood pressure and poor sleep, though we will keep an open mind. The ibuprofen is not helping, because it can raise blood pressure and strain your kidneys, so I would like you to stop it.
+Patient: What can I take for the pain then?
+Doctor: Paracetamol is safer. No more than one gram, four times a day.
+Patient: Okay.
+Doctor: I would like to do some blood tests today. A glycated haemoglobin, kidney function with creatinine and electrolytes, a lipid profile, and a urine test for protein. I would also like an eye check, because of the blurry vision and the diabetes. I will refer you to the eye clinic.
+Patient: When will the results be ready?
+Doctor: The blood results should be back in two days. I will also do an ECG today, because of your tiredness on the stairs and your risk factors.
+Patient: Alright.
+Doctor: For the medicines, I am going to increase the amlodipine to ten milligrams once daily, and I want you to take it at the same time every morning. Keep the tablets by your toothbrush so you do not forget. For the diabetes, I will increase the metformin to one gram with breakfast and five hundred milligrams with the evening meal, and take it with food to avoid stomach upset.
+Patient: What about the swelling in my ankles?
+Doctor: Amlodipine can cause some ankle swelling, so we will watch that. If it gets worse, or if you notice swelling of the face or breathlessness, come back at once.
+Patient: Okay.
+Doctor: Now the lifestyle part. Please cut the soda completely and reduce sugar in your tea. Choose water. Reduce the salt, and try to grill the fish instead of frying it. Walk for thirty minutes at least five days a week. Limit the beer to one on Saturdays, if possible.
+Patient: That will be difficult, but I will try.
+Doctor: Small steps are fine. Also, look at your feet every evening, wear closed shoes, and check inside the shoes before you put them on. If you see any wound, blister, or redness, come in the same day.
+Patient: I will do that.
+Doctor: Keep a diary of your home blood pressure and your morning sugar for the next two weeks and bring it with you. I would like to see you again in two weeks, sooner if the headache becomes severe, if you get vomiting, vision loss, chest pain, weakness on one side, or confusion. Do you have any questions?
+Patient: Should my wife come with me next time? She cooks and she can help with the food.
+Doctor: Yes, please bring her. It will help a lot. Thank you for being so open with me today.
+Patient: Thank you, doctor.
