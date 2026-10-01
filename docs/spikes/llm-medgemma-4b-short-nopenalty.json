@@ -1,0 +1,98 @@
+{
+  "environment": {
+    "python": "3.11.9",
+    "system": "Windows",
+    "release": "10",
+    "machine": "AMD64",
+    "cpu_logical": 12,
+    "cpu_physical": 6,
+    "ram_total_gb": 7.35,
+    "ram_available_before_gb": 1.55,
+    "clean_baseline": false
+  },
+  "ollama_version": "0.35.0",
+  "model": {
+    "name": "medgemma:4b",
+    "disk_gb": 3.11,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "gemma3",
+      "families": [
+        "gemma3"
+      ],
+      "parameter_size": "4.3B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 131072,
+      "embedding_length": 2560
+    }
+  },
+  "settings": {
+    "temperature": 0.2,
+    "seed": 42,
+    "num_ctx": 8192,
+    "num_predict": 1024
+  },
+  "trials": [
+    {
+      "cold_start": true,
+      "prompt_varied": true,
+      "concise_prompt": false,
+      "format_mode": "json",
+      "wall_seconds": 38.04,
+      "load_seconds": 10.77,
+      "prompt_tokens": 407,
+      "prefill_tokens_per_s": 51.9,
+      "generated_tokens": 137,
+      "generation_tokens_per_s": 7.19,
+      "model_size_gb": 2.83,
+      "model_size_vram_gb": 0.0,
+      "peak_ollama_rss_gb": 0.03,
+      "peak_ollama_private_gb": 0.12,
+      "peak_system_used_above_baseline_gb": 1.47,
+      "min_available_ram_gb": 0.08,
+      "near_context_limit": false,
+      "valid_soap_json": true,
+      "done_reason": "stop",
+      "truncated": false,
+      "output_text": "{\"subjective\": \"Patient reports fever for three days, headache, chills, joint pain, and one episode of vomiting. Patient is taking paracetamol.\", \"objective\": \"Temperature 38.6, pulse 96, blood pressure 118/76. Throat normal, chest clear, abdomen soft with mild tenderness under the ribs on the right. Patient appears tired but alert.\", \"assessment\": \"Possible viral illness. Malaria and full blood count ordered.\", \"plan\": \"Continue paracetamol, drink plenty of fluids, and rest. Return in two days with results. Seek immediate attention if vomiting becomes frequent, patient becomes confused, or fever worsens.\"}"
+    },
+    {
+      "cold_start": false,
+      "prompt_varied": true,
+      "concise_prompt": false,
+      "format_mode": "json",
+      "wall_seconds": 27.21,
+      "load_seconds": 0.05,
+      "prompt_tokens": 406,
+      "prefill_tokens_per_s": 51.4,
+      "generated_tokens": 139,
+      "generation_tokens_per_s": 7.29,
+      "model_size_gb": 2.83,
+      "model_size_vram_gb": 0.0,
+      "peak_ollama_rss_gb": 0.02,
+      "peak_ollama_private_gb": 0.12,
+      "peak_system_used_above_baseline_gb": 1.23,
+      "min_available_ram_gb": 0.32,
+      "near_context_limit": false,
+      "valid_soap_json": true,
+      "done_reason": "stop",
+      "truncated": false,
+      "output_text": "{\"subjective\": \"Patient reports fever for three days, headache, chills, joint pain, and one episode of vomiting. Patient takes paracetamol twice daily.\", \"objective\": \"Temperature 38.6, pulse 96, blood pressure 118/76. Throat normal, chest clear, abdomen soft with mild tenderness under the ribs on the right. Patient appears tired but alert.\", \"assessment\": \"Possible viral illness. Malaria and full blood count ordered.\", \"plan\": \"Continue paracetamol, drink plenty of fluids, and rest. Return in two days with results. Seek immediate medical attention if vomiting becomes frequent, patient becomes confused, or fever worsens.\"}"
+    }
+  ],
+  "summary": {
+    "cold_load_seconds": 10.77,
+    "warm_median_wall_seconds": 27.21,
+    "warm_median_generation_tokens_per_s": 7.29,
+    "warm_median_prefill_tokens_per_s": 51.4,
+    "peak_ollama_rss_gb": 0.03,
+    "peak_ollama_private_gb": 0.12,
+    "peak_system_used_above_baseline_gb": 1.47,
+    "any_trial_near_context_limit": false,
+    "any_output_truncated": false,
+    "median_generated_tokens": 138,
+    "lowest_available_ram_gb": 0.08,
+    "all_outputs_valid_json": true
+  }
+}
