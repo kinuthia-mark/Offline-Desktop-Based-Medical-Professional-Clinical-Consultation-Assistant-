@@ -46,6 +46,11 @@ SYSTEM_PROMPT = (
 )
 
 
+CONCISE_SUFFIX = (
+    " Be concise: at most 80 words per section, in short clinical phrases, no repetition."
+)
+
+
 def call(host: str, path: str, payload: dict | None = None, timeout: int = 900) -> dict:
     """GET (no payload) or POST JSON to the local Ollama server."""
     data = json.dumps(payload).encode() if payload is not None else None
@@ -130,11 +135,14 @@ def run_trial(
     cold: bool,
     baseline_used: int,
     vary_prompt: bool = True,
+    concise: bool = False,
 ) -> dict:
     # The runtime reuses the cached start of an identical prompt, which inflates speed figures.
     # A unique first line changes the very first tokens, so every trial is processed afresh,
     # as a new consultation would be.
     system_prompt = (f"Request {secrets.token_hex(4)}. " if vary_prompt else "") + SYSTEM_PROMPT
+    if concise:
+        system_prompt += CONCISE_SUFFIX
     sampler = MemorySampler(baseline_used)
     sampler.start()
     started = time.perf_counter()
@@ -165,9 +173,12 @@ def run_trial(
     gen_s = reply.get("eval_duration", 0) / ns
     prefill_n = reply.get("prompt_eval_count", 0)
     gen_n = reply.get("eval_count", 0)
+    content = reply.get("message", {}).get("content", "")
+    done_reason = reply.get("done_reason")
     return {
         "cold_start": cold,
         "prompt_varied": vary_prompt,
+        "concise_prompt": concise,
         "wall_seconds": round(wall, 2),
         "load_seconds": round(reply.get("load_duration", 0) / ns, 2),
         "prompt_tokens": prefill_n,
@@ -183,7 +194,10 @@ def run_trial(
         ),
         "min_available_ram_gb": round(sampler.min_available / GB, 2),
         "near_context_limit": (prefill_n + gen_n) >= 0.95 * options["num_ctx"],
-        "valid_soap_json": soap_is_valid(reply.get("message", {}).get("content", "")),
+        "valid_soap_json": soap_is_valid(content),
+        "done_reason": done_reason,  # "length" means the num_predict cap cut the output off
+        "truncated": done_reason == "length",
+        "output_text": content,  # synthetic input only, so safe to keep as evidence
     }
 
 
@@ -206,6 +220,8 @@ def summarize(trials: list[dict]) -> dict:
             t["peak_system_used_above_baseline_gb"] for t in trials
         ),
         "any_trial_near_context_limit": any(t["near_context_limit"] for t in trials),
+        "any_output_truncated": any(t["truncated"] for t in trials),
+        "median_generated_tokens": round(statistics.median(t["generated_tokens"] for t in trials)),
         "lowest_available_ram_gb": min(t["min_available_ram_gb"] for t in trials),
         "all_outputs_valid_json": all(t["valid_soap_json"] for t in trials),
     }
@@ -223,6 +239,14 @@ def main(argv: list[str] | None = None) -> int:
         "--reuse-prompt",
         action="store_true",
         help="send the identical prompt every trial (shows the effect of prompt caching)",
+    )
+    parser.add_argument(
+        "--num-predict", type=int, default=1024, help="maximum tokens to generate per note"
+    )
+    parser.add_argument(
+        "--concise",
+        action="store_true",
+        help="ask for short sections (shows the length/latency trade-off)",
     )
     parser.add_argument(
         "--min-free-gb",
@@ -249,7 +273,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Model {args.model!r} not installed. Run: ollama pull {args.model}")
         return 2
 
-    options = {"temperature": 0, "seed": 42, "num_ctx": args.ctx, "num_predict": 700}
+    options = {"temperature": 0, "seed": 42, "num_ctx": args.ctx, "num_predict": args.num_predict}
     if args.threads:
         options["num_thread"] = args.threads
     transcript = load_transcript(args.transcript)
@@ -274,6 +298,7 @@ def main(argv: list[str] | None = None) -> int:
             cold=(i == 0),
             baseline_used=baseline.total - baseline.available,
             vary_prompt=not args.reuse_prompt,
+            concise=args.concise,
         )
         trials.append(trial)
         print(
@@ -281,6 +306,7 @@ def main(argv: list[str] | None = None) -> int:
             f"{trial['generation_tokens_per_s']} tok/s, "
             f"RAM above baseline +{trial['peak_system_used_above_baseline_gb']} GB "
             f"(lowest free {trial['min_available_ram_gb']} GB), "
+            f"{trial['generated_tokens']} tokens, truncated={trial['truncated']}, "
             f"valid JSON={trial['valid_soap_json']}"
         )
     call(args.host, "/api/generate", {"model": args.model, "keep_alive": 0})  # unload
