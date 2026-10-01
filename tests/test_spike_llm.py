@@ -20,6 +20,7 @@ GOOD_NOTE = json.dumps({"subjective": "s", "objective": "o", "assessment": "a", 
 
 class FakeOllama(BaseHTTPRequestHandler):
     chat_requests: list = []
+    done_reason = "stop"
 
     def log_message(self, *args):  # keep test output quiet
         pass
@@ -50,6 +51,7 @@ class FakeOllama(BaseHTTPRequestHandler):
             self._send(
                 {
                     "message": {"content": GOOD_NOTE},
+                    "done_reason": FakeOllama.done_reason,
                     "load_duration": 2_000_000_000,
                     "prompt_eval_count": 500,
                     "prompt_eval_duration": 5_000_000_000,
@@ -64,6 +66,7 @@ class FakeOllama(BaseHTTPRequestHandler):
 @pytest.fixture
 def fake_host():
     FakeOllama.chat_requests = []
+    FakeOllama.done_reason = "stop"
     server = HTTPServer(("127.0.0.1", 0), FakeOllama)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
@@ -114,6 +117,8 @@ def test_context_limit_warning():
                 "peak_system_used_above_baseline_gb": 0,
                 "min_available_ram_gb": 1,
                 "valid_soap_json": True,
+                "truncated": False,
+                "generated_tokens": 100,
                 **trial,
             }
         ]
@@ -160,3 +165,26 @@ def test_reuse_prompt_flag_sends_identical_prompts(fake_host, tmp_path):
         ]
     )  # fmt: skip
     assert len(set(_system_prompts())) == 1
+
+
+def test_truncated_output_is_flagged(fake_host, tmp_path):
+    FakeOllama.done_reason = "length"
+    llm_spike.main(
+        ["--host", fake_host, "--model", "fake:1b", "--trials", "1", "--out-dir", str(tmp_path)]
+    )
+    report = json.loads(next(tmp_path.glob("*.json")).read_text())
+    assert report["trials"][0]["truncated"] is True
+    assert report["summary"]["any_output_truncated"] is True
+    assert report["trials"][0]["output_text"] == GOOD_NOTE
+
+
+def test_concise_flag_changes_the_prompt_and_num_predict_is_passed(fake_host, tmp_path):
+    llm_spike.main(
+        [
+            "--host", fake_host, "--model", "fake:1b", "--trials", "1",
+            "--concise", "--num-predict", "321", "--out-dir", str(tmp_path),
+        ]
+    )  # fmt: skip
+    request = FakeOllama.chat_requests[0]
+    assert "Be concise" in request["messages"][0]["content"]
+    assert request["options"]["num_predict"] == 321
