@@ -1,0 +1,75 @@
+{
+  "environment": {
+    "python": "3.11.9",
+    "system": "Windows",
+    "release": "10",
+    "machine": "AMD64",
+    "cpu_logical": 12,
+    "cpu_physical": 6,
+    "ram_total_gb": 7.35,
+    "ram_available_before_gb": 1.61,
+    "clean_baseline": false
+  },
+  "ollama_version": "0.35.0",
+  "model": {
+    "name": "medgemma:4b",
+    "disk_gb": 3.11,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "gemma3",
+      "families": [
+        "gemma3"
+      ],
+      "parameter_size": "4.3B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 131072,
+      "embedding_length": 2560
+    }
+  },
+  "settings": {
+    "temperature": 0.0,
+    "seed": 42,
+    "num_ctx": 8192,
+    "num_predict": 1024
+  },
+  "trials": [
+    {
+      "cold_start": true,
+      "prompt_varied": true,
+      "concise_prompt": false,
+      "format_mode": "schema",
+      "wall_seconds": 211.41,
+      "load_seconds": 11.25,
+      "prompt_tokens": 2044,
+      "prefill_tokens_per_s": 49.1,
+      "generated_tokens": 1024,
+      "generation_tokens_per_s": 6.48,
+      "model_size_gb": 2.83,
+      "model_size_vram_gb": 0.0,
+      "peak_ollama_rss_gb": 0.03,
+      "peak_ollama_private_gb": 0.12,
+      "peak_system_used_above_baseline_gb": 1.6,
+      "min_available_ram_gb": 0.01,
+      "near_context_limit": false,
+      "valid_soap_json": false,
+      "done_reason": "length",
+      "truncated": true,
+      "output_text": "{\"subjective\": \"Patient reports headaches almost every evening for three weeks. Headaches are described as heavy, pressing, and located at the back of the head and sometimes across the forehead. Headaches are worse with stress at work and skipping lunch. Patient reports occasional blurry vision in the evening. Patient reports waking up two times at night to pass urine and increased thirst. Patient reports weight loss of two to three kilograms in two months. Patient reports tingling in the feet, mostly at night, and it is getting worse. Patient reports the tingling is present on both big toes and the front of both feet. Patient reports the headaches are related to high blood pressure and poor sleep. Patient reports using ibuprofen three times a week for the headache. Patient reports blood pressure readings of 150/94 and 148/92 on two separate occasions. Patient reports morning blood sugar of 9-10 and after meal blood sugar of 12. Patient reports feeling tired on the stairs. Patient reports mood is not low, but worried about health and work. Patient reports sleeping five hours a night. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports wife helps with cooking and can help with the food. Patient reports the wife says the patient adds a lot of salt to the food. Patient reports drinking one to two sodas a day. Patient reports stopping smoking four years ago and drinking two to three beers on Saturdays. Patient reports no chest pain, palpitations, or shortness of breath. Patient reports ankle swelling. Patient reports a father with diabetes who died of a stroke at 63. Patient reports a mother with high blood pressure. Patient reports a brother with diabetes. Patient reports no allergies. Patient reports feeling worried about health and work. Patient reports sleeping five hours a night. Patient reports waking up two times at night to pass urine and increased thirst. Patient reports the tingling in the feet is getting worse. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain. Patient reports the headache is severe and wants to know what to take for the pain."
+    }
+  ],
+  "summary": {
+    "cold_load_seconds": 11.25,
+    "warm_median_wall_seconds": 211.41,
+    "warm_median_generation_tokens_per_s": 6.48,
+    "warm_median_prefill_tokens_per_s": 49.1,
+    "peak_ollama_rss_gb": 0.03,
+    "peak_ollama_private_gb": 0.12,
+    "peak_system_used_above_baseline_gb": 1.6,
+    "any_trial_near_context_limit": false,
+    "any_output_truncated": true,
+    "median_generated_tokens": 1024,
+    "lowest_available_ram_gb": 0.01,
+    "all_outputs_valid_json": false
+  }
+}
