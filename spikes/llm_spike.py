@@ -21,6 +21,7 @@ import argparse
 import json
 import platform
 import re
+import secrets
 import statistics
 import sys
 import threading
@@ -61,30 +62,46 @@ def require_loopback(host: str) -> None:
 
 
 class MemorySampler(threading.Thread):
-    """Samples free system RAM and total Ollama working set while a request runs."""
+    """Samples system RAM and Ollama's own memory while a request runs.
 
-    def __init__(self, interval: float = 0.25) -> None:
+    Process counters can miss model memory (memory-mapped weights, memory shared with the
+    GPU), so the figure to trust for capacity planning is how far *system-wide* used RAM rose
+    above the baseline taken before the model was loaded.
+    """
+
+    def __init__(self, baseline_used: int, interval: float = 0.25) -> None:
         super().__init__(daemon=True)
         self.interval = interval
         self._done = threading.Event()
-        self.min_available = psutil.virtual_memory().available
+        vm = psutil.virtual_memory()
+        self.baseline_used = baseline_used
+        self.min_available = vm.available
+        self.max_used = vm.total - vm.available
         self.max_ollama_rss = 0
+        self.max_ollama_private = 0
 
-    def _ollama_rss(self) -> int:
-        total = 0
+    @staticmethod
+    def _ollama_mem() -> tuple[int, int]:
+        rss = private = 0
         for proc in psutil.process_iter(["name", "memory_info"]):
             try:
                 name = (proc.info["name"] or "").lower()
                 if name.startswith("ollama"):
-                    total += proc.info["memory_info"].rss
+                    info = proc.info["memory_info"]
+                    rss += info.rss
+                    private += getattr(info, "private", info.rss)  # Windows: private bytes
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
-        return total
+        return rss, private
 
     def run(self) -> None:
         while not self._done.is_set():
-            self.min_available = min(self.min_available, psutil.virtual_memory().available)
-            self.max_ollama_rss = max(self.max_ollama_rss, self._ollama_rss())
+            vm = psutil.virtual_memory()
+            self.min_available = min(self.min_available, vm.available)
+            self.max_used = max(self.max_used, vm.total - vm.available)
+            rss, private = self._ollama_mem()
+            self.max_ollama_rss = max(self.max_ollama_rss, rss)
+            self.max_ollama_private = max(self.max_ollama_private, private)
             self._done.wait(self.interval)
 
     def finish(self) -> None:
@@ -105,8 +122,20 @@ def soap_is_valid(content: str) -> bool:
     return isinstance(obj, dict) and all(isinstance(obj.get(k), str) for k in SOAP_KEYS)
 
 
-def run_trial(host: str, model: str, transcript: str, options: dict, cold: bool) -> dict:
-    sampler = MemorySampler()
+def run_trial(
+    host: str,
+    model: str,
+    transcript: str,
+    options: dict,
+    cold: bool,
+    baseline_used: int,
+    vary_prompt: bool = True,
+) -> dict:
+    # The runtime reuses the cached start of an identical prompt, which inflates speed figures.
+    # A unique first line changes the very first tokens, so every trial is processed afresh,
+    # as a new consultation would be.
+    system_prompt = (f"Request {secrets.token_hex(4)}. " if vary_prompt else "") + SYSTEM_PROMPT
+    sampler = MemorySampler(baseline_used)
     sampler.start()
     started = time.perf_counter()
     try:
@@ -120,7 +149,7 @@ def run_trial(host: str, model: str, transcript: str, options: dict, cold: bool)
                 "keep_alive": "5m",
                 "options": options,
                 "messages": [
-                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": f"<transcript>\n{transcript}\n</transcript>"},
                 ],
             },
@@ -138,6 +167,7 @@ def run_trial(host: str, model: str, transcript: str, options: dict, cold: bool)
     gen_n = reply.get("eval_count", 0)
     return {
         "cold_start": cold,
+        "prompt_varied": vary_prompt,
         "wall_seconds": round(wall, 2),
         "load_seconds": round(reply.get("load_duration", 0) / ns, 2),
         "prompt_tokens": prefill_n,
@@ -147,7 +177,12 @@ def run_trial(host: str, model: str, transcript: str, options: dict, cold: bool)
         "model_size_gb": round(loaded.get("size", 0) / GB, 2),
         "model_size_vram_gb": round(loaded.get("size_vram", 0) / GB, 2),
         "peak_ollama_rss_gb": round(sampler.max_ollama_rss / GB, 2),
+        "peak_ollama_private_gb": round(sampler.max_ollama_private / GB, 2),
+        "peak_system_used_above_baseline_gb": round(
+            max(0, sampler.max_used - baseline_used) / GB, 2
+        ),
         "min_available_ram_gb": round(sampler.min_available / GB, 2),
+        "near_context_limit": (prefill_n + gen_n) >= 0.95 * options["num_ctx"],
         "valid_soap_json": soap_is_valid(reply.get("message", {}).get("content", "")),
     }
 
@@ -166,6 +201,11 @@ def summarize(trials: list[dict]) -> dict:
         "warm_median_generation_tokens_per_s": med("generation_tokens_per_s"),
         "warm_median_prefill_tokens_per_s": med("prefill_tokens_per_s"),
         "peak_ollama_rss_gb": max(t["peak_ollama_rss_gb"] for t in trials),
+        "peak_ollama_private_gb": max(t["peak_ollama_private_gb"] for t in trials),
+        "peak_system_used_above_baseline_gb": max(
+            t["peak_system_used_above_baseline_gb"] for t in trials
+        ),
+        "any_trial_near_context_limit": any(t["near_context_limit"] for t in trials),
         "lowest_available_ram_gb": min(t["min_available_ram_gb"] for t in trials),
         "all_outputs_valid_json": all(t["valid_soap_json"] for t in trials),
     }
@@ -179,6 +219,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--ctx", type=int, default=4096, help="context window (num_ctx)")
     parser.add_argument("--threads", type=int, default=None, help="CPU threads (num_thread)")
     parser.add_argument("--host", default=DEFAULT_HOST)
+    parser.add_argument(
+        "--reuse-prompt",
+        action="store_true",
+        help="send the identical prompt every trial (shows the effect of prompt caching)",
+    )
+    parser.add_argument(
+        "--min-free-gb",
+        type=float,
+        default=4.0,
+        help="warn if less free RAM than this before the run (a clean measurement needs room)",
+    )
     root = Path(__file__).resolve().parents[1]
     parser.add_argument(
         "--transcript", type=Path, default=root / "spikes/transcripts/synthetic_consult_01.txt"
@@ -206,13 +257,31 @@ def main(argv: list[str] | None = None) -> int:
     call(args.host, "/api/generate", {"model": args.model, "keep_alive": 0})  # force cold start
     time.sleep(2)
     baseline = psutil.virtual_memory()
+    clean_baseline = baseline.available >= args.min_free_gb * GB
+    if not clean_baseline:
+        print(
+            f"WARNING: only {baseline.available / GB:.2f} GB RAM free before the run "
+            f"(wanted >= {args.min_free_gb} GB). Results show behaviour under memory pressure, "
+            "not a clean measurement. Close other apps or reboot, then run again."
+        )
     trials = []
     for i in range(args.trials):
-        trial = run_trial(args.host, args.model, transcript, options, cold=(i == 0))
+        trial = run_trial(
+            args.host,
+            args.model,
+            transcript,
+            options,
+            cold=(i == 0),
+            baseline_used=baseline.total - baseline.available,
+            vary_prompt=not args.reuse_prompt,
+        )
         trials.append(trial)
         print(
             f"trial {i + 1}{' (cold)' if i == 0 else ''}: {trial['wall_seconds']}s total, "
-            f"{trial['generation_tokens_per_s']} tok/s, valid JSON={trial['valid_soap_json']}"
+            f"{trial['generation_tokens_per_s']} tok/s, "
+            f"RAM above baseline +{trial['peak_system_used_above_baseline_gb']} GB "
+            f"(lowest free {trial['min_available_ram_gb']} GB), "
+            f"valid JSON={trial['valid_soap_json']}"
         )
     call(args.host, "/api/generate", {"model": args.model, "keep_alive": 0})  # unload
 
@@ -227,6 +296,7 @@ def main(argv: list[str] | None = None) -> int:
             "cpu_physical": psutil.cpu_count(logical=False),
             "ram_total_gb": round(baseline.total / GB, 2),
             "ram_available_before_gb": round(baseline.available / GB, 2),
+            "clean_baseline": clean_baseline,
         },
         "ollama_version": version,
         "model": {
