@@ -1,0 +1,104 @@
+{
+  "environment": {
+    "python": "3.11.9",
+    "system": "Windows",
+    "release": "10",
+    "machine": "AMD64",
+    "cpu_logical": 12,
+    "cpu_physical": 6,
+    "ram_total_gb": 7.35,
+    "ram_available_before_gb": 3.15,
+    "clean_baseline": false
+  },
+  "ollama_version": "0.35.0",
+  "model": {
+    "name": "medgemma:4b",
+    "disk_gb": 3.11,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "gemma3",
+      "families": [
+        "gemma3"
+      ],
+      "parameter_size": "4.3B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 131072,
+      "embedding_length": 2560
+    }
+  },
+  "settings": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 4096,
+    "num_predict": 700
+  },
+  "trials": [
+    {
+      "cold_start": true,
+      "prompt_varied": false,
+      "wall_seconds": 37.69,
+      "load_seconds": 7.74,
+      "prompt_tokens": 396,
+      "prefill_tokens_per_s": 49.0,
+      "generated_tokens": 151,
+      "generation_tokens_per_s": 6.98,
+      "model_size_gb": 2.68,
+      "model_size_vram_gb": 0.0,
+      "peak_ollama_rss_gb": 0.03,
+      "peak_ollama_private_gb": 0.12,
+      "peak_system_used_above_baseline_gb": 3.04,
+      "min_available_ram_gb": 0.11,
+      "near_context_limit": false,
+      "valid_soap_json": true
+    },
+    {
+      "cold_start": false,
+      "prompt_varied": false,
+      "wall_seconds": 24.49,
+      "load_seconds": 0.04,
+      "prompt_tokens": 396,
+      "prefill_tokens_per_s": 961.7,
+      "generated_tokens": 167,
+      "generation_tokens_per_s": 7.1,
+      "model_size_gb": 2.68,
+      "model_size_vram_gb": 0.0,
+      "peak_ollama_rss_gb": 0.03,
+      "peak_ollama_private_gb": 0.12,
+      "peak_system_used_above_baseline_gb": 2.82,
+      "min_available_ram_gb": 0.33,
+      "near_context_limit": false,
+      "valid_soap_json": true
+    },
+    {
+      "cold_start": false,
+      "prompt_varied": false,
+      "wall_seconds": 25.74,
+      "load_seconds": 0.03,
+      "prompt_tokens": 396,
+      "prefill_tokens_per_s": 844.1,
+      "generated_tokens": 167,
+      "generation_tokens_per_s": 6.76,
+      "model_size_gb": 2.68,
+      "model_size_vram_gb": 0.0,
+      "peak_ollama_rss_gb": 0.03,
+      "peak_ollama_private_gb": 0.12,
+      "peak_system_used_above_baseline_gb": 3.07,
+      "min_available_ram_gb": 0.08,
+      "near_context_limit": false,
+      "valid_soap_json": true
+    }
+  ],
+  "summary": {
+    "cold_load_seconds": 7.74,
+    "warm_median_wall_seconds": 25.11,
+    "warm_median_generation_tokens_per_s": 6.93,
+    "warm_median_prefill_tokens_per_s": 902.9,
+    "peak_ollama_rss_gb": 0.03,
+    "peak_ollama_private_gb": 0.12,
+    "peak_system_used_above_baseline_gb": 3.07,
+    "any_trial_near_context_limit": false,
+    "lowest_available_ram_gb": 0.08,
+    "all_outputs_valid_json": true
+  }
+}
