@@ -1,0 +1,86 @@
+{
+  "environment": {
+    "python": "3.11.9",
+    "system": "Windows",
+    "release": "10",
+    "machine": "AMD64",
+    "cpu_logical": 12,
+    "cpu_physical": 6,
+    "ram_total_gb": 7.35,
+    "ram_available_before_gb": 1.25,
+    "clean_baseline": false
+  },
+  "ollama_version": "0.35.0",
+  "model": {
+    "name": "medgemma:4b",
+    "disk_gb": 3.11,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "gemma3",
+      "families": [
+        "gemma3"
+      ],
+      "parameter_size": "4.3B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 131072,
+      "embedding_length": 2560
+    }
+  },
+  "settings": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 8192,
+    "num_predict": 700
+  },
+  "trials": [
+    {
+      "cold_start": true,
+      "prompt_varied": true,
+      "wall_seconds": 168.35,
+      "load_seconds": 12.67,
+      "prompt_tokens": 2045,
+      "prefill_tokens_per_s": 45.0,
+      "generated_tokens": 700,
+      "generation_tokens_per_s": 6.39,
+      "model_size_gb": 2.83,
+      "model_size_vram_gb": 0.0,
+      "peak_ollama_rss_gb": 0.03,
+      "peak_ollama_private_gb": 0.12,
+      "peak_system_used_above_baseline_gb": 1.25,
+      "min_available_ram_gb": 0.0,
+      "near_context_limit": false,
+      "valid_soap_json": false
+    },
+    {
+      "cold_start": false,
+      "prompt_varied": true,
+      "wall_seconds": 153.24,
+      "load_seconds": 0.07,
+      "prompt_tokens": 2045,
+      "prefill_tokens_per_s": 48.5,
+      "generated_tokens": 700,
+      "generation_tokens_per_s": 6.38,
+      "model_size_gb": 2.83,
+      "model_size_vram_gb": 0.0,
+      "peak_ollama_rss_gb": 0.02,
+      "peak_ollama_private_gb": 0.12,
+      "peak_system_used_above_baseline_gb": 1.17,
+      "min_available_ram_gb": 0.08,
+      "near_context_limit": false,
+      "valid_soap_json": false
+    }
+  ],
+  "summary": {
+    "cold_load_seconds": 12.67,
+    "warm_median_wall_seconds": 153.24,
+    "warm_median_generation_tokens_per_s": 6.38,
+    "warm_median_prefill_tokens_per_s": 48.5,
+    "peak_ollama_rss_gb": 0.03,
+    "peak_ollama_private_gb": 0.12,
+    "peak_system_used_above_baseline_gb": 1.25,
+    "any_trial_near_context_limit": false,
+    "lowest_available_ram_gb": 0.0,
+    "all_outputs_valid_json": false
+  }
+}
