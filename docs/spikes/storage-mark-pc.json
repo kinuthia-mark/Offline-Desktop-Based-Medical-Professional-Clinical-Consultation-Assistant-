@@ -1,0 +1,93 @@
+{
+  "environment": {
+    "python": "3.11.9",
+    "system": "Windows",
+    "release": "10",
+    "machine": "AMD64"
+  },
+  "checks": [
+    {
+      "name": "sqlcipher import and cipher_version",
+      "status": "pass",
+      "detail": "cipher_version=('4.12.0 community',), sqlite=3.51.1",
+      "critical": true
+    },
+    {
+      "name": "reopen with correct key",
+      "status": "pass",
+      "detail": "",
+      "critical": true
+    },
+    {
+      "name": "wrong key is rejected",
+      "status": "pass",
+      "detail": "file is not a database",
+      "critical": true
+    },
+    {
+      "name": "file has no plaintext marker or SQLite header",
+      "status": "pass",
+      "detail": "",
+      "critical": true
+    },
+    {
+      "name": "stdlib sqlite3 cannot read the file",
+      "status": "pass",
+      "detail": "file is not a database",
+      "critical": true
+    },
+    {
+      "name": "one flipped bit is detected",
+      "status": "pass",
+      "detail": "database disk image is malformed",
+      "critical": true
+    },
+    {
+      "name": "AES-GCM round trip (1 MB)",
+      "status": "pass",
+      "detail": "",
+      "critical": true
+    },
+    {
+      "name": "AES-GCM detects a flipped bit",
+      "status": "pass",
+      "detail": "",
+      "critical": true
+    },
+    {
+      "name": "AES-GCM binds data to its session id",
+      "status": "pass",
+      "detail": "",
+      "critical": true
+    },
+    {
+      "name": "Argon2id key derivation timing",
+      "status": "pass",
+      "detail": "light=0.028s; medium=0.13s; heavy=0.174s",
+      "critical": false
+    }
+  ],
+  "argon2_timings": [
+    {
+      "name": "light",
+      "time_cost": 2,
+      "memory_cost_kib": 19456,
+      "parallelism": 1,
+      "median_seconds": 0.028
+    },
+    {
+      "name": "medium",
+      "time_cost": 3,
+      "memory_cost_kib": 65536,
+      "parallelism": 1,
+      "median_seconds": 0.13
+    },
+    {
+      "name": "heavy",
+      "time_cost": 3,
+      "memory_cost_kib": 131072,
+      "parallelism": 2,
+      "median_seconds": 0.174
+    }
+  ]
+}
