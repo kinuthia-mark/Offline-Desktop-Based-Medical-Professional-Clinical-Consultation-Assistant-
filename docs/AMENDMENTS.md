@@ -20,4 +20,4 @@ Every deviation from the approved proposal is recorded here and applied to the d
 | AMD-14 | Structure | Confirm with the supervisor that the final report adds implementation, results, discussion and conclusion chapters; redraw Figs 2.1, 3.2 and 4.1 to 4.8. | Proposal structure differs from a final report. | planned | |
 | AMD-15 | 3.7, 4.6 | Deployment is a native Windows installer; Docker is not part of the product. | Docker Desktop overhead on clinic PCs; no microphone passthrough. | planned | |
 | AMD-16 | 4.7, 4.8 | Rename confidence_rank to rank; keep confidence_score for ASR only; add structured differentials (diagnosis, rationale, management, rank). | An LLM's ordering is not a calibrated confidence. | planned | |
-| AMD-17 | 4.8 | Record the SQLCipher-or-fallback decision as ADR-001 after the Windows spike. | Availability of a Windows SQLCipher build is unverified. | planned | |
+| AMD-17 | 4.8 | Record the SQLCipher-or-fallback decision as ADR-001 after the Windows spike. | Availability of a Windows SQLCipher build is unverified. | ADR-001 accepted; document update pending | |
