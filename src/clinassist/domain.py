@@ -60,6 +60,7 @@ class Draft:
     ai_assessment: str = ""
     suggestions: tuple[AiSuggestion, ...] = ()
     source: str = "model"  # "model" or "manual"
+    flags: tuple[str, ...] = ()  # advisory checks for the clinician to look at; never blocking
 
     def clinician_scaffold(self) -> SoapNote:
         """Starting point for the clinician's note. The assessment is deliberately blank."""
