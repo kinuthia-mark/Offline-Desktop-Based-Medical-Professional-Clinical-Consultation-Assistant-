@@ -1,0 +1,96 @@
+{
+  "environment": {
+    "python": "3.11.9",
+    "system": "Windows",
+    "release": "10",
+    "machine": "AMD64",
+    "cpu_logical": 12,
+    "cpu_physical": 6,
+    "ram_total_gb": 7.35,
+    "ram_available_before_gb": 1.06,
+    "clean_baseline": false
+  },
+  "ollama_version": "0.35.0",
+  "model": {
+    "name": "medgemma:4b",
+    "disk_gb": 3.11,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "gemma3",
+      "families": [
+        "gemma3"
+      ],
+      "parameter_size": "4.3B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 131072,
+      "embedding_length": 2560
+    }
+  },
+  "settings": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 8192,
+    "num_predict": 1024
+  },
+  "trials": [
+    {
+      "cold_start": true,
+      "prompt_varied": true,
+      "concise_prompt": false,
+      "wall_seconds": 214.05,
+      "load_seconds": 14.47,
+      "prompt_tokens": 2042,
+      "prefill_tokens_per_s": 51.1,
+      "generated_tokens": 1024,
+      "generation_tokens_per_s": 6.43,
+      "model_size_gb": 2.83,
+      "model_size_vram_gb": 0.0,
+      "peak_ollama_rss_gb": 0.09,
+      "peak_ollama_private_gb": 0.12,
+      "peak_system_used_above_baseline_gb": 1.05,
+      "min_available_ram_gb": 0.0,
+      "near_context_limit": false,
+      "valid_soap_json": false,
+      "done_reason": "length",
+      "truncated": true,
+      "output_text": "{\"subjective\": \"Patient reports headaches almost every evening for three weeks. Headaches are at the back of the head and sometimes across the forehead, described as heavy and pressing, not sharp. Headaches are worse with stress at work and skipping lunch. Patient reports slight blurry vision in the evening. Patient reports waking up two times at night to pass urine and increased thirst. Patient reports a slight weight loss of 2-3 kg in two months. Patient reports tingling in the feet, mostly at night, getting worse. Patient reports no vomiting, weakness, fever, or neck stiffness. Patient reports taking amlodipine and metformin, but missing doses. Patient reports home blood pressure readings of 150/90 and 148/92. Patient reports morning blood sugar of 9-10 and 12 after meals. Patient reports using a glucometer. Patient reports ibuprofen use for headaches. Patient reports mood is okay, but worried about health and work. Patient reports sleep is poor, about 5 hours. Patient reports ankle swelling. Patient reports a father with diabetes and a stroke, a mother with high blood pressure, and a brother with diabetes. Patient reports stopping smoking four years ago and drinking 2-3 beers on Saturdays. Patient reports no chest pain, palpitations, or shortness of breath. Patient reports no wounds or sores on feet. Patient reports no numbness, tingling, or burning in arms or legs. Patient reports no chest pain. Patient reports no swelling of the legs or face. Patient reports a wife who helps with cooking and is aware of the high blood pressure and sugar levels. Patient reports a normal day includes tea with sugar and bread, rice or ugali with stew, fried fish in the evening, and soda. Patient reports adding a lot of salt to food. Patient reports no allergies. Patient reports feeling worried about health and work. Patient reports poor sleep, about 5 hours. Patient reports ankle swelling. Patient reports a father with diabetes and a stroke, a mother with high blood pressure, and a brother with diabetes. Patient reports stopping smoking four years ago and drinking 2-3 beers on Saturdays. Patient reports no chest pain, palpitations, or shortness of breath. Patient reports no wounds or sores on feet. Patient reports no numbness, tingling, or burning in arms or legs. Patient reports no chest pain. Patient reports no swelling of the legs or face. Patient reports a wife who helps with cooking and is aware of the high blood pressure and sugar levels. Patient reports a normal day includes tea with sugar and bread, rice or ugali with stew, fried fish in the evening, and soda. Patient reports adding a lot of salt to food. Patient reports no allergies. Patient reports feeling worried about health and work. Patient reports poor sleep, about 5 hours. Patient reports ankle swelling. Patient reports a father with diabetes and a stroke, a mother with high blood pressure, and a brother with diabetes. Patient reports stopping smoking four years ago and drinking 2-3 beers on Saturdays. Patient reports no chest pain, palpitations, or shortness of breath. Patient reports no wounds or sores on feet. Patient reports no numbness, tingling, or burning in arms or legs. Patient reports no chest pain. Patient reports no swelling of the legs or face. Patient reports a wife who helps with cooking and is aware of the high blood pressure and sugar levels. Patient reports a normal day includes tea with sugar and bread, rice or ugali with stew, fried fish in the evening, and soda. Patient reports adding a lot of salt to food. Patient reports no allergies. Patient reports feeling worried about health and work. Patient reports poor sleep, about 5 hours. Patient reports ankle swelling. Patient reports a father with diabetes and a stroke, a mother with high blood pressure, and a brother with diabetes. Patient reports stopping smoking four years ago and drinking 2-3 beers on Saturdays. Patient reports no chest pain, palpitations, or shortness of breath. Patient reports no wounds or sores on feet. Patient reports no numbness, tingling, or burning in arms or legs. Patient reports no chest pain. Patient reports no swelling of the legs or face. Patient reports a wife who helps with cooking and is aware of the high blood pressure and sugar levels. Patient reports a normal day includes tea with sugar and bread, rice or ugali with stew, fried fish in the evening, and soda. Patient reports adding a lot of salt to food. Patient reports no allergies. Patient reports feeling worried about health and work. Patient reports poor sleep, about 5 hours. Patient reports ankle swelling. Patient reports a father with diabetes and a stroke, a mother with high blood pressure, and a brother with diabetes. Patient reports stopping smoking four years ago and drinking 2-3 beers on Saturdays. Patient reports no chest pain, palpitations, or shortness of breath. Patient reports no wounds or sores on feet. Patient reports no numbness, tingling, or burning in arms or legs. Patient reports no chest pain. Patient reports no swelling of the legs or face."
+    },
+    {
+      "cold_start": false,
+      "prompt_varied": true,
+      "concise_prompt": false,
+      "wall_seconds": 214.77,
+      "load_seconds": 0.05,
+      "prompt_tokens": 2045,
+      "prefill_tokens_per_s": 47.6,
+      "generated_tokens": 1024,
+      "generation_tokens_per_s": 6.02,
+      "model_size_gb": 2.83,
+      "model_size_vram_gb": 0.0,
+      "peak_ollama_rss_gb": 0.02,
+      "peak_ollama_private_gb": 0.12,
+      "peak_system_used_above_baseline_gb": 0.98,
+      "min_available_ram_gb": 0.08,
+      "near_context_limit": false,
+      "valid_soap_json": false,
+      "done_reason": "length",
+      "truncated": true,
+      "output_text": "{\"subjective\": \"Patient reports headaches in the back of the head and forehead, worsening with stress and skipping lunch. Headaches are described as heavy and pressing, not sharp. Patient experiences blurry vision in the evening, but it clears. Patient reports waking up two times at night to urinate and increased thirst. Patient reports weight loss of 2-3 kg in 2 months. Patient reports tingling in the feet, worse at night. Patient reports ankle swelling. Patient reports a normal diet with tea, bread, rice/ugali, stew, fried fish, and soda. Patient reports taking amlodipine and metformin inconsistently. Patient reports home blood pressure readings of 150/90 and 148/92. Patient reports morning blood sugar of 9-10 and 12. Patient reports mood is not low, but worried about health and work. Patient reports sleep is poor, about 5 hours. Patient reports stopping smoking 4 years ago and drinking 2-3 beers on Saturdays. Patient reports tiredness on the stairs. Patient reports family history of diabetes, stroke, and high blood pressure. Patient reports no allergies. Patient reports ibuprofen use for headaches. Patient reports no chest pain, palpitations, or shortness of breath. Patient reports no wounds or sores on feet. Patient reports no numbness, tingling, or burning in arms or legs. Patient reports no vomiting or weakness. Patient reports no fever or stiff neck. Patient reports no recent fall or knock to the head.\", \"objective\": \"Blood pressure: 150/94 (148/92), Pulse: 78 bpm, Weight: 82 kg, Temperature: Normal, Ankle swelling: Mild pitting, Feet: Intact skin, pulses present, sensation reduced on toes and front of feet, ankle reflexes reduced, random blood sugar: 11.2 mmol/L, ECG: To be performed, Blood tests: Glycated haemoglobin, kidney function with creatinine and electrolytes, lipid profile, urine test for protein, eye check. Patient reports home blood pressure readings of 150/90 and 148/92. Patient reports morning blood sugar of 9-10 and 12. Patient reports ankle swelling. Patient reports tingling in the feet, worse at night. Patient reports no wounds or sores on feet.\", \"assessment\": \"Patient presents with headaches, hypertension, and possible diabetes. Patient is not controlling blood pressure and blood sugar. Patient reports tingling in the feet, suggesting possible diabetic neuropathy. Patient reports ankle swelling, which could be related to amlodipine or other factors. Patient reports poor sleep and increased thirst, which could be related to diabetes or other factors. Patient reports family history of diabetes, stroke, and high blood pressure. Patient reports inconsistent medication use. Patient reports lifestyle factors that contribute to hypertension and diabetes. Patient reports no acute symptoms such as chest pain, weakness, or vomiting. Patient reports no fever or stiff neck. Patient reports no recent fall or knock to the head. Patient reports no allergies. Patient reports no wounds or sores on feet. Patient reports no numbness, tingling, or burning in arms or legs. Patient reports no chest pain, palpitations, or shortness of breath, particularly when climbing stairs. Patient reports no swelling of the legs or face. Patient reports a normal diet with tea, bread, rice/ugali, stew, fried fish, and soda. Patient reports drinking one, sometimes two sodas. Patient reports adding a lot of salt to food. Patient reports stopping smoking four years ago. Patient reports drinking two or three beers on Saturdays. Patient reports no exercise. Patient reports no family history I should know about. Patient reports no other medicines, herbal remedies, or supplements. Patient reports no mood and sleep problems. Patient reports no chest pain, palpitations, or shortness of breath, particularly when climbing stairs. Patient reports no swelling of the legs or face. Patient reports no numbness, tingling, or burning in arms or legs. Patient reports no wounds or sores on feet. Patient reports no chest pain, palpitations, or shortness of breath, particularly when climbing stairs. Patient reports no swelling of the legs or face. Patient reports no numbness, tingling, or burning in arms or legs. Patient reports no wounds or sores on feet. Patient reports no chest pain, palpitations, or shortness of breath, particularly when climbing stairs. Patient reports no swelling of the legs or face. Patient reports no numbness, tingling, or burning in arms or legs. Patient reports no wounds or sores on feet. Patient reports no chest pain, palpitations, or shortness of breath, particularly when climbing stairs. Patient reports no swelling of the legs or face. Patient reports no numbness, tingling, or burning in arms or legs. Patient reports no wounds or sores on feet. Patient reports no chest pain, palpitations, or shortness of breath, particularly when climbing stairs. Patient reports no swelling of the legs or face. Patient reports no numbness, tingling, or burning in arms or legs. Patient reports no wounds or sores"
+    }
+  ],
+  "summary": {
+    "cold_load_seconds": 14.47,
+    "warm_median_wall_seconds": 214.77,
+    "warm_median_generation_tokens_per_s": 6.02,
+    "warm_median_prefill_tokens_per_s": 47.6,
+    "peak_ollama_rss_gb": 0.09,
+    "peak_ollama_private_gb": 0.12,
+    "peak_system_used_above_baseline_gb": 1.05,
+    "any_trial_near_context_limit": false,
+    "any_output_truncated": true,
+    "median_generated_tokens": 1024,
+    "lowest_available_ram_gb": 0.0,
+    "all_outputs_valid_json": false
+  }
+}

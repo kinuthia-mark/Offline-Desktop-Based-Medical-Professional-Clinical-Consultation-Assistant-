@@ -1,0 +1,76 @@
+{
+  "environment": {
+    "python": "3.11.9",
+    "system": "Windows",
+    "release": "10",
+    "machine": "AMD64",
+    "cpu_logical": 12,
+    "cpu_physical": 6,
+    "ram_total_gb": 7.35,
+    "ram_available_before_gb": 3.4,
+    "clean_baseline": false
+  },
+  "ollama_version": "0.35.0",
+  "model": {
+    "name": "medgemma:4b",
+    "disk_gb": 3.11,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "gemma3",
+      "families": [
+        "gemma3"
+      ],
+      "parameter_size": "4.3B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 131072,
+      "embedding_length": 2560
+    }
+  },
+  "settings": {
+    "temperature": 0.2,
+    "seed": 42,
+    "num_ctx": 8192,
+    "num_predict": 1024,
+    "repeat_penalty": 1.1
+  },
+  "trials": [
+    {
+      "cold_start": true,
+      "prompt_varied": true,
+      "concise_prompt": false,
+      "format_mode": "json",
+      "wall_seconds": 168.05,
+      "load_seconds": 10.57,
+      "prompt_tokens": 2043,
+      "prefill_tokens_per_s": 49.8,
+      "generated_tokens": 737,
+      "generation_tokens_per_s": 6.34,
+      "model_size_gb": 2.83,
+      "model_size_vram_gb": 0.0,
+      "peak_ollama_rss_gb": 0.02,
+      "peak_ollama_private_gb": 0.11,
+      "peak_system_used_above_baseline_gb": 3.39,
+      "min_available_ram_gb": 0.01,
+      "near_context_limit": false,
+      "valid_soap_json": true,
+      "done_reason": "stop",
+      "truncated": false,
+      "output_text": "{\"subjective\": \"The patient reports headaches almost every evening for three weeks. The headaches are described as heavy and pressing at the back of the head and sometimes across the forehead. Paracetamol helps a little. The headaches worsen with stress at work and skipping lunch. Patient experiences blurry vision in the evening, but it clears. No vomiting or weakness. Experiences increased thirst and waking up to pass urine two times per night. Reports weight loss (2-3 kg) over two months. Experiences tingling/pins and needles in both feet, worse at night, for about two months. The patient is taking amlodipine 5mg once daily and metformin 500mg twice daily with meals. Patient checks blood pressure at home occasionally, reporting readings of 150/90 and 148/92. Random blood sugar before eating is around 9-10 mmol/L, after meals it is around 12 mmol/L. The patient reports feeling tired on the stairs but no chest pain or shortness of breath. Patient drinks one to two sodas daily. Reports family history of diabetes and stroke (father), high blood pressure (mother), and diabetes (brother). Patient states that she stopped smoking four years ago, and drinks 2-3 beers on Saturdays. The patient reports mood is not low but worried about health and work. Patient has been taking ibuprofen three times a week for headaches.\", \"objective\": \"Blood pressure today: 150/94 mmHg (repeat reading 148/92 mmHg). Pulse: 78 bpm, regular. Weight: 82 kg (3 kg less than last visit). Temperature: Normal. Heart sounds: Normal. Chest: Clear. Abdomen: Soft, no tenderness. Mild pitting swelling at both ankles. Ankle reflexes are reduced on both feet. Random blood sugar: 11.2 mmol/L. Patient reports that she has a glucometer and checks her blood sugar before eating (9-10 mmol/L) and after meals (12 mmol/L).\", \"assessment\": \"The patient presents with headaches, likely related to uncontrolled hypertension and possibly diabetic neuropathy. The patient also has poorly controlled diabetes indicated by elevated random blood glucose levels and symptoms of hyperglycemia such as increased thirst and urination. Ankle swelling may be due to amlodipine or other factors. Patient is at risk for cardiovascular disease given family history.\", \"plan\": \"Increase amlodipine to 10mg once daily, taken with breakfast every morning. Increase metformin to 1g twice daily with meals (500mg in the morning and 500mg in the evening). Stop ibuprofen due to potential kidney strain and blood pressure elevation. Order glycated hemoglobin (HbA1c), creatinine, electrolytes, lipid profile, and urine protein test. Order an electrocardiogram (ECG) today. Refer patient for eye exam. Advise patient to cut soda completely and reduce sugar in tea. Encourage walking 30 minutes at least five days a week. Limit beer consumption to one on Saturdays. Instruct patient to monitor home blood pressure and morning blood glucose levels for two weeks, bringing the results with them to follow-up appointment. Instruct patient to check feet daily, wear closed shoes, and report any wounds or blisters immediately. Advise patient to keep a headache diary. Schedule follow-up appointment in two weeks, sooner if severe headaches develop, vomiting occurs, vision loss is experienced, chest pain arises, weakness develops, or confusion sets in. Educate patient about the importance of lifestyle modifications for blood pressure and diabetes control.\"}"
+    }
+  ],
+  "summary": {
+    "cold_load_seconds": 10.57,
+    "warm_median_wall_seconds": 168.05,
+    "warm_median_generation_tokens_per_s": 6.34,
+    "warm_median_prefill_tokens_per_s": 49.8,
+    "peak_ollama_rss_gb": 0.02,
+    "peak_ollama_private_gb": 0.11,
+    "peak_system_used_above_baseline_gb": 3.39,
+    "any_trial_near_context_limit": false,
+    "any_output_truncated": false,
+    "median_generated_tokens": 737,
+    "lowest_available_ram_gb": 0.01,
+    "all_outputs_valid_json": true
+  }
+}
