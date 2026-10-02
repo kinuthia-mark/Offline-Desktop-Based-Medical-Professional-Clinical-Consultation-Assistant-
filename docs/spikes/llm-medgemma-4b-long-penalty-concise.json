@@ -1,0 +1,76 @@
+{
+  "environment": {
+    "python": "3.11.9",
+    "system": "Windows",
+    "release": "10",
+    "machine": "AMD64",
+    "cpu_logical": 12,
+    "cpu_physical": 6,
+    "ram_total_gb": 7.35,
+    "ram_available_before_gb": 2.93,
+    "clean_baseline": false
+  },
+  "ollama_version": "0.35.0",
+  "model": {
+    "name": "medgemma:4b",
+    "disk_gb": 3.11,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "gemma3",
+      "families": [
+        "gemma3"
+      ],
+      "parameter_size": "4.3B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 131072,
+      "embedding_length": 2560
+    }
+  },
+  "settings": {
+    "temperature": 0.2,
+    "seed": 42,
+    "num_ctx": 8192,
+    "num_predict": 1024,
+    "repeat_penalty": 1.1
+  },
+  "trials": [
+    {
+      "cold_start": true,
+      "prompt_varied": true,
+      "concise_prompt": true,
+      "format_mode": "json",
+      "wall_seconds": 155.89,
+      "load_seconds": 9.77,
+      "prompt_tokens": 2066,
+      "prefill_tokens_per_s": 47.3,
+      "generated_tokens": 670,
+      "generation_tokens_per_s": 6.57,
+      "model_size_gb": 2.83,
+      "model_size_vram_gb": 0.0,
+      "peak_ollama_rss_gb": 0.03,
+      "peak_ollama_private_gb": 0.12,
+      "peak_system_used_above_baseline_gb": 2.9,
+      "min_available_ram_gb": 0.03,
+      "near_context_limit": false,
+      "valid_soap_json": true,
+      "done_reason": "stop",
+      "truncated": false,
+      "output_text": "{\"subjective\": \"The patient reports headaches almost every evening for three weeks. The headaches are described as heavy and pressing at the back of the head and sometimes across the forehead. They are not sharp. Paracetamol helps a little. Stress and skipping lunch worsen them. Patient experiences blurry vision in the evening, but it clears. No vomiting or weakness. Experiences increased thirst and waking to urinate two times per night. Reports weight loss of 2-3 kg over two months. Experiences tingling/pins and needles in both feet, worse at night, for about two months. The patient is taking amlodipine five milligrams once daily and metformin five hundred milligrams twice daily with meals. Patient checks blood pressure at home, reading one fifty over ninety and one forty-eight over ninety-two last week. Random blood sugar is around nine to ten in the morning before eating and twelve after meals. Experiences ankle swelling. The patient states that she has a glucometer. She drinks one or two sodas daily. Patient reports family history of diabetes, stroke (father), high blood pressure (mother), and diabetes (brother). The patient denies smoking and drinks 2-3 beers on Saturdays. Patient does not exercise regularly. Patient is in mood but worried about health and work. Patient has been taking ibuprofen three times a week for the headache.\", \"objective\": \"Blood pressure: one fifty-two over ninety-four, one forty-eight over ninety-two. Pulse: seventy-eight bpm. Weight: eighty-two kg (loss of 3kg). Temperature: normal. Heart sounds: normal. Chest: clear. Abdomen: soft, no tenderness. Ankle swelling: mild pitting at both ankles. Feet: intact skin, no ulcers. Pulses present in feet. Reduced sensation on the soles of both feet and toes. Reduced ankle reflexes. Random blood sugar: eleven point two mmol/L. Patient reports that she has a glucometer.\", \"assessment\": \"The patient presents with headaches likely related to uncontrolled hypertension and possibly diabetic neuropathy. Poor lifestyle choices contribute to elevated blood pressure and glucose levels. The patient's symptoms suggest possible diabetes, hypertension, and peripheral neuropathy. Medication adherence is suboptimal for both amlodipine and metformin. Patient reports ankle swelling which may be due to amlodipine.\", \"plan\": \"Increase amlodipine to ten milligrams once daily with breakfast. Increase metformin to one gram in the morning and five hundred milligrams in the evening with meals. Stop ibuprofen use. Order glycated hemoglobin, kidney function (creatinine and electrolytes), lipid profile, urine protein test, and ECG. Refer patient to eye clinic for examination. Advise patient to cut soda completely and reduce sugar intake. Encourage reduced salt consumption and grilled fish instead of fried. Recommend thirty minutes of walking at least five days a week. Limit beer to one on Saturdays. Instruct patient to monitor home blood pressure and morning glucose levels for two weeks, bringing results next visit. Patient should keep a diary of her home blood pressure and morning sugar for the next two weeks and bring it with you. Advise patient to check feet daily and wear closed shoes. Schedule follow-up appointment in two weeks or sooner if severe headache, vomiting, vision loss, chest pain, weakness, or confusion occur. Wife is welcome at appointments.\"}"
+    }
+  ],
+  "summary": {
+    "cold_load_seconds": 9.77,
+    "warm_median_wall_seconds": 155.89,
+    "warm_median_generation_tokens_per_s": 6.57,
+    "warm_median_prefill_tokens_per_s": 47.3,
+    "peak_ollama_rss_gb": 0.03,
+    "peak_ollama_private_gb": 0.12,
+    "peak_system_used_above_baseline_gb": 2.9,
+    "any_trial_near_context_limit": false,
+    "any_output_truncated": false,
+    "median_generated_tokens": 670,
+    "lowest_available_ram_gb": 0.03,
+    "all_outputs_valid_json": true
+  }
+}

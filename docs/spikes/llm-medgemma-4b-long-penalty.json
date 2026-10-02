@@ -1,0 +1,76 @@
+{
+  "environment": {
+    "python": "3.11.9",
+    "system": "Windows",
+    "release": "10",
+    "machine": "AMD64",
+    "cpu_logical": 12,
+    "cpu_physical": 6,
+    "ram_total_gb": 7.35,
+    "ram_available_before_gb": 3.39,
+    "clean_baseline": false
+  },
+  "ollama_version": "0.35.0",
+  "model": {
+    "name": "medgemma:4b",
+    "disk_gb": 3.11,
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "gemma3",
+      "families": [
+        "gemma3"
+      ],
+      "parameter_size": "4.3B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 131072,
+      "embedding_length": 2560
+    }
+  },
+  "settings": {
+    "temperature": 0.2,
+    "seed": 42,
+    "num_ctx": 8192,
+    "num_predict": 1024,
+    "repeat_penalty": 1.1
+  },
+  "trials": [
+    {
+      "cold_start": true,
+      "prompt_varied": true,
+      "concise_prompt": false,
+      "format_mode": "json",
+      "wall_seconds": 156.4,
+      "load_seconds": 9.24,
+      "prompt_tokens": 2045,
+      "prefill_tokens_per_s": 46.4,
+      "generated_tokens": 632,
+      "generation_tokens_per_s": 6.15,
+      "model_size_gb": 2.83,
+      "model_size_vram_gb": 0.0,
+      "peak_ollama_rss_gb": 0.02,
+      "peak_ollama_private_gb": 0.12,
+      "peak_system_used_above_baseline_gb": 3.26,
+      "min_available_ram_gb": 0.14,
+      "near_context_limit": false,
+      "valid_soap_json": true,
+      "done_reason": "stop",
+      "truncated": false,
+      "output_text": "{\"subjective\": \"The patient reports headaches almost every evening for three weeks. The headaches are described as heavy and pressing at the back of the head and sometimes across the forehead. They are not sharp. Paracetamol helps a little. The headaches worsen with stress at work and skipping lunch. The patient experiences slight blurry vision in the evening, clearing up on its own. No vomiting or weakness is reported. The patient reports waking two times per night to urinate and experiencing increased thirst. The patient has lost about 2-3 kg in weight over the last two months. The patient reports tingling/pins and needles sensation in both feet, especially at night, which has been going on for approximately two months and is getting worse. Patient states that ibuprofen helps with headache but it raises blood pressure.\", \"objective\": \"Blood pressure: 152/94 mmHg (twice). Pulse: 78 bpm, regular. Weight: 82 kg (3 kg less than last visit). Temperature: Normal. Heart sounds: Normal. Chest: Clear. Abdomen: Soft, no tenderness. Mild pitting edema at both ankles. Foot exam: Intact skin, no ulcers. Pulses present in feet. Reduced sensation on the big toes and front of both feet. Reduced ankle reflexes. Random blood sugar (finger prick): 11.2 mmol/L. HbA1c not stated. Kidney function tests not stated. Lipid profile not stated. Urine test not stated. ECG not stated. Patient reports that he has a neighbour's blood pressure machine and it read 150/90 and 148/92.\", \"assessment\": \"The patient presents with uncontrolled hypertension, hyperglycemia (elevated random blood sugar), peripheral neuropathy (tingling in feet), and possible ankle edema. The headaches are likely related to the high blood pressure and poor sleep quality. The patient's lifestyle contributes to both conditions: excessive soda consumption, salt intake, lack of exercise, and irregular medication adherence.\", \"plan\": \"1. Increase amlodipine from 5 mg daily to 10 mg daily once daily (morning). 2. Increase metformin from 500mg twice daily to 1 gram with breakfast and 500mg in the evening. 3. Stop ibuprofen due to potential kidney strain and blood pressure elevation. 4. Blood tests: HbA1c, kidney function (creatinine and electrolytes), lipid profile, urine protein. 5. Eye exam referral. 6. ECG today. 7. Lifestyle modifications: Cut soda completely, reduce sugar in tea, drink water, reduce salt intake, grill fish instead of frying, walk for at least 30 minutes five days a week, limit beer to one on Saturdays, and check feet daily. 8. Patient should keep a diary of home blood pressure and morning blood sugar for two weeks. 9. Follow-up appointment in two weeks or sooner if severe headache, vomiting, vision loss, chest pain, weakness, or confusion occur. 10. Wife to attend follow up appointments.\"}"
+    }
+  ],
+  "summary": {
+    "cold_load_seconds": 9.24,
+    "warm_median_wall_seconds": 156.4,
+    "warm_median_generation_tokens_per_s": 6.15,
+    "warm_median_prefill_tokens_per_s": 46.4,
+    "peak_ollama_rss_gb": 0.02,
+    "peak_ollama_private_gb": 0.12,
+    "peak_system_used_above_baseline_gb": 3.26,
+    "any_trial_near_context_limit": false,
+    "any_output_truncated": false,
+    "median_generated_tokens": 632,
+    "lowest_available_ram_gb": 0.14,
+    "all_outputs_valid_json": true
+  }
+}
