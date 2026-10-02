@@ -16,11 +16,11 @@ assumed to be transcript review (confirm against the use case diagram).
 | FR-08 | Authenticate users and enforce roles | n/a | feature/auth-audit | auth tests | planned |
 | FR-09 | Tamper-evident audit log | n/a | feature/auth-audit | chain-break test | planned |
 | FR-10 | SystemAdmin functions (accounts, model update, backup) | n/a | reserved | to be defined | planned |
-| FR-11 | The LLM never runs before the clinician approves the transcript | UC-05 | feature/domain-controller | controller tests | planned |
-| FR-12 | A session cannot be finalized without a drafted note the clinician reviewed | UC-06 | feature/domain-controller | controller tests | planned |
-| FR-13 | Note generation is bounded and validated: hard output cap, repetition detector with retry, schema check, and a visible failure state that keeps the transcript and offers manual entry | UC-05 | feature/llm-soap | cap, loop, validity and failure-state tests | planned |
-| FR-14 | Model-generated diagnosis suggestions are kept separate from, and labelled apart from, the clinician's own assessment | UC-05, UC-06 | feature/domain-controller, feature/ui-dashboard | state and UI tests | planned |
-| FR-15 | Required history (allergies, medications, pertinent negatives) is confirmed by the clinician before a note is finalized | UC-06 | feature/ui-dashboard | UI tests | planned |
+| FR-11 | The LLM never runs before the clinician approves the transcript | UC-05 | feature/domain-controller | tests/test_controller.py | in progress (controller done) |
+| FR-12 | A session cannot be finalized without a drafted note the clinician reviewed | UC-06 | feature/domain-controller | tests/test_controller.py | in progress (controller done) |
+| FR-13 | Note generation is bounded and validated: hard output cap, repetition detector with retry, schema check, and a visible failure state that keeps the transcript and offers manual entry | UC-05 | feature/domain-controller, feature/llm-soap | controller tests done; generator, cap and loop-detector tests pending | in progress (controller part done) |
+| FR-14 | Model-generated diagnosis suggestions are kept separate from, and labelled apart from, the clinician's own assessment | UC-05, UC-06 | feature/domain-controller, feature/ui-dashboard | controller tests done; UI tests pending | in progress (controller done) |
+| FR-15 | Required history (allergies, medications, pertinent negatives) is confirmed by the clinician before a note is finalized | UC-06 | feature/domain-controller, feature/ui-dashboard | controller tests done; UI tests pending | in progress (controller done) |
 | NFR-01 | No outbound network connectivity | n/a | feature/airgap-enforcement | firewall and probe evidence | planned |
 | NFR-02 | Application process opens no listening sockets; only Ollama's loopback port | n/a | feature/airgap-enforcement | socket test on launched app | planned |
 | NFR-03 | End-to-end latency within a target set from measurements | n/a | eval/harness | measured on reference PC (ADR-002); target TBD | in progress (measured once) |
