@@ -9,8 +9,8 @@ assumed to be transcript review (confirm against the use case diagram).
 | FR-01 | Record consultation audio from the local microphone | UC-01 | feature/audio-recorder | fake-device tests | planned |
 | FR-02 | Transcribe audio locally | UC-02 | feature/asr-whisper | WER on scripted audio | planned |
 | FR-03 | Clinician reviews and edits the transcript | UC-03 | feature/ui-dashboard | UI tests | planned |
-| FR-04 | Load the quantized model locally | UC-04 | spike/ollama-medgemma, feature/llm-soap | load and memory measurement | planned |
-| FR-05 | Generate a structured SOAP draft with differentials | UC-05 | feature/llm-soap, feature/input-guard | schema, retry, injection tests | planned |
+| FR-04 | Load the quantized model locally | UC-04 | spike/ollama-medgemma, feature/llm-soap | load and memory measurements (docs/spikes/llm-results.md) | in progress (spike done) |
+| FR-05 | Generate a structured SOAP draft with differentials | UC-05 | spike/ollama-medgemma, feature/llm-soap, feature/input-guard | schema, retry, injection tests; faithfulness metrics in eval/harness | in progress (spike done) |
 | FR-06 | Clinician reviews, edits and finalizes the note | UC-06 | feature/ui-dashboard | UI tests | planned |
 | FR-07 | Save the session to encrypted local storage | UC-07 | spike/sqlcipher-windows, feature/secure-store | wrong-key and tamper tests | in progress (spike done) |
 | FR-08 | Authenticate users and enforce roles | n/a | feature/auth-audit | auth tests | planned |
@@ -18,9 +18,13 @@ assumed to be transcript review (confirm against the use case diagram).
 | FR-10 | SystemAdmin functions (accounts, model update, backup) | n/a | reserved | to be defined | planned |
 | FR-11 | The LLM never runs before the clinician approves the transcript | UC-05 | feature/domain-controller | controller tests | planned |
 | FR-12 | A session cannot be finalized without a drafted note the clinician reviewed | UC-06 | feature/domain-controller | controller tests | planned |
+| FR-13 | Note generation is bounded and validated: hard output cap, repetition detector with retry, schema check, and a visible failure state that keeps the transcript and offers manual entry | UC-05 | feature/llm-soap | cap, loop, validity and failure-state tests | planned |
+| FR-14 | Model-generated diagnosis suggestions are kept separate from, and labelled apart from, the clinician's own assessment | UC-05, UC-06 | feature/domain-controller, feature/ui-dashboard | state and UI tests | planned |
+| FR-15 | Required history (allergies, medications, pertinent negatives) is confirmed by the clinician before a note is finalized | UC-06 | feature/ui-dashboard | UI tests | planned |
 | NFR-01 | No outbound network connectivity | n/a | feature/airgap-enforcement | firewall and probe evidence | planned |
 | NFR-02 | Application process opens no listening sockets; only Ollama's loopback port | n/a | feature/airgap-enforcement | socket test on launched app | planned |
-| NFR-03 | End-to-end latency within a target set from measurements | n/a | eval/harness | latency table (target TBD) | planned |
-| NFR-04 | Peak memory within a target on a stated reference PC | n/a | spike/ollama-medgemma | memory table (target TBD) | planned |
+| NFR-03 | End-to-end latency within a target set from measurements | n/a | eval/harness | measured on reference PC (ADR-002); target TBD | in progress (measured once) |
+| NFR-04 | Peak memory within a target on a stated reference PC | n/a | spike/ollama-medgemma, feature/asr-whisper | memory table under typical load (ADR-002); clean baseline not reachable on the reference PC | in progress |
 | NFR-05 | Patient data encrypted at rest | n/a | spike/sqlcipher-windows, feature/secure-store | ADR-001 and tests | in progress (spike done) |
 | NFR-06 | Transcription accuracy (WER) reported against a target | n/a | eval/harness | WER table (target TBD) | planned |
+| NFR-07 | Startup self-check warns when free memory is too low for the model | n/a | feature/airgap-enforcement | startup check test; threshold from measurements | planned |
