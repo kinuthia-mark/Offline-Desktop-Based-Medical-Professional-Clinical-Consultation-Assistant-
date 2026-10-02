@@ -30,3 +30,6 @@ line-ending = "lf"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/model_outputs.py" = ["E501"]  # real model outputs kept verbatim

@@ -9,8 +9,8 @@ assumed to be transcript review (confirm against the use case diagram).
 | FR-01 | Record consultation audio from the local microphone | UC-01 | feature/audio-recorder | fake-device tests | planned |
 | FR-02 | Transcribe audio locally | UC-02 | feature/asr-whisper | WER on scripted audio | planned |
 | FR-03 | Clinician reviews and edits the transcript | UC-03 | feature/ui-dashboard | UI tests | planned |
-| FR-04 | Load the quantized model locally | UC-04 | spike/ollama-medgemma, feature/llm-soap | load and memory measurements (docs/spikes/llm-results.md) | in progress (spike done) |
-| FR-05 | Generate a structured SOAP draft with differentials | UC-05 | spike/ollama-medgemma, feature/llm-soap, feature/input-guard | schema, retry, injection tests; faithfulness metrics in eval/harness | in progress (spike done) |
+| FR-04 | Load the quantized model locally | UC-04 | spike/ollama-medgemma, feature/llm-soap | client, loopback and unload tests; memory table under typical load | in progress (client done) |
+| FR-05 | Generate a structured SOAP draft with differentials | UC-05 | spike/ollama-medgemma, feature/llm-soap, feature/input-guard | schema, retry and flag tests done; injection tests pending (feature/input-guard) | in progress (generator done; guard pending) |
 | FR-06 | Clinician reviews, edits and finalizes the note | UC-06 | feature/ui-dashboard | UI tests | planned |
 | FR-07 | Save the session to encrypted local storage | UC-07 | spike/sqlcipher-windows, feature/secure-store | wrong-key and tamper tests | in progress (spike done) |
 | FR-08 | Authenticate users and enforce roles | n/a | feature/auth-audit | auth tests | planned |
@@ -18,7 +18,7 @@ assumed to be transcript review (confirm against the use case diagram).
 | FR-10 | SystemAdmin functions (accounts, model update, backup) | n/a | reserved | to be defined | planned |
 | FR-11 | The LLM never runs before the clinician approves the transcript | UC-05 | feature/domain-controller | tests/test_controller.py | in progress (controller done) |
 | FR-12 | A session cannot be finalized without a drafted note the clinician reviewed | UC-06 | feature/domain-controller | tests/test_controller.py | in progress (controller done) |
-| FR-13 | Note generation is bounded and validated: hard output cap, repetition detector with retry, schema check, and a visible failure state that keeps the transcript and offers manual entry | UC-05 | feature/domain-controller, feature/llm-soap | controller tests done; generator, cap and loop-detector tests pending | in progress (controller part done) |
+| FR-13 | Note generation is bounded and validated: hard output cap, repetition detector with retry, schema check, and a visible failure state that keeps the transcript and offers manual entry | UC-05 | feature/domain-controller, feature/llm-soap, feature/ui-dashboard | controller, cap, loop, deadline and stream-closing tests done; UI failure state pending | in progress (controller and generator done) |
 | FR-14 | Model-generated diagnosis suggestions are kept separate from, and labelled apart from, the clinician's own assessment | UC-05, UC-06 | feature/domain-controller, feature/ui-dashboard | controller tests done; UI tests pending | in progress (controller done) |
 | FR-15 | Required history (allergies, medications, pertinent negatives) is confirmed by the clinician before a note is finalized | UC-06 | feature/domain-controller, feature/ui-dashboard | controller tests done; UI tests pending | in progress (controller done) |
 | NFR-01 | No outbound network connectivity | n/a | feature/airgap-enforcement | firewall and probe evidence | planned |
