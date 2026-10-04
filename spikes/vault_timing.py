@@ -1,4 +1,4 @@
-"""Vault timing: how long do create, unlock and a session save take with the default settings?
+"""Vault timing: how long do create, unlock, login and a session save take by default?
 
 Run from the repo root with the venv active:
 
@@ -29,6 +29,8 @@ def _median(samples: list[float]) -> float:
 def run(runs: int) -> dict:
     from clinassist.adapters.store import VaultSessionStore
     from clinassist.domain import Draft, HistoryChecklist, SessionRecord, SoapNote
+    from clinassist.security.audit import HashChainAuditor
+    from clinassist.security.auth import AuthService
     from clinassist.security.crypto import KdfParams
     from clinassist.security.vault import Vault
 
@@ -72,6 +74,21 @@ def run(runs: int) -> dict:
             start = time.perf_counter()
             store.save(record)
             save.append(time.perf_counter() - start)
+        auth = AuthService(vault, HashChainAuditor(vault))
+        auth.create_first_admin("timing.admin", PASSPHRASE, "Timing Admin")
+        login = []
+        for _ in range(runs):
+            start = time.perf_counter()
+            auth.login("timing.admin", PASSPHRASE)
+            login.append(time.perf_counter() - start)
+        login_unknown = []
+        for _ in range(runs):
+            start = time.perf_counter()
+            try:
+                auth.login("no.such.user", PASSPHRASE)
+            except Exception:  # noqa: BLE001 - only the time matters here
+                pass
+            login_unknown.append(time.perf_counter() - start)
         vault.lock()
 
     return {
@@ -88,6 +105,8 @@ def run(runs: int) -> dict:
         "unlock_max_seconds": round(max(unlock), 3),
         "wrong_passphrase_median_seconds": _median(wrong),
         "save_session_median_seconds": _median(save),
+        "login_median_seconds": _median(login),
+        "login_unknown_user_median_seconds": _median(login_unknown),
         "note": "Unlock is one Argon2id derivation plus opening SQLCipher and checking the schema.",
     }
 

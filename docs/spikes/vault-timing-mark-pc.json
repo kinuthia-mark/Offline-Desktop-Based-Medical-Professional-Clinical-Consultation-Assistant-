@@ -11,10 +11,12 @@
     "parallelism": 2
   },
   "runs": 7,
-  "create_seconds": 0.47,
-  "unlock_median_seconds": 0.173,
-  "unlock_max_seconds": 0.204,
-  "wrong_passphrase_median_seconds": 0.172,
+  "create_seconds": 0.479,
+  "unlock_median_seconds": 0.168,
+  "unlock_max_seconds": 0.191,
+  "wrong_passphrase_median_seconds": 0.169,
   "save_session_median_seconds": 0.01,
+  "login_median_seconds": 0.18,
+  "login_unknown_user_median_seconds": 0.178,
   "note": "Unlock is one Argon2id derivation plus opening SQLCipher and checking the schema."
 }
