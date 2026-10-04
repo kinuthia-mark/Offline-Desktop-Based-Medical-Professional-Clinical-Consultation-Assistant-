@@ -183,7 +183,7 @@ is recorded.
 | Tamper-evident audit log | FR-09, FR-10d | built and tested |
 | Input check (prompt injection, personal data) and checks on the model's reply | FR-05, AMD-11 | built and tested |
 | Microphone recorder | FR-01 | built and tested, including on the real microphone |
-| Speech-to-text | FR-02 | planned |
+| Speech-to-text (Faster-Whisper small, offline) | FR-02 | built and measured with synthetic speech |
 | Desktop interface | FR-03, FR-06, FR-16 to FR-18 | planned |
 | Air-gap enforcement (firewall rule, startup check) | NFR-01, NFR-02, NFR-07 | planned |
 | Evaluation with scripted consultations | NFR-03, NFR-06 | planned |
@@ -247,6 +247,20 @@ These sentences were written by the same person who wrote the rules, so the rate
 | Time to start recording | 0.13 s |
 | 60-second recording | 59.9 s captured, no audio lost |
 
+**Speech-to-text** ([ADR-007](docs/ADR/007-speech-to-text.md),
+[results file](docs/spikes/asr-mark-pc.json)), on the synthetic consultations read aloud by the
+Windows computer voices, which is a best case:
+
+| What | base model | small model (default) |
+|---|---|---|
+| Words wrong, after spelling and unit differences are set aside | 1.6 to 1.7% | 0.7 to 1.6% |
+| Medicine names heard correctly | 6 of 11 | 9 of 11 |
+| Time for an 11-minute consultation | 40 s | 1.8 minutes |
+| Peak memory | 0.85 GB | 0.97 GB |
+
+Whisper writes one block of text without saying who spoke; the clinician can add labels while
+reviewing (AMD-37).
+
 **What the notes got wrong** (7 notes read by hand against their transcripts). Plan items were
 accurate. But every note left out allergies or pertinent negatives; 3 of 4 short notes stated a
 diagnosis the doctor had not made; one long note changed a blood-pressure reading, contradicted a
@@ -288,7 +302,7 @@ on its own.
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-pip install -e ".[dev,storage,audio]"
+pip install -e ".[dev,storage,audio,asr]"
 pre-commit install
 ```
 
@@ -314,6 +328,7 @@ python scripts/check_microphone.py               # live level meter; speak and w
 python spikes/storage_spike.py --label my-pc     # SQLCipher, Argon2id, AES-GCM checks
 python spikes/vault_timing.py --label my-pc      # unlock, login and save times
 python spikes/mic_spike.py --label my-pc         # microphone capture checks
+python spikes/asr_spike.py --label my-pc         # speech-to-text accuracy, speed, memory
 python spikes/llm_spike.py --help                # model speed and memory (needs Ollama)
 ```
 
@@ -325,6 +340,8 @@ Results are written to `docs/spikes/` with the machine label in the file name.
 
 ```
 src/clinassist/
+  metrics.py         word error rate and medicine-name recall, for measuring speech-to-text
+  model_files.py     the published fingerprint of each model file, and a check against it
   domain.py          the data the app works with (draft, note, checklist, session record) and its errors
   ports.py           the small interfaces each outside part must provide
   controller.py      the consultation steps and the clinician gates (the heart of the app)
@@ -335,6 +352,7 @@ src/clinassist/
     groundcheck.py     advisory flags: pronouns, numbers not in the transcript, merged words
     input_guard.py     holds back text aimed at the AI; hides phone numbers, emails and ID numbers
     recorder.py        records the microphone at 16 kHz into memory; reports silence and errors
+    transcriber.py     Faster-Whisper speech-to-text, loaded from a local folder only
     numbers.py         reads numbers written as digits or words, for the number check
     store.py           saves a finished consultation into the vault in one transaction
     audio_store.py     optional encrypted audio files (off by default)
@@ -390,7 +408,7 @@ code, then the tests and measurements that check that requirement, before moving
 | [`docs/traceability.md`](docs/traceability.md) | every requirement, the branch that builds it, the test that checks it, and its status |
 | [`docs/AMENDMENTS.md`](docs/AMENDMENTS.md) | every change from the approved proposal, with the reason |
 | [`docs/proposal/CROSSCHECK.md`](docs/proposal/CROSSCHECK.md) | how the code maps onto the proposal's use cases, diagrams, schema and wireframe |
-| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006) |
+| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007) |
 | [`docs/spikes/`](docs/spikes/) | raw measurement results from the reference PC |
 | [`docs/PRIOR_ART.md`](docs/PRIOR_ART.md) | what was reused from the earlier MedgemmaV2 prototype and what was left out |
 
