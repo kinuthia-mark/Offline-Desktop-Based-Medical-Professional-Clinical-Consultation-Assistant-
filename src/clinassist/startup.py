@@ -92,6 +92,14 @@ def check_microphone(config: AppConfig, list_devices=None) -> tuple[str, str]:
     return "ok", "microphone_ok"
 
 
+def check_network(snapshot=None) -> tuple[str, str]:
+    """The air-gap checks (NFR-01, NFR-02, ADR-010). Passive: nothing is sent anywhere."""
+    from clinassist.airgap import assess, take_snapshot
+
+    result = assess(snapshot or take_snapshot())
+    return result.status, result.code
+
+
 def check_data_folder(config: AppConfig) -> tuple[str, str]:
     """The vault folder must exist (or be creatable) and accept a file."""
     folder = Path(config.data_dir)
@@ -106,7 +114,7 @@ def check_data_folder(config: AppConfig) -> tuple[str, str]:
 
 def run_checks(config: AppConfig, **overrides) -> list[Check]:
     """All checks, in the order the interface shows them. `overrides` replaces a check's
-    outside dependency in tests (list_models, available_gb, list_devices)."""
+    outside dependency in tests (list_models, available_gb, list_devices, network_snapshot)."""
     return [
         _timed("python", check_python),
         _timed("data_folder", lambda: check_data_folder(config)),
@@ -114,6 +122,7 @@ def run_checks(config: AppConfig, **overrides) -> list[Check]:
         _timed("language_model", lambda: check_llm(config, overrides.get("list_models"))),
         _timed("memory", lambda: check_memory(config, overrides.get("available_gb"))),
         _timed("microphone", lambda: check_microphone(config, overrides.get("list_devices"))),
+        _timed("network", lambda: check_network(overrides.get("network_snapshot"))),
     ]
 
 
@@ -122,6 +131,9 @@ def can_start(checks: list[Check]) -> bool:
 
 
 def main() -> int:
+    from clinassist.airgap import install_network_guard
+
+    install_network_guard()
     config = AppConfig.load(Path(AppConfig().data_dir) / "settings.json")
     checks = run_checks(config)
     for c in checks:
