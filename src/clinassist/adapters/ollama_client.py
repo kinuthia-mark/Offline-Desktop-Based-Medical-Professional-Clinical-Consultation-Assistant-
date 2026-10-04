@@ -12,6 +12,9 @@ from clinassist.domain import GenerationFailed
 
 DEFAULT_HOST = "http://127.0.0.1:11434"
 _LOOPBACK = {"127.0.0.1", "localhost", "::1"}
+# Ignore proxy settings from the environment and from the Windows registry: a proxy on a clinic PC
+# must never see, or sit between the application and, the local model server.
+_DIRECT = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 
 class ChatStream:
@@ -53,7 +56,7 @@ class OllamaClient:
             headers={"Content-Type": "application/json"},
         )
         try:
-            return urllib.request.urlopen(request, timeout=timeout)  # noqa: S310 - loopback only
+            return _DIRECT.open(request, timeout=timeout)  # loopback only, never via a proxy
         except urllib.error.HTTPError as exc:
             raise GenerationFailed(
                 "model_not_available" if exc.code == 404 else "ollama_error"
