@@ -58,6 +58,7 @@ class GeneratorSettings:
     seed: int | None = 42
     num_predict: int = 1100  # hard cap on generated tokens
     retry_repeat_penalty: float = 1.1  # used from the second attempt (ADR-002)
+    long_input_words: int = 500  # from this many words the first attempt already uses the penalty
     max_seconds: float = 420.0  # overall deadline for one attempt
     read_timeout: float = 300.0  # longest silent wait; the model reads the transcript first
     keep_alive: str = "2m"
@@ -79,9 +80,9 @@ def parse_draft(content: str, transcript: str, include_suggestions: bool = False
     try:
         data = json.loads(_FENCE.sub("", content.strip()))
     except json.JSONDecodeError as exc:
-        raise GenerationFailed("invalid_output") from exc
+        raise GenerationFailed("invalid_output", content) from exc
     if not isinstance(data, dict) or not all(isinstance(data.get(k), str) for k in SECTIONS):
-        raise GenerationFailed("invalid_output")
+        raise GenerationFailed("invalid_output", content)
 
     suggestions: tuple[AiSuggestion, ...] = ()
     if include_suggestions and "suggestions" in data:
@@ -91,7 +92,7 @@ def parse_draft(content: str, transcript: str, include_suggestions: bool = False
             and all(isinstance(i.get(k), str) for k in ("diagnosis", "rationale", "management"))
             for i in items
         ):
-            raise GenerationFailed("invalid_output")
+            raise GenerationFailed("invalid_output", content)
         suggestions = tuple(
             AiSuggestion(i["diagnosis"], i["rationale"], i["management"], rank)
             for rank, i in enumerate(items, start=1)
@@ -122,7 +123,9 @@ class SoapGenerator:
         self._client = client or OllamaClient(self.settings.host, self.settings.read_timeout)
         self._progress = progress
 
-    def options_for(self, attempt: int) -> dict:
+    def options_for(self, attempt: int, words: int = 0) -> dict:
+        """Without the penalty, long consultations looped in 9 of 9 runs, so long input starts
+        with it. Short input starts without it, since the penalty may cost word spacing."""
         s = self.settings
         options: dict = {
             "temperature": s.temperature,
@@ -131,15 +134,15 @@ class SoapGenerator:
         }
         if s.seed is not None:
             options["seed"] = s.seed
-        if attempt >= 2:
+        if attempt >= 2 or words >= s.long_input_words:
             options["repeat_penalty"] = s.retry_repeat_penalty
         return options
 
     def generate(self, text: str, attempt: int) -> Draft:
         s = self.settings
         stream = self._client.chat_stream(
-            s.model, build_messages(text, s.include_suggestions), self.options_for(attempt),
-            "json", s.keep_alive,
+            s.model, build_messages(text, s.include_suggestions),
+            self.options_for(attempt, len(text.split())), "json", s.keep_alive,
         )  # fmt: skip
         started = time.monotonic()
         parts: list[str] = []
@@ -157,17 +160,17 @@ class SoapGenerator:
                     done_reason = chunk.get("done_reason")
                     break
                 if time.monotonic() - started > s.max_seconds:
-                    raise GenerationFailed("timeout")
+                    raise GenerationFailed("timeout", "".join(parts))
                 if piece and chunks % s.loop_check_every == 0 and find_repetition("".join(parts)):
-                    raise GenerationFailed("repetition_detected")
+                    raise GenerationFailed("repetition_detected", "".join(parts))
         finally:
             stream.close()  # also stops generation if we are leaving early
 
-        if done_reason == "length":
-            raise GenerationFailed("output_truncated")
         content = "".join(parts)
+        if done_reason == "length":
+            raise GenerationFailed("output_truncated", content)
         if find_repetition(content):
-            raise GenerationFailed("repetition_detected")
+            raise GenerationFailed("repetition_detected", content)
         return parse_draft(content, text, s.include_suggestions)
 
     def unload(self) -> None:
