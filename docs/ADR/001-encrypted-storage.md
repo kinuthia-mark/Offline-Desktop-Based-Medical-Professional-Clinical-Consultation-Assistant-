@@ -40,6 +40,10 @@ Limits of this evidence: one machine, synthetic data, and it shows the mechanism
 that the finished key handling is secure.
 
 ## Open items (to be settled in `feature/secure-store`, then recorded here)
+
+Update 2026-10-04: settled in ADR-003 except the passphrase policy (still open) and lockout
+(moved to FR-08, `feature/auth-audit`).
+
 - **Argon2id settings.** The measured times are short. Aim for a stated unlock time on the
   reference PC and store the parameters inside each vault so they can be raised later. Check
   the candidate settings against RFC 9106 and measure on a slower machine if one is available.
