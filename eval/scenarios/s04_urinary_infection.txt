@@ -1,0 +1,17 @@
+# SYNTHETIC consultation invented for evaluation. Not a real patient.
+Doctor: Good afternoon. How can I help?
+Patient: For three days it has been burning when I pass urine, and I go very often.
+Doctor: Any fever, back pain, or pain in your sides?
+Patient: No fever and no back pain.
+Doctor: Any blood in the urine, or any vaginal discharge?
+Patient: No blood and no discharge.
+Doctor: When was your last period, and could you be pregnant?
+Patient: My last period was two weeks ago. I do not think I am pregnant.
+Doctor: We will check to be sure. Do you take any medicines, and do you have any allergies?
+Patient: No regular medicines. I am allergic to sulfa drugs. I got a bad rash from them once.
+Doctor: Thank you, that is important. Your temperature is thirty-six point nine and blood pressure one twenty-four over seventy-eight. The urine dipstick is positive for nitrites and leukocytes. The pregnancy test is negative. Your abdomen is soft, with mild tenderness above the pubic bone.
+Patient: Is it an infection?
+Doctor: Yes, this looks like a bladder infection. I thought about ciprofloxacin, but I will not give it, because it is not needed for a simple infection. Because of your sulfa allergy, I will also avoid co-trimoxazole. I will give you nitrofurantoin one hundred milligrams twice a day for five days.
+Patient: Okay.
+Doctor: Drink plenty of water. If you get a fever, back pain, or vomiting, come back the same day. If you are not better in three days, come back to see me.
+Patient: Thank you, doctor.

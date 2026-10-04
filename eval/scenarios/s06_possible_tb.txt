@@ -1,0 +1,21 @@
+# SYNTHETIC consultation invented for evaluation. Not a real patient.
+Doctor: Good morning. What brings you in?
+Patient: I have been coughing for four weeks. It is not going away.
+Doctor: Are you bringing up anything when you cough?
+Patient: Yes, sputum. Two times I saw a little blood in it.
+Doctor: Any night sweats, fever or weight loss?
+Patient: I sweat at night, my sheets get wet. I have lost about five kilograms.
+Doctor: Any chest pain or shortness of breath?
+Patient: No chest pain. I am not short of breath when resting.
+Doctor: Has anyone close to you had tuberculosis?
+Patient: My cousin was treated for TB last year. We lived together then.
+Doctor: Do you know your HIV status?
+Patient: I have never tested.
+Doctor: I would like to test you today, if you agree. Do you take any medicines or have allergies?
+Patient: Yes, I agree to the test. No medicines and no allergies.
+Doctor: Let me examine you. Temperature thirty-seven point eight. Weight fifty-eight kilograms. Oxygen saturation ninety-six percent. I hear crackles in the upper part of the right lung.
+Patient: Do I have TB?
+Doctor: I suspect it, but I cannot say yet. We need tests first. I will send two sputum samples for GeneXpert and request a chest X-ray. We will also do the HIV test today.
+Patient: Okay.
+Doctor: Until the results are back, cover your mouth when you cough and wear a mask around others, and keep windows open at home. Come back in three days for the results.
+Patient: Thank you, doctor.

@@ -1,0 +1,19 @@
+# SYNTHETIC consultation invented for evaluation. Not a real patient. The mother answers for her son.
+Doctor: Good morning. What is the problem today?
+Patient: My son is eighteen months old. He has had diarrhoea for two days.
+Doctor: How many times a day, and what does it look like?
+Patient: About six times a day. It is watery. There is no blood in it.
+Doctor: Any vomiting?
+Patient: He vomited twice yesterday, none today.
+Doctor: Is he drinking and still breastfeeding?
+Patient: Yes, he breastfeeds and drinks water, but he is passing less urine than usual.
+Doctor: Any fever, cough or rash?
+Patient: A little warm at night. No cough and no rash. His sister had chickenpox last month, but he did not catch it.
+Doctor: Is he on any medicine, and does he have any allergies?
+Patient: No medicine and no allergies that we know of. His vaccines are up to date.
+Doctor: Let me examine him. His weight is ten point two kilograms. Temperature thirty-seven point nine. He is alert and playful. His eyes are not sunken. The skin pinch goes back slowly, so he has some dehydration.
+Patient: Does he need antibiotics?
+Doctor: No, he does not need antibiotics. This looks like a viral diarrhoea. Give oral rehydration solution, fifty to one hundred millilitres after each loose stool, and zinc twenty milligrams once a day for ten days. Keep breastfeeding and keep giving food.
+Patient: Okay.
+Doctor: Come back immediately if you see blood in the stool, if he cannot drink, if he becomes very sleepy, or if the vomiting returns. Otherwise bring him back in two days.
+Patient: Thank you.

@@ -1,0 +1,365 @@
+{
+ "id": "s03_child_diarrhoea",
+ "title": "Child with watery diarrhoea and some dehydration",
+ "script": "s03_child_diarrhoea.txt",
+ "facts": [
+  {
+   "id": "age_18_months",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "18 months",
+     "18 month"
+    ]
+   ]
+  },
+  {
+   "id": "diarrhoea_2_days",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "diarrhea",
+     "loose stools",
+     "watery stools"
+    ],
+    [
+     "2 days"
+    ]
+   ]
+  },
+  {
+   "id": "six_a_day",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "6 times",
+     "6 episodes",
+     "6 stools",
+     "6 loose",
+     "6 per day",
+     "6 a day",
+     "6 daily",
+     "6 watery"
+    ]
+   ]
+  },
+  {
+   "id": "watery",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "watery"
+    ]
+   ]
+  },
+  {
+   "id": "vomited",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "vomit",
+     "vomited",
+     "vomiting"
+    ]
+   ]
+  },
+  {
+   "id": "breastfeeding",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "breastfeed",
+     "breastfeeding",
+     "breast feeding",
+     "breastfed",
+     "breast fed"
+    ]
+   ]
+  },
+  {
+   "id": "less_urine",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "less urine",
+     "reduced urine",
+     "decreased urine",
+     "urine output",
+     "passing less",
+     "reduced urination",
+     "decreased urination",
+     "oliguria"
+    ]
+   ]
+  },
+  {
+   "id": "vaccines_up_to_date",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "vaccines",
+     "vaccinations",
+     "vaccination",
+     "immunisations",
+     "immunizations",
+     "immunised",
+     "immunized",
+     "vaccinated"
+    ]
+   ]
+  },
+  {
+   "id": "no_allergies",
+   "section": "subjective",
+   "critical": true,
+   "denied": [
+    "allergies",
+    "allergy",
+    "allergic"
+   ]
+  },
+  {
+   "id": "weight_10_2",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "10.2",
+     "10 point 2"
+    ]
+   ]
+  },
+  {
+   "id": "temperature_37_9",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "37.9",
+     "37 point 9"
+    ]
+   ]
+  },
+  {
+   "id": "alert",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "alert",
+     "playful"
+    ]
+   ]
+  },
+  {
+   "id": "slow_skin_pinch",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "skin pinch",
+     "skin turgor",
+     "turgor"
+    ]
+   ]
+  },
+  {
+   "id": "some_dehydration",
+   "section": "assessment",
+   "critical": true,
+   "match": [
+    [
+     "dehydration",
+     "dehydrated"
+    ]
+   ]
+  },
+  {
+   "id": "ors",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "oral rehydration",
+     "ors",
+     "rehydration solution"
+    ]
+   ]
+  },
+  {
+   "id": "ors_volume",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "50"
+    ],
+    [
+     "100"
+    ]
+   ]
+  },
+  {
+   "id": "zinc_20mg",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "zinc"
+    ],
+    [
+     "20 mg",
+     "20 milligrams"
+    ]
+   ]
+  },
+  {
+   "id": "zinc_10_days",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "zinc"
+    ],
+    [
+     "10 days"
+    ]
+   ]
+  },
+  {
+   "id": "continue_feeding",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "continue",
+     "keep"
+    ],
+    [
+     "breastfeed",
+     "breastfeeding",
+     "breast feeding",
+     "feeding",
+     "food"
+    ]
+   ]
+  },
+  {
+   "id": "return_if_blood",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "blood"
+    ]
+   ]
+  },
+  {
+   "id": "return_if_sleepy",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "sleepy",
+     "lethargic",
+     "drowsy",
+     "unable to drink",
+     "cannot drink",
+     "not drinking"
+    ]
+   ]
+  },
+  {
+   "id": "review_2_days",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "review",
+     "return",
+     "come back",
+     "follow up",
+     "bring",
+     "back"
+    ],
+    [
+     "2 days"
+    ]
+   ]
+  }
+ ],
+ "negatives": [
+  {
+   "id": "no_blood_in_stool",
+   "terms": [
+    "blood in stool",
+    "blood in the stool",
+    "bloody",
+    "blood in his stool"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_cough",
+   "terms": [
+    "cough"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_rash",
+   "terms": [
+    "rash"
+   ],
+   "critical": false
+  },
+  {
+   "id": "eyes_not_sunken",
+   "terms": [
+    "sunken"
+   ],
+   "critical": false
+  }
+ ],
+ "traps": [
+  {
+   "id": "antibiotics_given",
+   "terms": [
+    "antibiotic",
+    "antibiotics",
+    "amoxicillin",
+    "metronidazole",
+    "ciprofloxacin",
+    "cotrimoxazole",
+    "co trimoxazole"
+   ],
+   "unless": [
+    "no need",
+    "not needed",
+    "not required",
+    "does not need"
+   ],
+   "why": "the doctor said no antibiotics"
+  },
+  {
+   "id": "child_has_chickenpox",
+   "terms": [
+    "chickenpox",
+    "varicella"
+   ],
+   "unless": [
+    "sister",
+    "sibling"
+   ],
+   "why": "it was the sister"
+  }
+ ]
+}
