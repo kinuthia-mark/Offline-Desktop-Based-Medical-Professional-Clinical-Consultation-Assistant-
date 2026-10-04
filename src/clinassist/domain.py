@@ -43,6 +43,9 @@ class GuardVerdict:
     quarantined: bool
     reason: str = ""
     clean_text: str = ""
+    # What was hidden before the model saw the text, as "kind:count" (for example
+    # "phone_number:1"), so the interface can tell the clinician. Never the values themselves.
+    masked: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
