@@ -1,0 +1,83 @@
+{
+  "environment": {
+    "python": "3.11.9",
+    "system": "Windows",
+    "machine": "AMD64",
+    "portaudio": "PortAudio V19.7.0-devel, revision unknown",
+    "default_input": "Microphone Array (Realtek(R) Au",
+    "default_input_rate": 44100.0
+  },
+  "devices_offered": [
+    "Microsoft Sound Mapper - Input",
+    "Microphone Array (Realtek(R) Au"
+  ],
+  "short_takes": [
+    {
+      "requested_seconds": 5.0,
+      "captured_seconds": 4.9,
+      "open_ms": 159.9,
+      "stop_ms": 40.8,
+      "peak": 0.0632,
+      "rms": 0.00356,
+      "silent": false,
+      "overflows": 0
+    },
+    {
+      "requested_seconds": 5.0,
+      "captured_seconds": 4.9,
+      "open_ms": 138.4,
+      "stop_ms": 46.8,
+      "peak": 0.13489,
+      "rms": 0.01,
+      "silent": false,
+      "overflows": 0
+    },
+    {
+      "requested_seconds": 5.0,
+      "captured_seconds": 4.9,
+      "open_ms": 128.0,
+      "stop_ms": 42.6,
+      "peak": 0.0191,
+      "rms": 0.00063,
+      "silent": false,
+      "overflows": 0
+    },
+    {
+      "requested_seconds": 5.0,
+      "captured_seconds": 4.9,
+      "open_ms": 122.9,
+      "stop_ms": 40.1,
+      "peak": 0.2113,
+      "rms": 0.01071,
+      "silent": false,
+      "overflows": 0
+    },
+    {
+      "requested_seconds": 5.0,
+      "captured_seconds": 4.9,
+      "open_ms": 119.7,
+      "stop_ms": 42.1,
+      "peak": 0.00101,
+      "rms": 0.00013,
+      "silent": false,
+      "overflows": 0
+    }
+  ],
+  "short_summary": {
+    "open_ms_median": 128.0,
+    "missing_seconds_median": 0.1,
+    "any_silent": false,
+    "total_overflows": 0
+  },
+  "long_take": {
+    "requested_seconds": 60.0,
+    "captured_seconds": 59.9,
+    "open_ms": 127.5,
+    "stop_ms": 50.2,
+    "peak": 0.18369,
+    "rms": 0.00448,
+    "silent": false,
+    "overflows": 0
+  },
+  "note": "Ambient room sound only; no speech was required. Audio was never written."
+}
