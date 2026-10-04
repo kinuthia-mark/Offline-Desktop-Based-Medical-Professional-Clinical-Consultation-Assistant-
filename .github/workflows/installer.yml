@@ -1,0 +1,77 @@
+name: installer
+
+# Builds the installer and installs it on a fresh Windows machine (ADR-012). Uses a small
+# stand-in bundle, so it tests the installer's steps, not the models.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths: ["release/**", "src/clinassist/bundle.py", "src/clinassist/airgap.py", "scripts/airgap_firewall.ps1"]
+
+jobs:
+  install:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[dev,storage,audio,asr,ui]" "pyinstaller>=6.10"
+      - run: choco install innosetup -y --no-progress
+
+      - name: Build the program and a stand-in bundle
+        run: |
+          python -m PyInstaller --noconfirm --clean release/clinassist.spec --distpath build/dist --workpath build/work
+          python release/make_test_bundle.py build/bundle
+          & "build/dist/ClinAssist/ClinAssist-check.exe" --verify-bundle build/bundle
+          if ($LASTEXITCODE -ne 0) { throw "bundle check failed" }
+
+      - name: Compile the installer
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          & $iscc "/DBuildDir=$PWD\build" release\clinassist.iss
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed" }
+
+      - name: A damaged bundle is refused and nothing is installed
+        run: |
+          Copy-Item -Recurse build\bundle build\damaged\bundle
+          Copy-Item build\ClinAssist-Setup.exe build\damaged\
+          Add-Content build\damaged\bundle\models\faster-whisper-small\config.json "x"
+          $p = Start-Process build\damaged\ClinAssist-Setup.exe -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /DIR=C:\Damaged" -Wait -PassThru
+          if ($p.ExitCode -eq 0) { throw "installer accepted a damaged bundle" }
+          if (Test-Path C:\Damaged\ClinAssist.exe) { throw "files were installed from a damaged bundle" }
+          Write-Output "refused with exit code $($p.ExitCode)"
+
+      - name: Install silently
+        run: |
+          $p = Start-Process build\ClinAssist-Setup.exe -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /LOG=install.log" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { Get-Content install.log -Tail 40; throw "install failed: $($p.ExitCode)" }
+
+      - name: Everything is where it should be
+        run: |
+          $app = "$env:ProgramFiles\ClinAssist"
+          foreach ($f in "ClinAssist.exe", "ClinAssist-check.exe", "models\faster-whisper-small\model.bin", "licences\medgemma.txt", "scripts\airgap_firewall.ps1") {
+            if (-not (Test-Path "$app\$f")) { throw "missing after install: $f" }
+          }
+          if (-not (Test-Path "$env:USERPROFILE\.ollama\models\manifests\registry.ollama.ai\library\medgemma\4b")) { throw "Ollama model manifest not copied" }
+          $rule = Get-NetFirewallRule -DisplayName "ClinAssist block outbound*" | Where-Object { ($_ | Get-NetFirewallApplicationFilter).Program -eq "$app\ClinAssist.exe" }
+          if (-not $rule) { throw "no firewall rule for ClinAssist.exe" }
+          Write-Output "installed; firewall rule: $($rule.DisplayName)"
+
+      - name: The installed program runs its checks
+        run: |
+          $app = "$env:ProgramFiles\ClinAssist"
+          & "$app\ClinAssist-check.exe" --check | Tee-Object check.txt
+          # The stand-in speech model must be reported as changed, and the firewall rule found.
+          if (-not (Select-String -Path check.txt -Pattern "whisper_wrong")) { throw "stand-in model not detected" }
+          if (-not (Select-String -Path check.txt -Pattern "network_verified")) { throw "firewall rule not recognised" }
+          # The check exits with 1 because of the stand-in model; that is the expected result.
+          $global:LASTEXITCODE = 0
+
+      - name: Uninstall removes the program and the firewall rules
+        run: |
+          $p = Start-Process "$env:ProgramFiles\ClinAssist\unins000.exe" -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART" -Wait -PassThru
+          Start-Sleep -Seconds 5
+          if (Test-Path "$env:ProgramFiles\ClinAssist\ClinAssist.exe") { throw "program still installed" }
+          if (Get-NetFirewallRule -DisplayName "ClinAssist block outbound*" -ErrorAction SilentlyContinue) { throw "firewall rules left behind" }
+          Write-Output "uninstalled cleanly"
