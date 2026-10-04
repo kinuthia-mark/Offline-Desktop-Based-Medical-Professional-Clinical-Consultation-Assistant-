@@ -38,6 +38,14 @@ if ($OllamaSetup) {
 Step "4. Checks with the built program"
 & "$build\dist\ClinAssist\ClinAssist-check.exe" --verify-bundle "$build\bundle"; Check "Bundle check"
 & powershell -NoProfile -ExecutionPolicy Bypass -File release\verify_bundle.ps1 -Bundle "$build\bundle"; Check "PowerShell bundle check"
+# The self-test uses every heavy part of the built program. The speech model is put beside it
+# the way the installer would, then removed again so it is not packed into the installer.
+Copy-Item -Recurse "$build\bundle\models" "$build\dist\ClinAssist\models"
+try {
+    & "$build\dist\ClinAssist\ClinAssist-check.exe" --self-test; Check "Self-test"
+} finally {
+    Remove-Item -Recurse -Force "$build\dist\ClinAssist\models"
+}
 
 Step "5. Installer"
 $iscc = @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe",
