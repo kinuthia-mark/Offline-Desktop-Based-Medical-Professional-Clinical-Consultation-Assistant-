@@ -101,6 +101,17 @@ Nothing typed is lost.
 
 ---
 
+### The consultation screen
+
+![The consultation screen with a synthetic consultation](docs/screenshots/workspace.png)
+
+Left to right: the recording controls, the transcript the clinician corrects and approves, and the
+drafted note. The clinician's own assessment is separate from the model's text, which is labelled
+as AI-generated. "Finalize and save" stays disabled until the assessment is written and all three
+history boxes are ticked; here one is still unticked.
+
+---
+
 ## 4. How it is built
 
 ```mermaid
@@ -110,7 +121,7 @@ flowchart LR
         MIC[Microphone] --> REC[Recorder]
         REC --> ASR[Speech-to-text<br/>Faster-Whisper]
         ASR --> CTRL{{Controller<br/>the clinician gates}}
-        UI[Desktop interface<br/>PyQt6] <--> CTRL
+        UI[Desktop interface<br/>PySide6] <--> CTRL
         CTRL --> GUARD[Input check]
         GUARD --> GEN[Note generator]
         GEN <-->|127.0.0.1 only| OLL[(Ollama<br/>MedGemma 4B)]
@@ -137,7 +148,7 @@ Choices made, and why (full reasoning in [`docs/ADR/`](docs/ADR/)):
 | Language model | MedGemma 4B, quantized to Q4_K_M, run by Ollama | medical model that fits on an 8 GB PC; a "2B" MedGemma does not exist (ADR-002) |
 | Speech-to-text | Faster-Whisper, on the CPU | accurate, runs offline, works without a graphics card |
 | Storage | SQLite with SQLCipher (AES-256), keys from Argon2id | whole-file encryption that installs on Windows without extra tools (ADR-001, ADR-003) |
-| Interface | PyQt6 desktop app | one screen, no web server needed |
+| Interface | PySide6 desktop app (official Qt for Python) | one screen, no web server needed; its LGPL licence suits handing the installer to clinics |
 | Packaging | a normal Windows installer | Docker adds overhead and cannot easily reach the microphone on clinic PCs |
 | Network | none; the only connection is to Ollama on the same PC (127.0.0.1) | the air gap is a core requirement |
 
@@ -184,7 +195,7 @@ is recorded.
 | Input check (prompt injection, personal data) and checks on the model's reply | FR-05, AMD-11 | built and tested |
 | Microphone recorder | FR-01 | built and tested, including on the real microphone |
 | Speech-to-text (Faster-Whisper small, offline) | FR-02 | built and measured with synthetic speech |
-| Desktop interface | FR-03, FR-06, FR-16 to FR-18 | planned |
+| Desktop interface (PySide6): consultation screen, records, audit and accounts | FR-03, FR-06, FR-16 | built and tested |
 | Wiring of all parts, memory plan, startup checks | NFR-04, NFR-07 | built and run end to end |
 | Air-gap enforcement (firewall rule, network self-check) | NFR-01, NFR-02 | planned |
 | Evaluation with scripted consultations | NFR-03, NFR-06 | planned |
@@ -307,8 +318,14 @@ is still to come.
 
 ## 9. Running it
 
-The full application is not finished yet; what runs today is the test suite and the note generator
-on its own.
+**Start the application** (needs the speech model in `models/` and Ollama running):
+
+```powershell
+python -m clinassist.ui
+```
+
+On first run it checks the PC, asks for a vault passphrase, shows the recovery code once, and
+asks for the first administrator account.
 
 **Setup** (Windows, PowerShell, Python 3.11):
 
@@ -316,7 +333,7 @@ on its own.
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-pip install -e ".[dev,storage,audio,asr]"
+pip install -e ".[dev,storage,audio,asr,ui]"
 pre-commit install
 ```
 
@@ -365,6 +382,7 @@ src/clinassist/
   app.py             builds the real parts and connects them; keeps the two models apart in memory
   config.py          the settings file, with the reason for each default
   startup.py         checks this PC is ready: models, Ollama, memory, microphone, data folder
+  ui/                the desktop screens: consultation workspace, records, audit and accounts, dialogs
   domain.py          the data the app works with (draft, note, checklist, session record) and its errors
   ports.py           the small interfaces each outside part must provide
   controller.py      the consultation steps and the clinician gates (the heart of the app)
@@ -431,7 +449,7 @@ code, then the tests and measurements that check that requirement, before moving
 | [`docs/traceability.md`](docs/traceability.md) | every requirement, the branch that builds it, the test that checks it, and its status |
 | [`docs/AMENDMENTS.md`](docs/AMENDMENTS.md) | every change from the approved proposal, with the reason |
 | [`docs/proposal/CROSSCHECK.md`](docs/proposal/CROSSCHECK.md) | how the code maps onto the proposal's use cases, diagrams, schema and wireframe |
-| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008) |
+| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009) |
 | [`docs/spikes/`](docs/spikes/) | raw measurement results from the reference PC |
 | [`docs/PRIOR_ART.md`](docs/PRIOR_ART.md) | what was reused from the earlier MedgemmaV2 prototype and what was left out |
 
