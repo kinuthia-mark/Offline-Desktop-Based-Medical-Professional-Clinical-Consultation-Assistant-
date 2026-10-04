@@ -51,8 +51,15 @@ audit log. It covers the whole consultation from the screen, the blank assessmen
 AI text, the finalize conditions, the failure state with retry and writing by hand, a transcript
 aimed at the AI (the model is never called), a failed speech-to-text, discard confirmation, an
 expired login, the records view, the administrator's screen, the readiness, recovery-code and login
-dialogs, a different user after a timeout, and the import rule. The tests passed six runs in a
-row after a timing problem in one test was fixed (it read the screen before the result arrived).
+dialogs, a different user after a timeout, and the import rule.
+
+Two test problems were found and fixed. One test read the screen before the result had arrived
+(a timing problem in the test). Later, CI on Python 3.11 crashed with a Windows access violation:
+windows left over from one test were freed by Python's cycle collector in the middle of the next
+test, while Qt was handling events. Each test now closes and deletes its windows and collects
+garbage at once. Before that fix the crash could be reproduced on the reference PC in 19 of 20
+runs; after it, 20 of 20 runs passed. The application itself keeps one window for its whole life,
+so it was not affected.
 
 Mutation checks, all 9 caught: Finalize enabled without the checklist; the assessment pre-filled
 with the AI text; the AI text editable; the transcript locked after speech-to-text; the model given
