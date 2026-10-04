@@ -11,15 +11,20 @@ from functools import lru_cache
 
 from clinassist.adapters.numbers import find_numbers
 
+# Gendered words. The prompt tells the model to write "the patient"; if one of these appears in
+# the note but not in the transcript, the model guessed the patient's gender.
 _PRONOUNS = ("he", "she", "his", "her", "hers", "him", "himself", "herself")
+# A full stop or comma with no space after it ("pain.Patient"), a sign of words run together.
 _MERGED_PUNCT = re.compile(r"[a-z][.,;:][A-Za-z]")
 _LIST_MARKER = re.compile(r"(?:(?<=\s)|^)\d{1,2}\.\s+(?=[A-Z])")  # "6. ECG today" is numbering
 
 
 def _words(text: str) -> set[str]:
+    # Every word in the text, lower case, as a set for quick "was this word said?" checks.
     return set(re.findall(r"[a-z']+", text.lower()))
 
 
+# The dictionary takes a moment to load, so it is loaded once and then reused.
 @lru_cache(maxsize=1)
 def _spell():
     from spellchecker import SpellChecker  # bundled English dictionary, works offline
@@ -32,10 +37,14 @@ def merged_words(note: str, transcript_words: set[str]) -> list[str]:
     ("healthand", "whenpassing"). Words the clinician said are trusted, so drug names are safe."""
     spell = _spell()
     found = []
+    # Look at each distinct word of six letters or more in the note.
     for word in dict.fromkeys(re.findall(r"[A-Za-z]{6,}", note)):
         lower = word.lower()
+        # Fine if it is a real word, or if the clinician actually said it.
         if lower in transcript_words or spell.known([lower]):
             continue
+        # Otherwise try every place it could be split: "healthand" -> "health" + "and".
+        # If both halves are real words, it was probably two words run together.
         for i in range(2, len(lower) - 1):
             if spell.known([lower[:i]]) and spell.known([lower[i:]]):
                 found.append(word)
@@ -49,6 +58,8 @@ def check_flags(sections: dict[str, str], transcript: str) -> tuple[str, ...]:
     note = " ".join(sections.values())
     transcript_words = _words(transcript)
 
+    # Each check below adds a short flag such as "empty_section:plan". The flags are shown to the
+    # clinician as things to look at; none of them stops the note.
     for name, text in sections.items():
         if not text.strip():
             flags.append(f"empty_section:{name}")
@@ -62,12 +73,14 @@ def check_flags(sections: dict[str, str], transcript: str) -> tuple[str, ...]:
     try:
         flags.extend(f"possible_merged_word:{w}" for w in merged_words(note, transcript_words))
     except ImportError:
+        # If the dictionary package is missing, say so instead of silently skipping the check.
         flags.append("merged_word_check_unavailable")
 
     # Numbers, written as digits or words. A pair like 152/94 must appear as a pair, because its
     # two numbers can each occur elsewhere. Each check is skipped when the transcript has nothing
     # of that kind to compare with.
     t_singles, t_pairs = find_numbers(transcript)
+    # List numbering in the note ("1. Rest") is removed first so it is not flagged as a value.
     n_singles, n_pairs = find_numbers(_LIST_MARKER.sub(" ", note))
     if t_pairs:
         known_pairs = set().union(*(p.readings for p in t_pairs))
@@ -82,4 +95,5 @@ def check_flags(sections: dict[str, str], transcript: str) -> tuple[str, ...]:
             for s in n_singles
             if s.start not in in_pairs and not (s.readings & known)
         )
+    # Remove duplicate flags but keep their order.
     return tuple(dict.fromkeys(flags))

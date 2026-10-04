@@ -12,6 +12,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+# Lookup tables from number words to values: "seven" -> 7, "fourteen" -> 14, "sixty" -> 60.
 _UNITS = {w: i for i, w in enumerate("zero one two three four five six seven eight nine".split())}
 _TEENS = {
     w: 10 + i
@@ -24,6 +25,7 @@ _TENS = {
     for i, w in enumerate("twenty thirty forty fifty sixty seventy eighty ninety".split())
 }
 _WORDS = set(_UNITS) | set(_TEENS) | set(_TENS) | {"hundred", "point"}
+# Splits text into pieces: numbers written in digits (152, 37.5), words, and the "/" in 120/80.
 _TOKEN = re.compile(r"\d+(?:\.\d+)?|[a-z]+|/")
 
 
@@ -43,6 +45,8 @@ class Pair:
 
 
 def _int_readings(words: list[str]) -> set[str]:
+    # First turn the words into small values: "one fifty two" -> [1, 52];
+    # "one hundred fifty two" -> [100, 52] ("hundred" multiplies the value before it).
     values: list[int] = []
     i = 0
     while i < len(words):
@@ -61,6 +65,8 @@ def _int_readings(words: list[str]) -> set[str]:
         elif w in _UNITS:
             values.append(_UNITS[w])
         i += 1
+    # Then list every way those values could be read. Each value on its own counts, and so do
+    # the joined-up readings people mean when they speak a blood pressure.
     readings = {str(v) for v in values}
     if len(values) >= 2:
         if values[0] % 100 == 0 and values[0] >= 100:
@@ -71,6 +77,7 @@ def _int_readings(words: list[str]) -> set[str]:
 
 
 def _word_readings(words: list[str]) -> set[str]:
+    # Decimals: "thirty seven point five" -> 37.5. Digits after "point" are read one by one.
     if "point" in words:
         k = words.index("point")
         left, right = words[:k], words[k + 1 :]
@@ -81,6 +88,7 @@ def _word_readings(words: list[str]) -> set[str]:
 
 
 def _canon(token: str) -> str:
+    # "07" and "7" are the same number.
     return str(int(token)) if token.isdigit() else token
 
 
@@ -89,6 +97,8 @@ def find_numbers(text: str) -> tuple[list[Occurrence], list[Pair]]:
     tokens = [m.group() for m in _TOKEN.finditer(text.lower())]
     singles: list[Occurrence] = []
     i = 0
+    # Walk through the pieces. A number in digits is one occurrence. A run of number words
+    # ("one fifty two", "one hundred and five") is gathered up and read as one occurrence.
     while i < len(tokens):
         tok = tokens[i]
         if tok[0].isdigit():
@@ -107,6 +117,7 @@ def find_numbers(text: str) -> tuple[list[Occurrence], list[Pair]]:
         else:
             i += 1
 
+    # Two numbers joined by "over" or "/" form a pair, the way blood pressure is written.
     pairs: list[Pair] = []
     for a, b in zip(singles, singles[1:], strict=False):
         if b.start == a.end + 1 and tokens[a.end] in {"over", "/"}:
