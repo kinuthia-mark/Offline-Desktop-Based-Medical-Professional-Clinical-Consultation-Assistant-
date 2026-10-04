@@ -81,6 +81,7 @@ MESSAGES: dict[str, str] = {
     "non_loopback_host": "The model address must be on this computer (127.0.0.1).",
     "settings_unreadable": "The settings file could not be read. Fix or delete settings.json.",
     "unknown_whisper_model": "The settings name a speech model that is not supported.",
+    "ollama_model_not_found": "The language model is not installed in Ollama on this PC.",
     # storage
     "duplicate_session": "This consultation has already been saved.",
     "rejected_by_schema": "The record was refused as incomplete. Check the checklist and note.",
