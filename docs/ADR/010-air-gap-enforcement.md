@@ -1,9 +1,10 @@
 # ADR-010: Enforcing the air gap
 
-- Status: accepted; the firewall rules await an administrator run on the reference PC
+- Status: accepted; firewall rules applied and confirmed on the reference PC
 - Date: 2026-10-04
 - Requirement IDs: NFR-01, NFR-02, FR-18
-- Evidence: `tests/test_airgap.py`, `tests/test_ui.py` (header label), `docs/spikes/airgap-mark-pc.json`,
+- Evidence: `tests/test_airgap.py`, `tests/test_ui.py` (header label, readiness button),
+  `docs/spikes/airgap-mark-pc.json`, `docs/spikes/pipeline-mark-pc-firewall.json`,
   `scripts/airgap_firewall.ps1`
 
 ## Context
@@ -50,8 +51,9 @@ public addresses, which on a connected PC is itself outbound traffic (`docs/PRIO
 | Ollama listening | 127.0.0.1:11434 (`ollama.exe`) and 127.0.0.1:60789 (`ollama app.exe`) only |
 | App listening sockets | none |
 | App open connections | none |
-| Firewall rules | not yet set |
-| Assessment | warning: "Offline: firewall rule not set" |
+| Firewall rules (after the administrator run) | three outbound block rules, enabled: Python, `ollama.exe`, `ollama app.exe` |
+| Assessment | "Offline: verified" (before the rules: "Offline: firewall rule not set") |
+| Full chain with the rules on (short consultation) | 75 s, against 70 s without them: the local connection to Ollama is unaffected |
 | Time for the checks | 1.6 s (most of it starting PowerShell to read the firewall) |
 | Guarded attempts: TCP to 10.255.255.1, lookup of example.com, listening on 0.0.0.0 | all refused before anything was sent |
 
@@ -71,9 +73,23 @@ missing firewall rule, open connection or missing guard not reported.
   script run again; the start-up check will then show the warning.
 - A local administrator can remove the rules or reconfigure Ollama. The check reports it at the
   next start; it cannot prevent it.
-- The rules have not yet been applied and confirmed on the reference PC. After an administrator
-  runs the script, `python spikes/airgap_spike.py --label mark-pc` should record "Offline:
-  verified", and drafting a note should still work.
+- With the rules on, the blocked programs cannot reach the internet for anything, including
+  installing Python packages or pulling Ollama models. On a development PC the rules are removed
+  for such steps and applied again afterwards (`-Remove`, `-Apply`).
+
+## Clinic users do not run scripts
+The people using this are clinicians, not IT staff, so no step may need a command line:
+
+- **At installation** the installer, which Windows already runs with administrator rights after
+  one "allow changes?" prompt, creates the rules for the installed `ClinAssist.exe` and Ollama, and
+  removes them on uninstall (release module). The rule targets the application's own program, not
+  any Python on the PC.
+- **If the rules go missing later** (removed by IT, or the program moved), the readiness screen
+  shows "Turn on offline protection". One click makes Windows show its usual permission prompt
+  (`ShellExecute` with the `runas` verb); after "Yes", "Check again" confirms the result. Nothing
+  else is asked of the user.
+- **The in-app guard needs no setup**, so even before the rules exist the application itself
+  opens no connection.
 
 ## Consequences
 - NFR-01, NFR-02 and FR-18 built. AMD-10 applied in code; Figure 4.5 should show Ollama's
