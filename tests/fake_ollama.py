@@ -26,11 +26,18 @@ class FakeOllama:
         self.chat_requests: list[dict] = []
         self.generate_requests: list[dict] = []
         self.chunks_sent = 0
+        self.installed = ["medgemma:4b"]  # what GET /api/tags reports
         outer = self
 
         class Handler(BaseHTTPRequestHandler):
             def log_message(self, *args):
                 pass
+
+            def do_GET(self):
+                if self.path == "/api/tags":
+                    self._json({"models": [{"name": n} for n in outer.installed]})
+                else:
+                    self.send_error(404)
 
             def do_POST(self):
                 body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))))
