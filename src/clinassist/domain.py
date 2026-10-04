@@ -4,6 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+# The three kinds of error the workflow can raise. Each carries a short code (for example
+# "history_not_confirmed"), so the interface can show a clear message and nothing from the
+# consultation ever ends up in an error text or a log.
+
 
 class WorkflowError(RuntimeError):
     """An action was attempted out of order or without its prerequisites."""
@@ -29,8 +33,13 @@ class GenerationFailed(RuntimeError):
         self.partial_output = partial_output
 
 
+# The objects below are "frozen": once made they cannot be changed, only replaced. That stops
+# one part of the program from quietly altering a note another part is relying on.
+
+
 @dataclass(frozen=True)
 class GuardVerdict:
+    # The input check's answer: hold the text back (quarantined) or pass on a cleaned copy.
     quarantined: bool
     reason: str = ""
     clean_text: str = ""
@@ -38,6 +47,7 @@ class GuardVerdict:
 
 @dataclass(frozen=True)
 class SoapNote:
+    # The clinician's final note in the standard four parts.
     subjective: str = ""
     objective: str = ""
     assessment: str = ""
@@ -61,6 +71,7 @@ class Draft:
     subjective: str = ""
     objective: str = ""
     plan: str = ""
+    # Named ai_assessment, not assessment, so it can never be mistaken for the clinician's own.
     ai_assessment: str = ""
     suggestions: tuple[AiSuggestion, ...] = ()
     source: str = "model"  # "model" or "manual"
@@ -68,6 +79,8 @@ class Draft:
 
     def clinician_scaffold(self) -> SoapNote:
         """Starting point for the clinician's note. The assessment is deliberately blank."""
+        # Subjective, objective and plan are copied in for the clinician to edit. The
+        # assessment box starts empty so the clinician forms their own view first.
         return SoapNote(self.subjective, self.objective, "", self.plan)
 
 
@@ -81,6 +94,7 @@ class HistoryChecklist:
 
     @property
     def complete(self) -> bool:
+        # All three must be ticked; two out of three is not enough.
         return self.allergies and self.medications and self.pertinent_negatives
 
 
@@ -90,8 +104,11 @@ class SessionRecord:
 
     session_id: str
     transcript: str
+    # Who approved the transcript and who finalized the note; usually the same clinician.
     transcript_approved_by: str
     finalized_by: str
+    # The model's draft and the clinician's final note are both kept, side by side, so it is
+    # always possible to see what the model wrote and what the clinician changed.
     draft: Draft
     final_note: SoapNote
     accepted_suggestions: tuple[int, ...]
