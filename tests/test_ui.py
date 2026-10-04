@@ -365,3 +365,17 @@ def test_every_code_the_app_raises_has_a_message():
     internal = {"unwrap_failed"}  # always turned into incorrect_passphrase before the screen
     missing = sorted(c for c in codes - internal if c not in MESSAGES)
     assert not missing, missing
+
+
+def test_header_shows_what_the_network_check_found(qapp, services):
+    """FR-18: the label is the check's result, never a fixed "Air-Gapped"."""
+    session = _admin(services)
+    window = MainWindow(
+        services,
+        session,
+        login_again=lambda n: None,
+        network=("warn", "Offline: firewall rule not set"),
+    )
+    assert window.network_label.text() == "Offline: firewall rule not set"
+    assert "#8a5a00" in window.network_label.styleSheet()
+    window.close()
