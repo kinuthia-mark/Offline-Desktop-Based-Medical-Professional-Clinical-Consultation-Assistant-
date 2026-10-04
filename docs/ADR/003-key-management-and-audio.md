@@ -1,6 +1,6 @@
 # ADR-003: Key management, recovery and audio retention
 
-- Status: accepted (passphrase policy and who holds the recovery code are open, see below)
+- Status: accepted (supervisor review of the passphrase policy and custody of the recovery code open)
 - Date: 2026-10-04
 - Requirement IDs: FR-07, NFR-05
 - Evidence: `tests/test_crypto.py`, `tests/test_vault.py`, `tests/test_store.py`,
@@ -83,9 +83,12 @@ retention on by default; audio not bound to its session.
 - One machine, synthetic data. The mechanisms are tested; no claim of formal security review.
 
 ## Open items (decisions for the author, with the supervisor)
-- **Passphrase policy** (`check_passphrase` in `security/vault.py`): minimum length and any
-  other rules. Settle with the supervisor and a data-protection review (Kenya Data Protection
-  Act 2019).
+- **Passphrase policy**: implemented in `check_passphrase` (`security/vault.py`) following
+  NIST SP 800-63B: at least 12 characters (surrounding spaces not counted), at most 256, not on a
+  short common-password list, not one repeated character, and no composition rules. Applies to
+  create, change and recovery (`tests/test_vault.py`; disabling it makes those tests fail).
+  Still to confirm with the supervisor and a data-protection review (Kenya Data Protection Act
+  2019); the common list is small and should grow from a published list before release.
 - **Who keeps the printed recovery code, and where.** An organisational control, not a code one.
 
 ## Consequences
