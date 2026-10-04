@@ -14,12 +14,22 @@ if (-not (Test-Path $manifestPath)) {
     exit 1
 }
 $manifest = Get-Content -Raw -Encoding UTF8 $manifestPath | ConvertFrom-Json
+
+# SHA-256 through .NET directly. Get-FileHash is not available in every PowerShell setup (it was
+# missing on the CI machines), and an installer must work on any clinic PC.
+$sha = [System.Security.Cryptography.SHA256]::Create()
+function Get-Sha256([string]$file) {
+    $stream = [System.IO.File]::OpenRead($file)
+    try { return (($sha.ComputeHash($stream) | ForEach-Object { $_.ToString("x2") }) -join "") }
+    finally { $stream.Dispose() }
+}
+
 $problems = @()
 foreach ($entry in $manifest.files.PSObject.Properties) {
     $path = Join-Path $Bundle ($entry.Name -replace "/", "\")
     if (-not (Test-Path $path)) { $problems += "missing: $($entry.Name)"; continue }
     if ((Get-Item $path).Length -ne $entry.Value.bytes) { $problems += "wrong size: $($entry.Name)"; continue }
-    $hash = (Get-FileHash -Algorithm SHA256 $path).Hash.ToLower()
+    $hash = Get-Sha256 $path
     if ($hash -ne $entry.Value.sha256) { $problems += "changed: $($entry.Name)" }
 }
 if ($problems.Count) {
