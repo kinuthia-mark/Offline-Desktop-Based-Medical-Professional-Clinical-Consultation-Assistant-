@@ -51,6 +51,29 @@ MIGRATIONS: tuple[str, ...] = (
         PRIMARY KEY (session_id, position)
     );
     """,
+    # v2: user accounts and the hash-chained audit log (FR-08, FR-09, AMD-12).
+    """
+    CREATE TABLE users (
+        user_id         TEXT PRIMARY KEY CHECK (length(user_id) > 0),
+        username        TEXT NOT NULL UNIQUE COLLATE NOCASE CHECK (length(username) > 0),
+        display_name    TEXT NOT NULL,
+        role            TEXT NOT NULL CHECK (role IN ('clinician', 'admin')),
+        password_hash   TEXT NOT NULL CHECK (password_hash LIKE '$argon2id$%'),
+        failed_attempts INTEGER NOT NULL DEFAULT 0 CHECK (failed_attempts >= 0),
+        locked_until    TEXT,
+        active          INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0, 1)),
+        created_at      TEXT NOT NULL
+    );
+    CREATE TABLE audit_logs (
+        seq         INTEGER PRIMARY KEY CHECK (seq >= 1),
+        ts          TEXT NOT NULL,
+        event       TEXT NOT NULL,
+        session_id  TEXT NOT NULL,
+        user_id     TEXT,
+        prev_hash   TEXT NOT NULL CHECK (length(prev_hash) = 64),
+        entry_hash  TEXT NOT NULL UNIQUE CHECK (length(entry_hash) = 64)
+    );
+    """,
 )
 
 LATEST = len(MIGRATIONS)
