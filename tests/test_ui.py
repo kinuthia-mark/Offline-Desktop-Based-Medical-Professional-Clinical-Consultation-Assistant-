@@ -43,6 +43,31 @@ def qapp():
     return QApplication.instance() or QApplication([])
 
 
+@pytest.fixture(autouse=True)
+def _close_windows_after_each_test():
+    """Close and delete every window a test made, then collect garbage straight away.
+
+    Each screen refers to itself through its timers and button handlers, so Python frees it
+    only when its cycle collector runs, which could be in the middle of the next test while Qt
+    is handling events. Destroying a Qt window at that moment is an access violation (seen on
+    CI). Cleaning up here makes the moment fixed and safe."""
+    yield
+    import gc
+
+    from PySide6.QtCore import QCoreApplication, QEvent
+
+    app = QApplication.instance()
+    if app is None:
+        return
+    QThreadPool.globalInstance().waitForDone(5000)
+    for widget in app.topLevelWidgets():
+        widget.close()
+        widget.deleteLater()
+    QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+    app.processEvents()
+    gc.collect()
+
+
 def wait_until(condition, seconds: float = 10.0) -> None:
     """Let background jobs finish and their results reach the screen."""
     end = time.monotonic() + seconds
