@@ -347,7 +347,10 @@ pytest
 ruff check . ; ruff format --check .
 ```
 
-**Block network access with Windows Firewall** (once, in PowerShell opened as administrator):
+**Block network access with Windows Firewall.** In a clinic this is done by the installer, and the
+readiness screen has a "Turn on offline protection" button if the rules ever go missing. When
+running from source, do it once in PowerShell opened as administrator (use `-Remove` before
+installing packages, then `-Apply` again):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scriptsirgap_firewall.ps1 -Apply
