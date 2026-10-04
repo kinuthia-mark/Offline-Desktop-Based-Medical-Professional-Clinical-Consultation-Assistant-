@@ -34,8 +34,6 @@ SolidCompression=yes
 WizardStyle=modern
 ; The model's licence terms must be accepted before installing.
 LicenseFile={#BuildDir}\bundle\licences\medgemma.txt
-; OLLAMA_MODELS is set below; other programs are told the environment changed.
-ChangesEnvironment=yes
 UninstallDisplayName=Offline Clinical Consultation Assistant
 
 [Tasks]
@@ -48,12 +46,11 @@ Source: "{#BuildDir}\dist\ClinAssist\*"; DestDir: "{app}"; Flags: recursesubdirs
 Source: "verify_bundle.ps1"; Flags: dontcopy
 ; Models, copied from the bundle beside the installer ("external": not inside the .exe).
 Source: "{src}\bundle\models\*"; DestDir: "{app}\models"; Flags: external recursesubdirs
-Source: "{src}\bundle\ollama-models\*"; DestDir: "{commonappdata}\ClinAssist\ollama-models"; Flags: external recursesubdirs
+; Ollama's default model folder, so it finds the model at once with no setting to change. Model
+; files are named by their SHA-256, so one that already exists is identical and is left alone
+; (it may also be open by a running Ollama).
+Source: "{src}\bundle\ollama-models\*"; DestDir: "{%USERPROFILE}\.ollama\models"; Flags: external recursesubdirs onlyifdoesntexist uninsneveruninstall
 Source: "{src}\bundle\licences\*"; DestDir: "{app}\licences"; Flags: external recursesubdirs
-
-[Registry]
-; Ollama reads its models from here, for every user of the PC.
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "OLLAMA_MODELS"; ValueData: "{commonappdata}\ClinAssist\ollama-models"; Flags: uninsdeletevalue
 
 [Icons]
 Name: "{group}\Clinical Consultation Assistant"; Filename: "{app}\ClinAssist.exe"
