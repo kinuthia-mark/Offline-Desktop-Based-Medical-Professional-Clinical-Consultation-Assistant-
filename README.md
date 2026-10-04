@@ -201,7 +201,7 @@ is recorded.
 | Desktop interface (PySide6): consultation screen, records, audit and accounts | FR-03, FR-06, FR-16 | built and tested |
 | Wiring of all parts, memory plan, startup checks | NFR-04, NFR-07 | built and run end to end |
 | Air-gap enforcement: in-app network guard, firewall rules, checks shown on screen | NFR-01, NFR-02, FR-18 | built; firewall rules to be applied on the reference PC |
-| Evaluation with scripted consultations | NFR-03, NFR-06 | planned |
+| Evaluation: 8 scripted consultations with key facts and traps, scored end to end | FR-05, NFR-03, NFR-06 | built and run; clinician scoring pending |
 | Installer and offline model bundle | release | planned |
 
 More than 350 tests run on every push, on Windows with Python 3.11 and 3.12, together with
@@ -289,6 +289,22 @@ encrypted save, with the speech model and the language model never in memory tog
 The PC had only 0.55 to 1.4 GB free at the start because other programs were open; with more
 free memory the drafting step is faster (ADR-002).
 
+**How good are the notes?** ([ADR-011](docs/ADR/011-evaluation.md),
+[report](docs/eval/report-mark-pc-speech.md)) Eight synthetic Kenyan primary-care consultations
+(168 key facts, 70 of them critical), each read aloud, transcribed by Whisper and drafted by
+MedGemma, then scored:
+
+| What | From speech | From the written script |
+|---|---|---|
+| Key facts in the note | 89.9% | 92.3% |
+| Critical facts (allergies, doses, readings, orders, warnings) | 90.0% | 97.1% |
+| Symptoms the patient denied, written as present | 0 | 0 |
+| Traps (a relative's illness, a drug the doctor ruled out, a diagnosis nobody made) | 0 | 0 |
+| Notes needing the second attempt | 1 of 8 | 1 of 8 |
+
+The biggest weakness: when Whisper mishears a medicine ("Glendamycin" for clindamycin, "sulfur" for
+sulfa), the note repeats the mistake. The clinician's transcript check is what catches it.
+
 **What the notes got wrong** (7 notes read by hand against their transcripts). Plan items were
 accurate. But every note left out allergies or pertinent negatives; 3 of 4 short notes stated a
 diagnosis the doctor had not made; one long note changed a blood-pressure reading, contradicted a
@@ -370,6 +386,15 @@ python scripts/try_note.py spikes/transcripts/synthetic_consult_01.txt
 python scripts/try_note.py spikes/transcripts/synthetic_consult_long.txt --attempt 2
 ```
 
+**Run the evaluation** (8 scripted consultations through the whole system; about 15 minutes):
+
+```powershell
+python eval/run_eval.py --label my-pc                 # from speech, through Whisper
+python eval/run_eval.py --label my-pc --source script # the labelled script straight in
+```
+
+Results, a readable report and a clinician scoring sheet are written to `docs/eval/`.
+
 **Repeat the measurements** on another machine:
 
 ```powershell
@@ -396,6 +421,7 @@ src/clinassist/
   config.py          the settings file, with the reason for each default
   startup.py         checks this PC is ready: models, Ollama, memory, microphone, data folder
   ui/                the desktop screens: consultation workspace, records, audit and accounts, dialogs
+  evaluation.py      scores a note against a consultation's key facts, denied symptoms and traps
   domain.py          the data the app works with (draft, note, checklist, session record) and its errors
   ports.py           the small interfaces each outside part must provide
   controller.py      the consultation steps and the clinician gates (the heart of the app)
@@ -462,7 +488,7 @@ code, then the tests and measurements that check that requirement, before moving
 | [`docs/traceability.md`](docs/traceability.md) | every requirement, the branch that builds it, the test that checks it, and its status |
 | [`docs/AMENDMENTS.md`](docs/AMENDMENTS.md) | every change from the approved proposal, with the reason |
 | [`docs/proposal/CROSSCHECK.md`](docs/proposal/CROSSCHECK.md) | how the code maps onto the proposal's use cases, diagrams, schema and wireframe |
-| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010) |
+| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011) |
 | [`docs/spikes/`](docs/spikes/) | raw measurement results from the reference PC |
 | [`docs/PRIOR_ART.md`](docs/PRIOR_ART.md) | what was reused from the earlier MedgemmaV2 prototype and what was left out |
 
