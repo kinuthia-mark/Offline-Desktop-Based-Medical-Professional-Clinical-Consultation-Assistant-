@@ -8,7 +8,7 @@ diagram's only other clinician use case). See `proposal/CROSSCHECK.md` for the f
 | ID | Requirement | UC | Branch | Test / measurement | Status |
 |---|---|---|---|---|---|
 | FR-01 | Record consultation audio from the local microphone | UC-01 | feature/audio-recorder | tests/test_recorder.py (fake audio system: format, limit, silence, errors, device list, release); real-microphone test and docs/spikes/mic-mark-pc.json | in progress (built and tested; verified when CI is green) |
-| FR-02 | Transcribe audio locally | UC-02 | feature/asr-whisper | WER on scripted audio | planned |
+| FR-02 | Transcribe audio locally | UC-02 | feature/asr-whisper | tests/test_transcriber.py (fake model: settings, offline loading, errors, unload, confidence; real models when present); WER, speed and memory in docs/spikes/asr-mark-pc.json | in progress (built and measured with synthetic speech; verified when CI is green) |
 | FR-03 | Clinician reviews and edits the transcript | UC-03 (inferred) | feature/ui-dashboard | UI tests | planned |
 | FR-04 | Load the quantized model locally | UC-04 | spike/ollama-medgemma, feature/llm-soap | client, loopback, proxy-bypass and unload tests; memory table under typical load (docs/spikes/llm-results.md) | in progress (client done) |
 | FR-05 | Generate a structured SOAP draft with diagnosis suggestions and management strategies (Diagnostics tab); suggestions are off by default until measured | UC-05 | spike/ollama-medgemma, feature/llm-soap, feature/input-guard | schema, retry and flag tests (numbers, merged words) on real outputs; injection, masking, canary and link tests (tests/test_input_guard.py, ADR-005); faithfulness metrics in eval/harness | in progress (generator and input guard done; suggestions off by default, AMD-32; faithfulness pending) |
@@ -31,8 +31,8 @@ diagram's only other clinician use case). See `proposal/CROSSCHECK.md` for the f
 | NFR-01 | No outbound network connectivity | n/a | feature/airgap-enforcement | firewall and probe evidence | planned |
 | NFR-02 | Application process opens no listening sockets; only Ollama's loopback port | n/a | feature/airgap-enforcement | socket test on launched app | planned |
 | NFR-03 | End-to-end latency within a target set from measurements | n/a | eval/harness | measured on reference PC (ADR-002); target TBD | in progress (measured once) |
-| NFR-04 | Peak memory within a target on a stated reference PC | n/a | spike/ollama-medgemma, feature/asr-whisper | memory table under typical load (ADR-002); clean baseline not reachable on the reference PC | in progress |
+| NFR-04 | Peak memory within a target on a stated reference PC | n/a | spike/ollama-medgemma, feature/asr-whisper | LLM memory under typical load (ADR-002); Whisper peak 0.85 to 0.97 GB and unload measured (ADR-007); clean baseline not reachable on the reference PC | in progress |
 | NFR-05 | Patient data encrypted at rest | n/a | spike/sqlcipher-windows, feature/secure-store | no plaintext on disk, wrong-key, tamper and corruption tests (ADR-001, ADR-003); tests/test_crypto.py, tests/test_vault.py, tests/test_audio_store.py | verified when PR #11 is merged (Windows CI green on 3.11 and 3.12) |
-| NFR-06 | Transcription accuracy (WER) reported against a target | n/a | eval/harness | WER table (target TBD) | planned |
+| NFR-06 | Transcription accuracy (WER) reported against a target | n/a | eval/harness | WER on synthetic speech (docs/spikes/asr-mark-pc.json: small 0.7 to 1.6% normalised); recorded human speech pending; target TBD | in progress (first measurement, best case) |
 | NFR-07 | Startup self-check warns when free memory is too low for the model | n/a | feature/airgap-enforcement | startup check test; threshold from measurements | planned |
 | NFR-08 | Provide the proposal's deliverables: System Design Documentation, Test Cases Documentation, proof of concept | section 3.2.5 | release/docs | document review | planned |
