@@ -1,0 +1,334 @@
+{
+ "id": "s01_fever",
+ "title": "Fever and headache, malaria to be excluded",
+ "script": "s01_fever.txt",
+ "facts": [
+  {
+   "id": "fever_3_days",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "fever",
+     "febrile"
+    ],
+    [
+     "3 days"
+    ]
+   ]
+  },
+  {
+   "id": "headache",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "headache",
+     "headaches"
+    ]
+   ]
+  },
+  {
+   "id": "chills_at_night",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "chills"
+    ]
+   ]
+  },
+  {
+   "id": "joint_aches",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "joint",
+     "joints",
+     "arthralgia"
+    ]
+   ]
+  },
+  {
+   "id": "vomited_once",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "vomit",
+     "vomited",
+     "vomiting",
+     "emesis"
+    ],
+    [
+     "once",
+     "1 episode",
+     "1 time"
+    ]
+   ]
+  },
+  {
+   "id": "paracetamol_taken",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "paracetamol",
+     "acetaminophen"
+    ]
+   ]
+  },
+  {
+   "id": "no_regular_medicines",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "no regular",
+     "no long term",
+     "none",
+     "no chronic",
+     "no medication",
+     "no medications"
+    ]
+   ]
+  },
+  {
+   "id": "no_allergies",
+   "section": "subjective",
+   "critical": true,
+   "denied": [
+    "allergies",
+    "allergy",
+    "allergic"
+   ]
+  },
+  {
+   "id": "temperature",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "38.6",
+     "38 point 6"
+    ]
+   ]
+  },
+  {
+   "id": "pulse",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "96"
+    ]
+   ]
+  },
+  {
+   "id": "blood_pressure",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "118 76",
+     "118 over 76"
+    ]
+   ]
+  },
+  {
+   "id": "ruq_tenderness",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "tender",
+     "tenderness"
+    ],
+    [
+     "right"
+    ]
+   ]
+  },
+  {
+   "id": "chest_clear",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "chest clear",
+     "chest is clear",
+     "clear chest",
+     "lungs clear",
+     "lungs are clear"
+    ]
+   ]
+  },
+  {
+   "id": "malaria_test",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "malaria"
+    ]
+   ]
+  },
+  {
+   "id": "full_blood_count",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "full blood count",
+     "fbc",
+     "complete blood count",
+     "cbc"
+    ]
+   ]
+  },
+  {
+   "id": "fluids_and_rest",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "fluids"
+    ],
+    [
+     "rest"
+    ]
+   ]
+  },
+  {
+   "id": "return_if_worse",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "confused",
+     "confusion",
+     "worsens",
+     "worse",
+     "repeatedly"
+    ]
+   ]
+  },
+  {
+   "id": "review_2_days",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "2 days"
+    ]
+   ]
+  }
+ ],
+ "negatives": [
+  {
+   "id": "no_cough",
+   "terms": [
+    "cough"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_sore_throat",
+   "terms": [
+    "sore throat"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_diarrhoea",
+   "terms": [
+    "diarrhea"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_rash",
+   "terms": [
+    "rash"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_dysuria",
+   "terms": [
+    "pain when passing urine",
+    "pain on passing urine",
+    "dysuria",
+    "painful urination",
+    "pain on urination"
+   ],
+   "critical": false
+  }
+ ],
+ "traps": [
+  {
+   "id": "malaria_diagnosed",
+   "terms": [
+    "malaria"
+   ],
+   "unless": [
+    "suspect",
+    "suspected",
+    "suspicion",
+    "possible",
+    "possibly",
+    "probable",
+    "rule out",
+    "query",
+    "likely",
+    "test",
+    "tests",
+    "testing",
+    "exclude",
+    "investigate",
+    "investigation",
+    "pending",
+    "screen",
+    "screening",
+    "check",
+    "consider",
+    "differential",
+    "if",
+    "for malaria",
+    "malaria test",
+    "malaria smear",
+    "malaria rdt"
+   ],
+   "why": "the doctor only planned to test for malaria"
+  },
+  {
+   "id": "dose_invented",
+   "terms": [
+    "mg",
+    "times a day",
+    "times daily",
+    "twice daily",
+    "twice a day",
+    "every 6 hours",
+    "every 8 hours"
+   ],
+   "unless": [],
+   "why": "no dose was stated anywhere"
+  },
+  {
+   "id": "gender_guessed",
+   "terms": [
+    "he",
+    "she",
+    "his",
+    "her",
+    "him",
+    "himself",
+    "herself"
+   ],
+   "unless": [],
+   "why": "the patient's gender is never stated"
+  }
+ ]
+}

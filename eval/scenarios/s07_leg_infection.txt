@@ -1,0 +1,19 @@
+# SYNTHETIC consultation invented for evaluation. Not a real patient.
+Doctor: Good afternoon. What is the problem?
+Patient: My right leg is red and painful. I cut it on a hoe while farming four days ago, and three days ago it started getting red.
+Doctor: Any fever?
+Patient: I had a fever last night.
+Doctor: Any pus coming out of the cut?
+Patient: No pus.
+Doctor: Do you have diabetes, or any other illness?
+Patient: No illnesses, and I take no medicines.
+Doctor: Any allergies?
+Patient: Yes, penicillin. It gave me hives and my lips swelled.
+Doctor: That is very important. When was your last tetanus injection?
+Patient: I do not remember. Many years ago.
+Doctor: Let me look. Temperature thirty-eight point two, pulse ninety-eight, blood pressure one thirty over eighty-four. There is a warm, red, tender area on the right shin, about eight by six centimetres. No pus, no crackling under the skin, and no red streaks going up the leg. I am drawing a line around the red area with a pen.
+Patient: What is it?
+Doctor: It is a skin infection called cellulitis. Because of your penicillin allergy, I will not give amoxicillin or flucloxacillin. I will give clindamycin three hundred milligrams four times a day for seven days. You will get a tetanus booster today. Take paracetamol for pain and fever, and keep the leg raised when you sit.
+Patient: Okay.
+Doctor: If the redness spreads past the pen line, or the fever gets worse, come back the same day. Otherwise I will see you in two days.
+Patient: Thank you.

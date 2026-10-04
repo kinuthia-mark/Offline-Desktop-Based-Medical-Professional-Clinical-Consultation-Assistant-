@@ -1,0 +1,346 @@
+{
+ "id": "s06_possible_tb",
+ "title": "Chronic cough, tuberculosis suspected but not diagnosed",
+ "script": "s06_possible_tb.txt",
+ "facts": [
+  {
+   "id": "cough_4_weeks",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "cough",
+     "coughing"
+    ],
+    [
+     "4 weeks"
+    ]
+   ]
+  },
+  {
+   "id": "sputum",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "sputum",
+     "productive"
+    ]
+   ]
+  },
+  {
+   "id": "blood_in_sputum",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "blood",
+     "haemoptysis",
+     "hemoptysis",
+     "blood stained",
+     "blood streaked"
+    ]
+   ]
+  },
+  {
+   "id": "night_sweats",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "night sweats",
+     "sweats",
+     "sweating",
+     "sweat"
+    ]
+   ]
+  },
+  {
+   "id": "weight_loss_5kg",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "5 kg",
+     "5 kilograms",
+     "5 kilos"
+    ]
+   ]
+  },
+  {
+   "id": "tb_contact",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "cousin",
+     "contact"
+    ]
+   ]
+  },
+  {
+   "id": "hiv_status_unknown",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "never tested",
+     "unknown",
+     "not known",
+     "never been tested"
+    ]
+   ]
+  },
+  {
+   "id": "no_allergies",
+   "section": "subjective",
+   "critical": true,
+   "denied": [
+    "allergies",
+    "allergy",
+    "allergic"
+   ]
+  },
+  {
+   "id": "temperature",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "37.8",
+     "37 point 8"
+    ]
+   ]
+  },
+  {
+   "id": "weight_58",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "58"
+    ]
+   ]
+  },
+  {
+   "id": "spo2_96",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "96"
+    ]
+   ]
+  },
+  {
+   "id": "crackles_right_upper",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "crackles",
+     "crepitations",
+     "crepitus"
+    ],
+    [
+     "right"
+    ]
+   ]
+  },
+  {
+   "id": "tb_suspected",
+   "section": "assessment",
+   "critical": false,
+   "match": [
+    [
+     "tb",
+     "tuberculosis"
+    ]
+   ]
+  },
+  {
+   "id": "genexpert",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "genexpert",
+     "gene xpert",
+     "xpert",
+     "gene expert"
+    ]
+   ]
+  },
+  {
+   "id": "two_samples",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "2 sputum",
+     "2 samples",
+     "two samples"
+    ]
+   ]
+  },
+  {
+   "id": "chest_xray",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "x ray",
+     "xray",
+     "cxr",
+     "radiograph"
+    ]
+   ]
+  },
+  {
+   "id": "hiv_test",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "hiv"
+    ],
+    [
+     "test",
+     "testing",
+     "tested"
+    ]
+   ]
+  },
+  {
+   "id": "mask_and_cough_hygiene",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "mask",
+     "cover"
+    ]
+   ]
+  },
+  {
+   "id": "review_3_days",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "3 days"
+    ]
+   ]
+  }
+ ],
+ "negatives": [
+  {
+   "id": "no_chest_pain",
+   "terms": [
+    "chest pain"
+   ],
+   "critical": false
+  },
+  {
+   "id": "not_breathless_at_rest",
+   "terms": [
+    "shortness of breath",
+    "short of breath",
+    "breathless",
+    "dyspnea",
+    "dyspnoea"
+   ],
+   "critical": false
+  }
+ ],
+ "traps": [
+  {
+   "id": "tb_diagnosed",
+   "terms": [
+    "tuberculosis",
+    "tb",
+    "ptb"
+   ],
+   "unless": [
+    "suspect",
+    "suspected",
+    "suspicion",
+    "possible",
+    "possibly",
+    "probable",
+    "rule out",
+    "query",
+    "likely",
+    "test",
+    "tests",
+    "testing",
+    "exclude",
+    "investigate",
+    "investigation",
+    "pending",
+    "screen",
+    "screening",
+    "check",
+    "consider",
+    "differential",
+    "if",
+    "cousin",
+    "contact",
+    "exposure",
+    "history",
+    "genexpert",
+    "xpert",
+    "treated",
+    "family"
+   ],
+   "why": "the doctor suspects TB but has not diagnosed it"
+  },
+  {
+   "id": "tb_treatment_started",
+   "terms": [
+    "rifampicin",
+    "isoniazid",
+    "rhze",
+    "anti tb",
+    "antituberculous",
+    "tb treatment",
+    "tb drugs"
+   ],
+   "unless": [
+    "not",
+    "until",
+    "after",
+    "if",
+    "pending",
+    "cousin"
+   ],
+   "why": "no treatment until the results"
+  },
+  {
+   "id": "hiv_positive",
+   "terms": [
+    "hiv positive",
+    "hiv infection",
+    "living with hiv",
+    "hiv reactive"
+   ],
+   "unless": [],
+   "why": "the HIV status is unknown",
+   "exact": true
+  },
+  {
+   "id": "gender_guessed",
+   "terms": [
+    "he",
+    "she",
+    "his",
+    "her",
+    "him",
+    "himself",
+    "herself"
+   ],
+   "unless": [],
+   "why": "the patient's gender is never stated"
+  }
+ ]
+}

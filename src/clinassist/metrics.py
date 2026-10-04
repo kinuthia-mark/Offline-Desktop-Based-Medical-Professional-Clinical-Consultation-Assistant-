@@ -77,33 +77,47 @@ def normalize(
     return _digits(words) if numbers_as_digits else words
 
 
+def _below_100(words: list[str], i: int) -> tuple[int, int] | None:
+    """Read a number from 1 to 99 starting at words[i] ("four", "fifty", "forty two").
+    Returns (value, index after it), or None."""
+    if i >= len(words):
+        return None
+    w = words[i]
+    if w in _TENS:
+        if i + 1 < len(words) and words[i + 1] in _UNITS[1:]:
+            return _VALUE[w] + _VALUE[words[i + 1]], i + 2
+        return _VALUE[w], i + 1
+    if w in _TEENS or w in _UNITS[1:]:
+        return _VALUE[w], i + 1
+    return None
+
+
 def _digits(words: list[str]) -> list[str]:
-    """Write number words as digits: "twenty two" -> "22", "one hundred" -> "100"."""
+    """Write number words as digits: "twenty two" -> "22", "one hundred and four" -> "104",
+    and the clinical habit "one fifty two" -> "152"."""
     out: list[str] = []
     i = 0
     while i < len(words):
         w = words[i]
-        if w in _VALUE:
-            value = _VALUE[w]
-            nxt = words[i + 1] if i + 1 < len(words) else ""
-            if w in _UNITS[1:] and (nxt in _TENS or nxt in _TEENS):
-                # "one fifty two" or "one twelve": a blood pressure said without "hundred"
-                value = _VALUE[w] * 100 + _VALUE[nxt]
-                i += 1
-                nxt = words[i + 1] if i + 1 < len(words) else ""
-                if words[i] in _TENS and nxt in _UNITS[1:]:
-                    value += _VALUE[nxt]
-                    i += 1
-            elif w in _TENS and nxt in _UNITS[1:]:
-                value += _VALUE[nxt]
-                i += 1
-            if i + 1 < len(words) and words[i + 1] == "hundred":
-                value *= 100
-                i += 1
-            out.append(str(value))
-        else:
+        if w not in _VALUE:
             out.append(w)
-        i += 1
+            i += 1
+            continue
+        nxt = words[i + 1] if i + 1 < len(words) else ""
+        if w in _UNITS[1:] and nxt == "hundred":
+            # "one hundred", "two hundred and fifty", "one hundred forty four"
+            value, i = _VALUE[w] * 100, i + 2
+            j = i + 1 if i < len(words) and words[i] == "and" else i
+            rest = _below_100(words, j)
+            if rest:
+                value, i = value + rest[0], rest[1]
+        elif w in _UNITS[1:] and (nxt in _TENS or nxt in _TEENS):
+            # "one fifty two" or "one twelve": a blood pressure said without "hundred"
+            rest = _below_100(words, i + 1)
+            value, i = _VALUE[w] * 100 + rest[0], rest[1]
+        else:
+            value, i = _below_100(words, i) or (_VALUE[w], i + 1)
+        out.append(str(value))
     return out
 
 

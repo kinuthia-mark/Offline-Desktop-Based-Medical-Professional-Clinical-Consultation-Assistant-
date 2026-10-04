@@ -1,0 +1,292 @@
+{
+ "id": "s04_urinary_infection",
+ "title": "Uncomplicated bladder infection with a sulfa allergy",
+ "script": "s04_urinary_infection.txt",
+ "facts": [
+  {
+   "id": "dysuria_3_days",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "burning",
+     "dysuria",
+     "painful urination",
+     "pain on urination",
+     "pain when passing urine"
+    ],
+    [
+     "3 days"
+    ]
+   ]
+  },
+  {
+   "id": "frequency",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "frequency",
+     "frequent",
+     "often"
+    ]
+   ]
+  },
+  {
+   "id": "lmp_2_weeks",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "period",
+     "lmp",
+     "menstrual"
+    ],
+    [
+     "2 weeks"
+    ]
+   ]
+  },
+  {
+   "id": "sulfa_allergy",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "sulfa",
+     "sulpha",
+     "sulfonamide",
+     "sulphonamide",
+     "sulfonamides"
+    ]
+   ]
+  },
+  {
+   "id": "temperature",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "36.9",
+     "36 point 9"
+    ]
+   ]
+  },
+  {
+   "id": "blood_pressure",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "124 78",
+     "124 over 78"
+    ]
+   ]
+  },
+  {
+   "id": "nitrites",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "nitrite",
+     "nitrites"
+    ]
+   ]
+  },
+  {
+   "id": "leukocytes",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "leukocyte",
+     "leukocytes",
+     "leucocyte",
+     "leucocytes",
+     "white cells"
+    ]
+   ]
+  },
+  {
+   "id": "pregnancy_test_negative",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "pregnancy"
+    ],
+    [
+     "negative"
+    ]
+   ]
+  },
+  {
+   "id": "suprapubic_tenderness",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "suprapubic",
+     "pubic",
+     "lower abdominal"
+    ]
+   ]
+  },
+  {
+   "id": "bladder_infection",
+   "section": "assessment",
+   "critical": false,
+   "match": [
+    [
+     "bladder infection",
+     "urinary tract infection",
+     "uti",
+     "cystitis"
+    ]
+   ]
+  },
+  {
+   "id": "nitrofurantoin_100mg",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "nitrofurantoin"
+    ],
+    [
+     "100 mg",
+     "100 milligrams"
+    ]
+   ]
+  },
+  {
+   "id": "five_days",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "5 days"
+    ]
+   ]
+  },
+  {
+   "id": "fluids",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "water",
+     "fluids"
+    ]
+   ]
+  },
+  {
+   "id": "return_if_fever_or_back_pain",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "fever",
+     "back pain",
+     "vomiting"
+    ]
+   ]
+  },
+  {
+   "id": "review_3_days",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "3 days"
+    ]
+   ]
+  }
+ ],
+ "negatives": [
+  {
+   "id": "no_fever",
+   "terms": [
+    "fever"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_back_pain",
+   "terms": [
+    "back pain",
+    "loin pain",
+    "flank pain"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_haematuria",
+   "terms": [
+    "blood in urine",
+    "blood in the urine",
+    "haematuria",
+    "hematuria"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_discharge",
+   "terms": [
+    "discharge"
+   ],
+   "critical": false
+  }
+ ],
+ "traps": [
+  {
+   "id": "ciprofloxacin_given",
+   "terms": [
+    "ciprofloxacin",
+    "cipro"
+   ],
+   "unless": [
+    "not",
+    "considered",
+    "thought",
+    "avoid",
+    "instead",
+    "rather than"
+   ],
+   "why": "the doctor decided against it"
+  },
+  {
+   "id": "cotrimoxazole_given",
+   "terms": [
+    "co trimoxazole",
+    "cotrimoxazole",
+    "septrin",
+    "bactrim",
+    "sulfamethoxazole"
+   ],
+   "unless": [
+    "avoid",
+    "avoided",
+    "allergy",
+    "allergic",
+    "not",
+    "because"
+   ],
+   "why": "sulfa allergy; the doctor avoided it"
+  },
+  {
+   "id": "pregnant",
+   "terms": [
+    "is pregnant",
+    "pregnancy confirmed",
+    "positive pregnancy",
+    "pregnancy test positive"
+   ],
+   "unless": [
+    "negative"
+   ],
+   "why": "the test was negative"
+  }
+ ]
+}
