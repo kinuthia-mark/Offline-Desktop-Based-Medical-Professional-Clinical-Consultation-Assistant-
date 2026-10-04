@@ -379,3 +379,31 @@ def test_header_shows_what_the_network_check_found(qapp, services):
     assert window.network_label.text() == "Offline: firewall rule not set"
     assert "#8a5a00" in window.network_label.styleSheet()
     window.close()
+
+
+def test_readiness_offers_one_click_offline_protection(qapp):
+    missing = [
+        Check("python", "ok", "python_ok"),
+        Check("network", "warn", "firewall_rule_missing"),
+    ]
+    verified = [Check("python", "ok", "python_ok"), Check("network", "ok", "network_verified")]
+    asked = []
+    dialog = ReadinessDialog(
+        missing, True, recheck=lambda: (verified, True), fix_network=lambda: asked.append(1) or True
+    )
+    dialog.show()
+    assert dialog.fix_button.isVisible()
+    dialog.fix_button.click()
+    assert asked == [1] and "Click Yes" in dialog.note.text()
+    dialog.check_again_button.click()
+    assert not dialog.fix_button.isVisible()
+    assert "Offline: no connection leaves this PC" in dialog.items.item(1).text()
+    dialog.close()
+
+
+def test_no_fix_button_when_the_rules_are_already_set(qapp):
+    ok = [Check("network", "ok", "network_verified")]
+    dialog = ReadinessDialog(ok, True, recheck=lambda: (ok, True), fix_network=lambda: True)
+    dialog.show()
+    assert not dialog.fix_button.isVisible()
+    dialog.close()
