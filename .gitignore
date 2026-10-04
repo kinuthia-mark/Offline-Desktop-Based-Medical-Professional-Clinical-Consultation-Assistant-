@@ -37,3 +37,8 @@ data/
 # OS
 Thumbs.db
 .DS_Store
+
+# Proposal document and working copies
+*.docx
+docs/proposal/PROPOSAL.md
+docs/proposal/media/

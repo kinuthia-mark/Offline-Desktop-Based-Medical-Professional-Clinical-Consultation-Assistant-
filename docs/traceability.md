@@ -1,30 +1,38 @@
 # Requirements traceability matrix
 
 Status values: planned, in progress, verified. A row is "verified" only when the test passes
-in CI and any listed measurement is recorded. UC numbers come from the proposal; UC-03 is
-assumed to be transcript review (confirm against the use case diagram).
+in CI and any listed measurement is recorded. UC numbers come from the proposal (section 4.2.1 and
+Figure 4.1). UC-03 is never mentioned in the text; it is taken to be Review / Edit Transcription (the
+diagram's only other clinician use case). See `proposal/CROSSCHECK.md` for the full mapping.
 
 | ID | Requirement | UC | Branch | Test / measurement | Status |
 |---|---|---|---|---|---|
 | FR-01 | Record consultation audio from the local microphone | UC-01 | feature/audio-recorder | fake-device tests | planned |
 | FR-02 | Transcribe audio locally | UC-02 | feature/asr-whisper | WER on scripted audio | planned |
-| FR-03 | Clinician reviews and edits the transcript | UC-03 | feature/ui-dashboard | UI tests | planned |
-| FR-04 | Load the quantized model locally | UC-04 | spike/ollama-medgemma, feature/llm-soap | client, loopback and unload tests; memory table under typical load | in progress (client done) |
-| FR-05 | Generate a structured SOAP draft with differentials | UC-05 | spike/ollama-medgemma, feature/llm-soap, feature/input-guard | schema, retry, and flag tests (numbers, merged words) done on real outputs; injection tests pending (feature/input-guard) | in progress (generator done; guard pending) |
+| FR-03 | Clinician reviews and edits the transcript | UC-03 (inferred) | feature/ui-dashboard | UI tests | planned |
+| FR-04 | Load the quantized model locally | UC-04 | spike/ollama-medgemma, feature/llm-soap | client, loopback, proxy-bypass and unload tests; memory table under typical load (docs/spikes/llm-results.md) | in progress (client done) |
+| FR-05 | Generate a structured SOAP draft with diagnosis suggestions and management strategies (Diagnostics tab); suggestions are off by default until measured | UC-05 | spike/ollama-medgemma, feature/llm-soap, feature/input-guard | schema, retry and flag tests (numbers, merged words) on real outputs done; injection tests pending (feature/input-guard); faithfulness metrics in eval/harness | in progress (generator done; guard pending; suggestions off by default, AMD-32) |
 | FR-06 | Clinician reviews, edits and finalizes the note | UC-06 | feature/ui-dashboard | UI tests | planned |
-| FR-07 | Save the session to encrypted local storage | UC-07 | spike/sqlcipher-windows, feature/secure-store | tests/test_vault.py, tests/test_store.py, tests/test_audio_store.py (wrong key, tamper, recovery, transactional save, schema gates); timing in docs/spikes/vault-timing-mark-pc.json | in progress (built and tested locally; verified when CI is green) |
-| FR-08 | Authenticate users and enforce roles | n/a | feature/auth-audit | tests/test_auth.py (lockout, idle timeout, roles, no username discovery, hash upgrade); login timing in docs/spikes/vault-timing-mark-pc.json | in progress (built and tested locally; verified when CI is green) |
-| FR-09 | Tamper-evident audit log | n/a | feature/auth-audit | tests/test_audit.py (edit, forged hash, middle deletion, reorder, truncation with anchor, no free text) | in progress (built and tested locally; verified when CI is green) |
-| FR-10 | SystemAdmin functions (accounts, model update, backup) | n/a | reserved | to be defined | planned |
+| FR-07 | Save the session to encrypted local storage | UC-07 | spike/sqlcipher-windows, feature/secure-store | tests/test_vault.py, tests/test_store.py, tests/test_audio_store.py (wrong key, tamper, recovery, transactional save, schema gates); timing in docs/spikes/vault-timing-mark-pc.json | verified when PR #11 is merged (Windows CI green on 3.11 and 3.12); wiring into the app pending |
+| FR-08 | Authenticate users and enforce roles | Authenticate / Log In | feature/auth-audit | tests/test_auth.py (lockout, idle timeout, roles, no username discovery, hash upgrade); login timing in docs/spikes/vault-timing-mark-pc.json | in progress (built and tested locally, PR #12; verified when CI is green) |
+| FR-09 | Tamper-evident audit log | n/a | feature/auth-audit | tests/test_audit.py (edit, forged hash, middle deletion, reorder, truncation with anchor, no free text) | in progress (built and tested locally, PR #12; verified when CI is green) |
+| FR-10a | Administrator manages user accounts and roles (create, disable, reset) | Manage User Accounts & Roles | feature/auth-audit | tests/test_auth.py (create, deactivate, unlock, role checks) | in progress (service done, PR #12; admin password reset and screen pending) |
+| FR-10b | Administrator updates model weights and files offline, with checksum verification | Update Model Weights & Files | feature/admin-tools | import and checksum tests | planned |
+| FR-10c | Administrator backs up and restores the encrypted database | Backup Encrypted Database | feature/admin-tools | backup, restore and tamper tests | planned |
+| FR-10d | Administrator reviews the security audit log and verifies its chain | Review Security Audit Logs | feature/auth-audit | tests/test_audit.py (verify, anchor) | in progress (chain verification done, PR #12; admin screen pending) |
 | FR-11 | The LLM never runs before the clinician approves the transcript | UC-05 | feature/domain-controller | tests/test_controller.py | in progress (controller done) |
 | FR-12 | A session cannot be finalized without a drafted note the clinician reviewed | UC-06 | feature/domain-controller | tests/test_controller.py | in progress (controller done) |
 | FR-13 | Note generation is bounded and validated: hard output cap, repetition detector with retry, schema check, and a visible failure state that keeps the transcript and offers manual entry | UC-05 | feature/domain-controller, feature/llm-soap, feature/ui-dashboard | controller, cap, loop, deadline and stream-closing tests done; UI failure state pending | in progress (controller and generator done) |
 | FR-14 | Model-generated diagnosis suggestions are kept separate from, and labelled apart from, the clinician's own assessment | UC-05, UC-06 | feature/domain-controller, feature/ui-dashboard | controller tests done; UI tests pending | in progress (controller done) |
 | FR-15 | Required history (allergies, medications, pertinent negatives) is confirmed by the clinician before a note is finalized | UC-06 | feature/domain-controller, feature/ui-dashboard | controller tests done; UI tests pending | in progress (controller done) |
+| FR-16 | Session Records screen: list and open saved sessions | wireframe, loadSession | feature/ui-dashboard | UI tests | planned |
+| FR-17 | Export / Save from the dashboard (behaviour to be decided, AMD-36) | wireframe | feature/ui-dashboard | decision first | planned |
+| FR-18 | Air-gapped status indicator reflects a real check, not a fixed label | wireframe | feature/airgap-enforcement | probe tests | planned |
 | NFR-01 | No outbound network connectivity | n/a | feature/airgap-enforcement | firewall and probe evidence | planned |
 | NFR-02 | Application process opens no listening sockets; only Ollama's loopback port | n/a | feature/airgap-enforcement | socket test on launched app | planned |
 | NFR-03 | End-to-end latency within a target set from measurements | n/a | eval/harness | measured on reference PC (ADR-002); target TBD | in progress (measured once) |
 | NFR-04 | Peak memory within a target on a stated reference PC | n/a | spike/ollama-medgemma, feature/asr-whisper | memory table under typical load (ADR-002); clean baseline not reachable on the reference PC | in progress |
-| NFR-05 | Patient data encrypted at rest | n/a | spike/sqlcipher-windows, feature/secure-store | ADR-001, ADR-003; tests/test_crypto.py, tests/test_vault.py, tests/test_audio_store.py | in progress (built and tested locally; verified when CI is green) |
+| NFR-05 | Patient data encrypted at rest | n/a | spike/sqlcipher-windows, feature/secure-store | no plaintext on disk, wrong-key, tamper and corruption tests (ADR-001, ADR-003); tests/test_crypto.py, tests/test_vault.py, tests/test_audio_store.py | verified when PR #11 is merged (Windows CI green on 3.11 and 3.12) |
 | NFR-06 | Transcription accuracy (WER) reported against a target | n/a | eval/harness | WER table (target TBD) | planned |
 | NFR-07 | Startup self-check warns when free memory is too low for the model | n/a | feature/airgap-enforcement | startup check test; threshold from measurements | planned |
+| NFR-08 | Provide the proposal's deliverables: System Design Documentation, Test Cases Documentation, proof of concept | section 3.2.5 | release/docs | document review | planned |
