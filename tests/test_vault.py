@@ -206,3 +206,41 @@ def test_every_connection_is_closed_so_windows_can_delete_the_folder(made):
     finally:
         gc.enable()
     assert not directory.exists()
+
+
+# ----- passphrase policy (ADR-003) -----
+@pytest.mark.parametrize(
+    "weak",
+    [
+        "",
+        "short",
+        "elevenchars",  # 11
+        "   elevenchars   ",  # spaces around do not count
+        "aaaaaaaaaaaaaaaa",
+        "Password1234",
+        "CLINASSIST123",
+        "x" * 257,
+    ],
+    ids=["empty", "short", "eleven", "padded", "repeated", "common", "common_upper", "too_long"],
+)
+def test_weak_passphrases_are_refused(tmp_path, weak):
+    with pytest.raises(VaultError, match="^weak_passphrase$"):
+        Vault.create(tmp_path / "v", weak, kdf=TEST_KDF)
+    assert not (tmp_path / "v" / KEYRING).exists()
+
+
+@pytest.mark.parametrize(
+    "ok", ["twelve chars", "correct horse battery staple", "Kibera-clinic-2026!"]
+)
+def test_reasonable_passphrases_are_accepted(tmp_path, ok):
+    Vault.create(tmp_path / "v", ok, kdf=TEST_KDF)
+
+
+def test_policy_also_applies_to_change_and_recovery(made):
+    directory, code = made
+    vault = Vault.unlock(directory, PASS)
+    with pytest.raises(VaultError, match="^weak_passphrase$"):
+        vault.change_passphrase(PASS, "short")
+    with pytest.raises(VaultError, match="^weak_passphrase$"):
+        Vault.recover(directory, code, "short")
+    assert _probe(Vault.unlock(directory, PASS)) == MARKER  # nothing changed

@@ -39,12 +39,40 @@ class VaultError(RuntimeError):
         self.code = code
 
 
+MIN_PASSPHRASE_CHARS = 12
+MAX_PASSPHRASE_CHARS = 256  # bounds the work an Argon2id call is asked to do
+_COMMON = frozenset(
+    {
+        "password1234",
+        "password12345",
+        "password123!",
+        "passwordpassword",
+        "123456789012",
+        "qwertyuiop12",
+        "iloveyou1234",
+        "letmein12345",
+        "welcome12345",
+        "administrator",
+        "clinassist123",
+        "doctor123456",
+    }
+)
+
+
 def check_passphrase(passphrase: str) -> None:
     """Raise VaultError("weak_passphrase") if the passphrase does not meet the policy.
 
-    Called when a vault is created and when the passphrase is changed or reset."""
-    # TODO(human): implement the passphrase policy (an open decision in HANDOFF section 8).
-    return None
+    Called when a vault is created and when the passphrase is changed or reset.
+
+    Policy (ADR-003), following NIST SP 800-63B: length over composition rules. At least 12
+    characters not counting leading or trailing spaces, at most 256, not a known common choice,
+    and not one character repeated. No "must contain a symbol" rule: it pushes people to
+    predictable patterns and makes a memorable multi-word passphrase harder to use."""
+    core = passphrase.strip()
+    if not MIN_PASSPHRASE_CHARS <= len(core) <= MAX_PASSPHRASE_CHARS:
+        raise VaultError("weak_passphrase")
+    if core.lower() in _COMMON or len(set(core)) == 1:
+        raise VaultError("weak_passphrase")
 
 
 class Vault:
