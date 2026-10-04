@@ -181,7 +181,7 @@ is recorded.
 | Encrypted vault, recovery code, session store, optional encrypted audio | FR-07, NFR-05 | built; Windows CI green |
 | Accounts, roles, lockout, idle timeout | FR-08, FR-10a | built and tested |
 | Tamper-evident audit log | FR-09, FR-10d | built and tested |
-| Input check (prompt injection, personal data) | FR-05, AMD-11 | next |
+| Input check (prompt injection, personal data) and checks on the model's reply | FR-05, AMD-11 | built and tested |
 | Microphone recorder | FR-01 | planned |
 | Speech-to-text | FR-02 | planned |
 | Desktop interface | FR-03, FR-06, FR-16 to FR-18 | planned |
@@ -189,7 +189,7 @@ is recorded.
 | Evaluation with scripted consultations | NFR-03, NFR-06 | planned |
 | Installer and offline model bundle | release | planned |
 
-More than 250 tests run on every push, on Windows with Python 3.11 and 3.12, together with
+More than 350 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
 
 ---
@@ -225,6 +225,18 @@ generator watches for repeated sentences and stops early instead of waiting for 
 | Log in | 0.18 s; unknown username also 0.18 s |
 | Save one consultation | 0.01 s |
 | SQLCipher on Windows: wrong key rejected, no readable text in the file, one flipped bit detected | all pass (ADR-001) |
+
+**Input check** ([ADR-005](docs/ADR/005-input-guard.md),
+[results file](docs/spikes/guard-mark-pc.json))
+
+| What | Result |
+|---|---|
+| Ordinary consultation sentences held back by mistake | 0 of 48 |
+| Attacks with a clear sign of talking to the AI, caught | 22 of 22 |
+| Including 4 reworded attacks it is not designed to catch | 22 of 26 |
+| Time to check a 1,486-word consultation | 5 ms |
+
+These sentences were written by the same person who wrote the rules, so the rates are a best case.
 
 **What the notes got wrong** (7 notes read by hand against their transcripts). Plan items were
 accurate. But every note left out allergies or pertinent negatives; 3 of 4 short notes stated a
@@ -310,6 +322,7 @@ src/clinassist/
     soap_generator.py  builds the prompt, caps and watches the output, checks the JSON, sets flags
     loopcheck.py       spots the model repeating itself
     groundcheck.py     advisory flags: pronouns, numbers not in the transcript, merged words
+    input_guard.py     holds back text aimed at the AI; hides phone numbers, emails and ID numbers
     numbers.py         reads numbers written as digits or words, for the number check
     store.py           saves a finished consultation into the vault in one transaction
     audio_store.py     optional encrypted audio files (off by default)
@@ -365,7 +378,7 @@ code, then the tests and measurements that check that requirement, before moving
 | [`docs/traceability.md`](docs/traceability.md) | every requirement, the branch that builds it, the test that checks it, and its status |
 | [`docs/AMENDMENTS.md`](docs/AMENDMENTS.md) | every change from the approved proposal, with the reason |
 | [`docs/proposal/CROSSCHECK.md`](docs/proposal/CROSSCHECK.md) | how the code maps onto the proposal's use cases, diagrams, schema and wireframe |
-| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004) |
+| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005) |
 | [`docs/spikes/`](docs/spikes/) | raw measurement results from the reference PC |
 | [`docs/PRIOR_ART.md`](docs/PRIOR_ART.md) | what was reused from the earlier MedgemmaV2 prototype and what was left out |
 
