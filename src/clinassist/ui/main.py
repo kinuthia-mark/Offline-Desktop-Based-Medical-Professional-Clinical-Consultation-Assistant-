@@ -61,7 +61,9 @@ class _ActivityFilter(QObject):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, services, session, login_again, checks_summary: str = "") -> None:
+    def __init__(
+        self, services, session, login_again, checks_summary: str = "", network=("warn", "")
+    ) -> None:
         """`login_again(notice)` shows the login dialog and returns a session or None."""
         super().__init__()
         self.setWindowTitle(APP_TITLE)
@@ -70,6 +72,11 @@ class MainWindow(QMainWindow):
 
         self.user_label = QLabel()
         self.status_label = QLabel(checks_summary)
+        # FR-18: the network label says only what the start-up check found (ADR-010).
+        status, label = network
+        self.network_label = QLabel(label)
+        colour = {"ok": "#1e6b1e", "warn": "#8a5a00", "fail": "#a40000"}.get(status, "#444")
+        self.network_label.setStyleSheet(f"color: {colour}; font-weight: bold;")
         logout = QPushButton("Log out")
         logout.clicked.connect(self.log_out)
         header = QHBoxLayout()
@@ -77,6 +84,7 @@ class MainWindow(QMainWindow):
         title.setStyleSheet("font-weight: bold;")
         header.addWidget(title)
         header.addStretch(1)
+        header.addWidget(self.network_label)
         header.addWidget(self.status_label)
         header.addWidget(self.user_label)
         header.addWidget(logout)
@@ -157,6 +165,9 @@ class MainWindow(QMainWindow):
 
 
 def main() -> int:
+    from clinassist.airgap import LABELS, install_network_guard
+
+    install_network_guard()  # first, before any part of the program can open a connection
     from clinassist.app import build
     from clinassist.config import AppConfig
     from clinassist.security.vault import KEYRING, Vault
@@ -172,6 +183,10 @@ def main() -> int:
         return 1
     warnings = [c for c in checks if c.status == "warn"]
     summary = f"{len(warnings)} warning(s) at start-up" if warnings else "All checks passed"
+    net = next((c for c in checks if c.name == "network"), None)
+    network = (
+        (net.status, LABELS.get(net.code, net.code)) if net else ("warn", "Network: not checked")
+    )
 
     vault_dir = Path(config.data_dir) / "vault"
     if (vault_dir / KEYRING).exists():
@@ -208,7 +223,7 @@ def main() -> int:
     session = login()
     if session is None:
         return 1
-    window = MainWindow(services, session, login, summary)
+    window = MainWindow(services, session, login, summary, network)
     window.resize(1400, 850)
     window.show()
     code = app.exec()
