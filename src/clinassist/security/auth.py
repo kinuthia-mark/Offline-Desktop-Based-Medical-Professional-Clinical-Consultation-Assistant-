@@ -91,6 +91,27 @@ class AuthService:
         self._auditor.record("user_created", NO_SESSION, admin.user_id)
         return user_id
 
+    def list_users(self, admin: UserSession) -> list[dict]:
+        """Accounts for the administrator's screen. Never includes password hashes."""
+        self.require(admin, "admin")
+        now = self._clock()
+        with self._vault.connect() as conn:
+            rows = conn.execute(
+                "SELECT user_id, username, display_name, role, active, locked_until"
+                " FROM users ORDER BY username"
+            ).fetchall()
+        return [
+            {
+                "user_id": user_id,
+                "username": username,
+                "display_name": display,
+                "role": role,
+                "active": bool(active),
+                "locked": bool(locked_until) and now < datetime.fromisoformat(locked_until),
+            }
+            for user_id, username, display, role, active, locked_until in rows
+        ]
+
     def set_active(self, admin: UserSession, user_id: str, active: bool) -> None:
         self.require(admin, "admin")
         if user_id == admin.user_id and not active:

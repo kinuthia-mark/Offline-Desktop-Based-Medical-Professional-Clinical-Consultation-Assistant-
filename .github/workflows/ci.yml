@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -m pip install --upgrade pip
-      - run: pip install -e ".[dev,storage,audio,asr]"
+      - run: pip install -e ".[dev,storage,audio,asr,ui]"
       - run: ruff check .
       - run: ruff format --check .
       - run: pytest
