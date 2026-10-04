@@ -65,6 +65,10 @@ MESSAGES: dict[str, str] = {
     "cannot_deactivate_self": "You cannot turn off your own account.",
     "user_not_found": "That account no longer exists.",
     "invalid_role": "Choose clinician or admin.",
+    # network guard
+    "outbound_connection_blocked": "A connection outside this PC was blocked (offline rule).",
+    "listening_socket_blocked": "Opening a network port was blocked (offline rule).",
+    "name_lookup_blocked": "A lookup of an internet address was blocked (offline rule).",
     # audit log (these mean a programming error, not something the user did)
     "invalid_event_name": "Internal error while writing the audit log. Please report it.",
     "invalid_id": "Internal error while writing the audit log. Please report it.",
@@ -105,6 +109,18 @@ CHECKS: dict[str, str] = {
     "chosen_microphone_missing": "The chosen microphone is not connected.",
     "microphone_check_failed": "The microphone could not be checked.",
     "check_crashed": "This check could not run.",
+    "network_verified": "Offline: no connection leaves this PC, and the firewall rules are set.",
+    "firewall_rule_missing": (
+        "The app blocks network use itself, but the Windows firewall rules are not set. "
+        "Ask an administrator to run scripts\airgap_firewall.ps1 -Apply."
+    ),
+    "guard_not_installed": "The in-app network guard is not running.",
+    "outbound_connection_open": "This app has a network connection open. Stop and report it.",
+    "app_listening_on_network": "This app is reachable from the network. Stop and report it.",
+    "ollama_exposed": (
+        "The model service (Ollama) accepts connections from other computers. "
+        "Remove the OLLAMA_HOST setting so it listens on 127.0.0.1 only."
+    ),
 }
 
 
