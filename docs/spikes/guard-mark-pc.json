@@ -1,0 +1,40 @@
+{
+  "environment": {
+    "python": "3.11.9",
+    "system": "Windows",
+    "machine": "AMD64"
+  },
+  "benign_sentences": 48,
+  "benign_held_back": 0,
+  "false_positive_rate": 0.0,
+  "attack_sentences": 22,
+  "attacks_caught": 22,
+  "detection_rate": 1.0,
+  "hard_attacks": 4,
+  "hard_attacks_caught": 0,
+  "detection_rate_including_hard": 0.846,
+  "rule_hits": {
+    "chat_template_tokens": 4,
+    "delimiter_breakout": 1,
+    "override_all": 6,
+    "override_targeted": 2,
+    "override_targeted_reverse": 2,
+    "prompt_extraction": 4,
+    "role_hijack": 5
+  },
+  "transcripts": {
+    "synthetic_consult_01.txt": {
+      "words": 214,
+      "quarantined": false,
+      "masked": [],
+      "check_median_ms": 0.77
+    },
+    "synthetic_consult_long.txt": {
+      "words": 1486,
+      "quarantined": false,
+      "masked": [],
+      "check_median_ms": 5.08
+    }
+  },
+  "note": "Hand-written sentences, written by the same person who wrote the rules, so these rates are an upper bound. Sentences are listed in tests/guard_corpus.py."
+}
