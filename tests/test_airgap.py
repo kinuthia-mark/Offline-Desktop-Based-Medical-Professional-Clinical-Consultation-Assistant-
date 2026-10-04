@@ -302,3 +302,19 @@ def test_request_asks_windows_to_run_as_administrator():
     assert request_firewall_rules(fake_shell_execute) is True
     assert calls == [("runas", *elevation_command(), 0)]
     assert request_firewall_rules(lambda *a: 5) is False  # 5: access denied / user said No
+
+
+def test_a_rule_only_counts_for_the_program_it_blocks():
+    """A rule for python.exe must not make ClinAssist.exe look protected (found on the first
+    packaged build)."""
+    from clinassist.airgap import rules_for_program
+
+    lines = [
+        r"ClinAssist block outbound - python.exe|C:\Python311\python.exe",
+        r"ClinAssist block outbound - ollama.exe|C:\Ollama\ollama.exe",
+    ]
+    assert rules_for_program(lines, r"C:\Program Files\ClinAssist\ClinAssist.exe") == ()
+    assert rules_for_program(lines, r"c:\python311\PYTHON.EXE") == (
+        "ClinAssist block outbound - python.exe",
+    )
+    assert rules_for_program(["no separator", "name|"], r"C:\Python311\python.exe") == ()
