@@ -23,6 +23,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--model", default="medgemma:4b")
     parser.add_argument("--attempt", type=int, default=1, help="2 adds the repetition penalty")
     parser.add_argument("--suggestions", action="store_true", help="also ask for suggestions")
+    parser.add_argument(
+        "--show-partial", action="store_true", help="print what the model wrote before a failure"
+    )
     args = parser.parse_args(argv)
 
     lines = args.transcript.read_text(encoding="utf-8").splitlines()
@@ -34,11 +37,16 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  {n} tokens...", file=sys.stderr, flush=True)
 
     generator = SoapGenerator(settings, progress=progress)
+    options = generator.options_for(args.attempt, len(text.split()))
+    penalty = options.get("repeat_penalty", "none")
+    print(f"{len(text.split())} words, attempt {args.attempt}, repeat penalty: {penalty}")
     started = time.monotonic()
     try:
         draft = generator.generate(text, args.attempt)
     except GenerationFailed as exc:
         print(f"FAILED after {time.monotonic() - started:.0f}s: {exc.reason}")
+        if args.show_partial:
+            print("\n--- partial output ---\n" + exc.partial_output)
         return 1
     finally:
         generator.unload()

@@ -18,11 +18,15 @@ class Quarantined(RuntimeError):
 
 
 class GenerationFailed(RuntimeError):
-    """The note generator could not produce a valid note (loop, cap, bad output, timeout)."""
+    """The note generator could not produce a valid note (loop, cap, bad output, timeout).
 
-    def __init__(self, reason: str) -> None:
+    `partial_output` is for debugging with synthetic data only. It is never part of the message
+    and must not be logged for real consultations."""
+
+    def __init__(self, reason: str, partial_output: str = "") -> None:
         super().__init__(reason)
         self.reason = reason
+        self.partial_output = partial_output
 
 
 @dataclass(frozen=True)
