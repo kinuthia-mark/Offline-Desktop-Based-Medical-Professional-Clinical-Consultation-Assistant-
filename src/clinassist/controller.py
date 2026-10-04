@@ -111,7 +111,17 @@ class ConsultationController:
     def stop_recording(self) -> str:
         self._require(State.RECORDING)
         # Stop the microphone and turn the audio into text. The audio itself is not kept here.
-        self._transcript = self._transcriber.transcribe(self._recorder.stop())
+        audio = self._recorder.stop()
+        try:
+            self._transcript = self._transcriber.transcribe(audio)
+        except Exception:
+            # The microphone is already off, so staying in RECORDING would leave the clinician
+            # stuck. Move on with an empty transcript they can type or discard, and re-raise
+            # so the screen can say what went wrong.
+            self._transcript = ""
+            self._state = State.TRANSCRIBED
+            self._audit("transcription_failed")
+            raise
         self._state = State.TRANSCRIBED
         self._audit("transcribed")
         return self._transcript

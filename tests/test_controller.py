@@ -401,3 +401,24 @@ def test_error_messages_never_contain_transcript_text():
     with pytest.raises(WorkflowError) as refused:
         rig.controller.finalize(NOTE, "dr1", FULL)
     assert SECRET not in str(failed.value) and SECRET not in str(refused.value)
+
+
+def test_failed_transcription_does_not_leave_the_session_stuck():
+    """The microphone is already stopped, so the session moves on with an empty transcript the
+    clinician can type, and the failure is audited."""
+
+    class BrokenASR:
+        def transcribe(self, audio: bytes) -> str:
+            raise RuntimeError("asr_failed")
+
+    rig = Rig()
+    c = ConsultationController(
+        rig.recorder, BrokenASR(), rig.guard, rig.generator, rig.store, rig.auditor
+    )
+    c.start_recording()
+    with pytest.raises(RuntimeError):
+        c.stop_recording()
+    assert c.state is State.TRANSCRIBED and c.transcript == ""
+    assert "transcription_failed" in rig.auditor.names
+    c.approve_transcript("Typed by the clinician.", "dr-a")
+    assert c.state is State.APPROVED
