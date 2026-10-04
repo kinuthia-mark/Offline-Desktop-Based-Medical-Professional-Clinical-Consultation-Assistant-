@@ -1,0 +1,73 @@
+{
+  "environment": {
+    "python": "3.11.9",
+    "system": "Windows",
+    "machine": "AMD64"
+  },
+  "setup": "Whisper small (int8, CPU), input guard, MedGemma 4B Q4_K_M via Ollama, vault",
+  "audio": "synthetic consultations read by Windows TTS; best-case speech",
+  "results": [
+    {
+      "case": "consult_01",
+      "audio_seconds": 104.36,
+      "transcript_words": 185,
+      "stages_seconds": {
+        "start": 0.34,
+        "transcribe": 20.8,
+        "guard_and_draft": 48.95,
+        "finalize_and_save": 0.06
+      },
+      "total_seconds": 70.1,
+      "generation_attempts": 1,
+      "draft_flags": [],
+      "free_ram_before_gb": 1.36,
+      "lowest_free_ram_gb": 0.02,
+      "peak_app_rss_mb": 534.1,
+      "peak_ollama_rss_mb": 50.9,
+      "audit_chain_ok": true,
+      "memory_plan_steps": [
+        "llm_unloaded",
+        "whisper_loaded",
+        "transcribed",
+        "whisper_unloaded"
+      ],
+      "draft": {
+        "subjective": "the patient reports a fever for three days, a headache, chills, joint aches, vomiting once yesterday, no cough, sore throat, rash, or pain when passing urine. the patient takes paracetamol twice. the patient has no allergies. the patient is not taking regular medication.",
+        "objective": "temperature 38.6, pulse 96, blood pressure 118 over 76. throat normal, chest clear, abdomen soft with mild tenderness under the ribs on the right. ",
+        "assessment_by_model": "not stated",
+        "plan": "check for malaria and do a full blood count today. keep taking paracetamol, drink plenty of fluids and rest. if you vomit repeatedly, get confused, or the fever worsens, come back immediately. otherwise, see me again in two days with the results."
+      }
+    },
+    {
+      "case": "consult_long",
+      "audio_seconds": 651.07,
+      "transcript_words": 1386,
+      "stages_seconds": {
+        "start": 0.37,
+        "transcribe": 126.26,
+        "guard_and_draft": 165.2,
+        "finalize_and_save": 0.03
+      },
+      "total_seconds": 291.9,
+      "generation_attempts": 1,
+      "draft_flags": [],
+      "free_ram_before_gb": 0.55,
+      "lowest_free_ram_gb": 0.0,
+      "peak_app_rss_mb": 762.6,
+      "peak_ollama_rss_mb": 30.6,
+      "audit_chain_ok": true,
+      "memory_plan_steps": [
+        "llm_unloaded",
+        "whisper_loaded",
+        "transcribed",
+        "whisper_unloaded"
+      ],
+      "draft": {
+        "subjective": "The patient reports headaches almost every evening for about three weeks now. The headaches are at the back of the head and sometimes across the forehead, described as heavy and pressing, not sharp. Paracetamol helps a little, but it is worse when stressed or skipping lunch. No vomiting, blurred vision, flashing lights, or weakness in arms/legs. Sometimes slight blurry vision with reading in the evening clears. Wakes up two times at night to pass urine, thirsty a lot. Weight loss of 2-3 kg over two months. Pins and needles sensation in feet, worse at night, for about two months. No sores on feet. Ankle swelling sometimes. Normal mood and sleep, but worried about health and work. The patient takes amlodipine 5 mg once daily, metformin 500mg twice daily with meals (morning one taken, evening often forgotten). Checks blood pressure at home occasionally (150/90, 148/92). Random blood sugar is around 9-10 before eating, 12 after meals. No chest pain or shortness of breath. The patient drinks soda almost every day (1-2 half liter ones), adds salt to food. No smoking or alcohol except two beers on Saturdays. Walks 10 minutes in the morning. Father had diabetes and died of stroke at 63, mother has high blood pressure, brother has diabetes. Sometimes takes ibuprofen for headache (3 times a week). No allergies. The patient is not feeling very low. Patient reports that she will bring her wife to follow-up appointments.",
+        "objective": "Blood pressure today: 152/94, repeated reading 148/92. Pulse: 78 bpm, regular. Weight: 82 kg (3 kg less than last time). Temperature: Normal. Heart sounds: normal. Chest: clear. Abdomen: soft, no tenderness. Mild pitting edema at both ankles. Foot exam: intact skin, no ulcers. Pulses present in feet. Reduced sensation to light touch on the soles of the toes and front of both feet. Reduced ankle reflexes. Random blood sugar: 11.2 mmol/L. ECG performed today.",
+        "assessment_by_model": "Blood pressure and blood sugar are not well controlled. Tingling in feet suggests possible diabetic neuropathy. Headaches likely related to high blood pressure, poor sleep, and stress. Ibuprofen is not effective and can raise blood pressure and strain kidneys. Patient reports that she will bring her wife to follow-up appointments.",
+        "plan": "Stop ibuprofen. Take paracetamol 1 gram, 4 times a day for pain. Increase amlodipine to 10 mg once daily, take at the same time every morning. Increase metformin to 1 gram with breakfast and 500mg with evening meal, take with food. Monitor ankle swelling; if worse or face/breathlessness develops, return immediately. Cut soda completely and reduce sugar in tea. Choose water. Reduce salt intake and grill fish instead of frying. Walk for 30 minutes at least 5 days a week. Limit beer to 1 on Saturdays. Keep diary of home blood pressure and morning blood sugar for two weeks. Eye check referral. Follow-up appointment in two weeks, sooner if headache becomes severe or other concerning symptoms develop. Bring wife to appointments."
+      }
+    }
+  ]
+}
