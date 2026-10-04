@@ -99,6 +99,17 @@ class OllamaClient:
             payload["format"] = output_format
         return ChatStream(self._open("/api/chat", payload, self._read_timeout))
 
+    def list_models(self, timeout: float = 5.0) -> list[str]:
+        """Names of the models Ollama has installed. Used by the startup check. Raises
+        GenerationFailed("ollama_unreachable") if Ollama is not running."""
+        request = urllib.request.Request(self._host + "/api/tags", method="GET")
+        try:
+            with _DIRECT.open(request, timeout=timeout) as response:  # loopback, no proxy
+                data = json.loads(response.read())
+        except (OSError, ValueError) as exc:
+            raise GenerationFailed("ollama_unreachable") from exc
+        return [m.get("name", "") for m in data.get("models", [])]
+
     def unload(self, model: str) -> None:
         """Ask Ollama to free the model's memory now. Best effort."""
         # On an 8 GB PC the language model and the speech model should not both be in memory.
