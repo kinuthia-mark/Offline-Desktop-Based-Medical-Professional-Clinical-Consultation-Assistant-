@@ -14,6 +14,7 @@ dependencies = ["pyspellchecker>=0.8"]
 dev = ["pytest>=8", "ruff>=0.6", "pre-commit>=3.7", "psutil>=6"]
 storage = ["sqlcipher3>=0.5", "argon2-cffi>=23.1", "cryptography>=42"]
 audio = ["sounddevice>=0.5"]
+asr = ["faster-whisper>=1.1"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
