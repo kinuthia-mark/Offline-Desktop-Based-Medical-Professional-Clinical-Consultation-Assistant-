@@ -18,7 +18,11 @@
         "process": "ollama.exe"
       }
     ],
-    "firewall_rules": [],
+    "firewall_rules": [
+      "ClinAssist block outbound - python.exe",
+      "ClinAssist block outbound - ollama.exe",
+      "ClinAssist block outbound - ollama app.exe"
+    ],
     "guard_installed": true,
     "adapters_up": [
       "Ethernet 3",
@@ -26,11 +30,11 @@
     ]
   },
   "assessment": {
-    "status": "warn",
-    "code": "firewall_rule_missing",
-    "label": "Offline: firewall rule not set"
+    "status": "ok",
+    "code": "network_verified",
+    "label": "Offline: verified"
   },
-  "check_seconds": 1.64,
+  "check_seconds": 1.5,
   "guarded_attempts": {
     "tcp_to_10.255.255.1": "name_lookup_blocked",
     "dns_example.com": "name_lookup_blocked",
