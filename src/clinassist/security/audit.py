@@ -26,7 +26,10 @@ from datetime import UTC, datetime
 
 from clinassist.security.vault import Vault
 
+# The "previous hash" of the very first entry, since there is nothing before it.
 GENESIS = "0" * 64
+# Allowed shapes: event names like "transcript_approved"; ids of letters, digits, "_" and "-".
+# A sentence has spaces and capitals, so it cannot match either pattern.
 _EVENT = re.compile(r"[a-z][a-z0-9_]{0,47}")
 _ID = re.compile(r"[A-Za-z0-9_-]{0,64}")
 
@@ -79,6 +82,7 @@ class HashChainAuditor:
                 row = conn.execute(
                     "SELECT seq, entry_hash FROM audit_logs ORDER BY seq DESC LIMIT 1"
                 ).fetchone()
+                # The new entry gets the next number and points at the newest entry's hash.
                 seq, prev = (row[0] + 1, row[1]) if row else (1, GENESIS)
                 conn.execute(
                     "INSERT INTO audit_logs (seq, ts, event, session_id, user_id, prev_hash,"
@@ -115,6 +119,10 @@ class HashChainAuditor:
             ).fetchall()
         prev, expected_seq = GENESIS, 1
         hashes: dict[int, str] = {}
+        # Walk from the first entry to the last, checking three things at each step:
+        # the numbers run 1, 2, 3 with no gaps (catches deleted entries);
+        # each entry points at the hash of the one before (catches reordering and forgeries);
+        # each entry's own hash matches its contents (catches edits).
         for seq, ts, event, session_id, user_id, prev_hash, stored in rows:
             if seq != expected_seq:
                 return Verification(False, len(hashes), expected_seq, "sequence_gap")
