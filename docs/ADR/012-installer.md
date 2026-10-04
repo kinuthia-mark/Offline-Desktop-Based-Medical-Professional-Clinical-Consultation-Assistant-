@@ -34,16 +34,28 @@ Option 2.
 - **Inno Setup** (`release/clinassist.iss`): one administrator prompt; the MedGemma licence must be
   accepted; **the bundle is checked first** (`release/verify_bundle.ps1`, plain PowerShell) and
   nothing is installed if a file is missing or changed; the program goes to Program Files, the
-  Whisper model next to it, the Ollama model files to `C:\ProgramData\ClinAssist\ollama-models`
-  (pointed to by the `OLLAMA_MODELS` variable for every user); Ollama is installed silently if it
-  is missing and its installer is in the bundle; **the firewall rules are created for
-  `ClinAssist.exe` and Ollama** and removed again on uninstall. Patient records in the user's
+  Whisper model next to it, and the Ollama model files to Ollama's default folder
+  (`%USERPROFILE%\.ollama\models`); Ollama is installed silently if it is missing and its
+  installer is in the bundle; **the firewall rules are created for `ClinAssist.exe` and Ollama**
+  and removed again on uninstall. Patient records in the user's
   data folder are not touched by uninstalling.
 - **The program finds its models next to itself**, wherever it is started from. The first version
   looked in a folder relative to the current directory, which would have failed once installed.
 - **Self-test** (`--self-test`): uses each heavy part once (window library, encrypted database,
   password hashing, dictionary, microphone library, speech model with its silence detector).
   Packaging can leave out a library or data file without any start-up check noticing.
+- **Model files go where Ollama looks by default.** A first version set the `OLLAMA_MODELS`
+  variable instead; on a fresh PC, Ollama is started during the installation and would not have
+  seen a variable set in the same session, so it would not have found the model until a restart.
+  Files that already exist are left alone: they are named by their SHA-256, so they are identical,
+  and a running Ollama may have them open.
+- **A clean-machine test on every change to the installer** (`.github/workflows/installer.yml`):
+  on a fresh GitHub Windows machine it builds the program and a stand-in bundle
+  (`release/make_test_bundle.py`: same layout and checksums, tiny files), checks that a damaged
+  bundle is refused with nothing installed, installs silently, checks every file and the firewall
+  rule for `ClinAssist.exe`, runs the installed checks, then uninstalls and checks that the
+  firewall rules are gone. Windows Sandbox would do the same locally, but it needs Windows Pro and
+  the reference PC runs Windows 11 Home.
 - **One build command** (`release/build_release.ps1`): tests, program folder, bundle, both bundle
   checks, the self-test of the built program, then the installer. It stops at the first failure.
 
@@ -62,18 +74,24 @@ The build script stopped correctly at its first step once, when a new error code
 
 Building the installer found a weakness in the air-gap check: it counted any ClinAssist firewall
 rule, so a rule for `python.exe` would have made `ClinAssist.exe` look protected. The check now
-requires a rule for the program that is actually running (`airgap.rules_for_program`).
+requires a rule for the application itself (`airgap.rules_for_program`); `ClinAssist-check.exe`
+looks for the rule of `ClinAssist.exe` beside it, not for its own.
+
+The bundle check first used PowerShell's `Get-FileHash`, which was missing on GitHub's machines
+(it is defined in a module that a different PowerShell module path hides). It now computes SHA-256
+through .NET, which every Windows has, and checks the 3.6 GB bundle in about 5 s.
 
 ## Limits
 - **Not yet installed on a second, clean PC.** The installer has been built and its parts tested,
   but an end-to-end installation on another Windows machine, ideally one that has never had
   Python or Ollama, is the real test.
-- `OLLAMA_MODELS` is set for the whole PC, which changes where any other Ollama models on that PC
-  are looked for. A clinic PC is assumed to run Ollama only for this application.
+- The Ollama model is installed for the user who runs the installer. Another Windows user on the
+  same PC would need the model copied for them too.
 - The installer is not code-signed, so Windows SmartScreen will warn that the publisher is unknown.
   Signing needs a certificate.
-- Ollama's own installer is large and is added to the bundle only when needed (`-OllamaSetup`).
-- If Windows is set up for several users, Ollama is installed for the user who runs the installer.
+- Ollama's own installer is 1.58 GB and is added to the bundle only when needed (`-OllamaSetup`).
+- The clean-machine test uses stand-in model files; the real models are tested by the build's
+  self-test and by installing on the reference PC.
 
 ## Consequences
 - AMD-15 is applied: a native Windows installer, no Docker.
