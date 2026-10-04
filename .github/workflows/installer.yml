@@ -10,6 +10,10 @@ on:
 jobs:
   install:
     runs-on: windows-latest
+    env:
+      # A short build folder. The checkout path repeats the long repository name, and the
+      # program's deepest files would pass Windows' 260-character path limit (Inno Setup fails).
+      B: C:\b
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -21,31 +25,32 @@ jobs:
 
       - name: Build the program and a stand-in bundle
         run: |
-          python -m PyInstaller --noconfirm --clean release/clinassist.spec --distpath build/dist --workpath build/work
-          python release/make_test_bundle.py build/bundle
-          & "build/dist/ClinAssist/ClinAssist-check.exe" --verify-bundle build/bundle
+          python -m PyInstaller --noconfirm --clean release/clinassist.spec --distpath "$env:B\dist" --workpath "$env:B\work"
+          python release/make_test_bundle.py "$env:B\bundle"
+          & "$env:B\dist\ClinAssist\ClinAssist-check.exe" --verify-bundle "$env:B\bundle"
           if ($LASTEXITCODE -ne 0) { throw "bundle check failed" }
 
       - name: Compile the installer
         run: |
           $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
-          & $iscc "/DBuildDir=$PWD\build" release\clinassist.iss
+          & $iscc "/DBuildDir=$env:B" release\clinassist.iss
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed" }
 
       - name: A damaged bundle is refused and nothing is installed
         run: |
-          Copy-Item -Recurse build\bundle build\damaged\bundle
-          Copy-Item build\ClinAssist-Setup.exe build\damaged\
-          Add-Content build\damaged\bundle\models\faster-whisper-small\config.json "x"
-          $p = Start-Process build\damaged\ClinAssist-Setup.exe -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /DIR=C:\Damaged" -Wait -PassThru
+          New-Item -ItemType Directory -Force "$env:B\damaged" | Out-Null
+          Copy-Item -Recurse "$env:B\bundle" "$env:B\damaged\bundle"
+          Copy-Item "$env:B\ClinAssist-Setup.exe" "$env:B\damaged\"
+          Add-Content "$env:B\damaged\bundle\models\faster-whisper-small\config.json" "x"
+          $p = Start-Process "$env:B\damaged\ClinAssist-Setup.exe" -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /DIR=C:\Damaged" -Wait -PassThru
           if ($p.ExitCode -eq 0) { throw "installer accepted a damaged bundle" }
           if (Test-Path C:\Damaged\ClinAssist.exe) { throw "files were installed from a damaged bundle" }
           Write-Output "refused with exit code $($p.ExitCode)"
 
       - name: Install silently
         run: |
-          $p = Start-Process build\ClinAssist-Setup.exe -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /LOG=install.log" -Wait -PassThru
-          if ($p.ExitCode -ne 0) { Get-Content install.log -Tail 40; throw "install failed: $($p.ExitCode)" }
+          $p = Start-Process "$env:B\ClinAssist-Setup.exe" -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /LOG=$env:B\install.log" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { Get-Content "$env:B\install.log" -Tail 40; throw "install failed: $($p.ExitCode)" }
 
       - name: Everything is where it should be
         run: |
@@ -61,10 +66,10 @@ jobs:
       - name: The installed program runs its checks
         run: |
           $app = "$env:ProgramFiles\ClinAssist"
-          & "$app\ClinAssist-check.exe" --check | Tee-Object check.txt
+          & "$app\ClinAssist-check.exe" --check | Tee-Object "$env:B\check.txt"
           # The stand-in speech model must be reported as changed, and the firewall rule found.
-          if (-not (Select-String -Path check.txt -Pattern "whisper_wrong")) { throw "stand-in model not detected" }
-          if (-not (Select-String -Path check.txt -Pattern "network_verified")) { throw "firewall rule not recognised" }
+          if (-not (Select-String -Path "$env:B\check.txt" -Pattern "whisper_wrong")) { throw "stand-in model not detected" }
+          if (-not (Select-String -Path "$env:B\check.txt" -Pattern "network_verified")) { throw "firewall rule not recognised" }
           # The check exits with 1 because of the stand-in model; that is the expected result.
           $global:LASTEXITCODE = 0
 
