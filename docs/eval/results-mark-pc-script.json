@@ -1,0 +1,287 @@
+{
+  "environment": {
+    "python": "3.11.9",
+    "system": "Windows"
+  },
+  "model": "medgemma:4b",
+  "source": "script",
+  "summary": {
+    "scenarios": 8,
+    "notes_produced": 8,
+    "failed_after_two_attempts": [],
+    "needed_a_retry": [
+      "s08_antenatal"
+    ],
+    "fact_recall": 0.923,
+    "critical_fact_recall": 0.971,
+    "facts_in_wrong_section": 6,
+    "contradicted_negatives": 0,
+    "traps_triggered": 0,
+    "notes_with_a_trap": 0,
+    "number_flags": 0,
+    "merged_word_flags": 0,
+    "median_draft_seconds": 51.5,
+    "median_transcribe_seconds": 28.1
+  },
+  "results": [
+    {
+      "id": "s01_fever",
+      "title": "Fever and headache, malaria to be excluded",
+      "source": "script",
+      "transcribe_seconds": 19.1,
+      "asr_wer_normalised": 0.016,
+      "draft_seconds": 46.9,
+      "attempts": 1,
+      "failures": [],
+      "note": {
+        "subjective": "the patient has had a fever for three days, a headache that will not go away, chills mostly at night, and joint aches. The patient vomited once yesterday. The patient took paracetamol twice, which helped for a few hours. The patient has no allergies. The patient has no long-term illnesses or regular medication.",
+        "objective": "temperature is thirty-eight point six, pulse ninety-six, blood pressure one eighteen over seventy-six. The throat looks normal, the chest is clear, the abdomen is soft with mild tenderness under the ribs on the right.",
+        "assessment": "not stated",
+        "plan": "check for malaria and do a full blood count today. Keep taking paracetamol, drink plenty of fluids and rest. If the patient vomits repeatedly, gets confused, or the fever worsens, come back immediately. Otherwise, see the doctor again in two days with the results."
+      },
+      "transcript_words": 204,
+      "flags": [],
+      "facts_total": 18,
+      "facts_found": 18,
+      "recall": 1.0,
+      "critical_total": 7,
+      "critical_recall": 1.0,
+      "missed": [],
+      "critical_missed": [],
+      "wrong_section": [],
+      "contradictions": {},
+      "traps": {}
+    },
+    {
+      "id": "s02_hypertension_diabetes",
+      "title": "Hypertension and type 2 diabetes follow-up",
+      "source": "script",
+      "transcribe_seconds": 131.4,
+      "asr_wer_normalised": 0.0072,
+      "draft_seconds": 182.0,
+      "attempts": 1,
+      "failures": [],
+      "note": {
+        "subjective": "The patient reports headaches almost every evening for three weeks now. The headaches are at the back of the head and sometimes across the forehead; they feel heavy and pressing, not sharp. Paracetamol helps a little. The headaches worsen when stressed at work or skipping lunch. No vomiting, blurred vision, flashing lights, or weakness in arms/legs. No fever, neck stiffness, or recent fall/knock to the head. Patient was started on amlodipine 5mg once daily for blood pressure; patient misses it two or three times a week. Patient takes metformin 500mg twice daily with meals (morning dose only). Patient checks home blood pressure occasionally: one fifty over ninety and one forty-eight over ninety-two last week. Patient has a glucometer, morning sugar is around nine to ten, after meals it is twelve. Wakes up two times at night to pass urine; thirsty a lot. Weight loss of about 2 or 3 kg in the past two months. Tingling/pins and needles in feet (especially toes) for about two months, getting worse. No wounds/sores on feet that are slow to heal. No chest pain, palpitations, shortness of breath when climbing stairs. Mild ankle swelling by evening. Normal mood and sleep, but worried about health and work. Patient sleeps five hours a night.",
+        "objective": "Blood pressure today: 152/94 mmHg (repeat reading 148/92 mmHg). Pulse: 78 bpm, regular. Weight: 82 kg (3 kg less than last time). Temperature: Normal. Heart sounds: normal. Chest: clear. Abdomen: soft, no tenderness. Mild pitting edema at both ankles. Foot exam: intact skin, no ulcers. Pulses present at feet. Reduced sensation on big toes and front of both feet. Reduced ankle reflexes. Random blood sugar (finger prick): 11.2 mmol/L. Patient reports home blood pressure readings of 150/90 and 148/92 mmHg last week. Patient reports morning blood sugar around 9-10 before eating, and 12 after meals.",
+        "assessment": "The patient has uncontrolled hypertension (BP 152/94 mmHg) and hyperglycemia (random blood sugar 11.2 mmol/L). The patient also has peripheral neuropathy suggested by the tingling in the feet and reduced sensation on foot exam. Patient's lifestyle contributes to poor control of both conditions.",
+        "plan": "Increase amlodipine to 10 mg once daily, taken at the same time every morning. Increase metformin to 1 gram with breakfast and 500mg with evening meal, taken with food. Stop ibuprofen due to potential kidney strain and increased blood pressure. Patient should keep a diary of home BP and morning sugar for two weeks. Patient should bring the diary to next appointment. Eye check referral. ECG today. Follow-up in two weeks or sooner if headache is severe, vomiting, vision loss, chest pain, weakness on one side, or confusion. Advise patient to cut soda completely and reduce sugar in tea. Encourage walking at least 30 minutes five days a week. Limit beer to one on Saturdays. Patient's wife should accompany the patient for follow-up appointments. Patient should check feet daily for wounds/sores. If any are found, return immediately. Advise patient to wear closed shoes and inspect inside before putting them on. Encourage patient to reduce salt intake and choose grilled fish over fried. Provide written instructions regarding medication dosages and lifestyle modifications."
+      },
+      "transcript_words": 1472,
+      "flags": [],
+      "facts_total": 32,
+      "facts_found": 26,
+      "recall": 0.812,
+      "critical_total": 12,
+      "critical_recall": 0.917,
+      "missed": [
+        "no_allergies",
+        "family_history",
+        "ex_smoker",
+        "hba1c",
+        "kidney_tests",
+        "lipids"
+      ],
+      "critical_missed": [
+        "no_allergies"
+      ],
+      "wrong_section": [
+        "ibuprofen_use",
+        "paracetamol_1g"
+      ],
+      "contradictions": {},
+      "traps": {}
+    },
+    {
+      "id": "s03_child_diarrhoea",
+      "title": "Child with watery diarrhoea and some dehydration",
+      "source": "script",
+      "transcribe_seconds": 29.0,
+      "asr_wer_normalised": 0.0417,
+      "draft_seconds": 72.8,
+      "attempts": 1,
+      "failures": [],
+      "note": {
+        "subjective": "The patient reports that his eighteen-month-old son has had watery diarrhoea for two days, about six times a day, with no blood. The patient reports that the son vomited twice yesterday, none today. The patient reports that the son is breastfeeding and drinking water, but is passing less urine than usual. The patient reports that the son is a little warm at night, has no cough, and no rash. The patient reports that the son's sister had chickenpox last month, but he did not catch it. The patient reports that the son is not on any medicine and has no allergies that we know of. The patient reports that the son's vaccines are up to date.",
+        "objective": "The patient's son's weight is ten point two kilograms. The patient's son's temperature is thirty-seven point nine. The patient's son is alert and playful. The patient's son's eyes are not sunken. The skin pinch goes back slowly, so he has some dehydration.",
+        "assessment": "not stated",
+        "plan": "The doctor advises the patient to give oral rehydration solution, fifty to one hundred millilitres after each loose stool, and zinc twenty milligrams once a day for ten days. The doctor advises the patient to keep breastfeeding and keep giving food. The doctor advises the patient to come back immediately if he sees blood in the stool, if he cannot drink, if he becomes very sleepy, or if the vomiting returns. The doctor advises the patient to bring the son back in two days."
+      },
+      "transcript_words": 259,
+      "flags": [],
+      "facts_total": 22,
+      "facts_found": 22,
+      "recall": 1.0,
+      "critical_total": 10,
+      "critical_recall": 1.0,
+      "missed": [],
+      "critical_missed": [],
+      "wrong_section": [
+        "some_dehydration"
+      ],
+      "contradictions": {},
+      "traps": {}
+    },
+    {
+      "id": "s04_urinary_infection",
+      "title": "Uncomplicated bladder infection with a sulfa allergy",
+      "source": "script",
+      "transcribe_seconds": 28.1,
+      "asr_wer_normalised": 0.0417,
+      "draft_seconds": 49.6,
+      "attempts": 1,
+      "failures": [],
+      "note": {
+        "subjective": "The patient reports burning when passing urine, going very often for three days. No fever, back pain, or pain in the sides. No blood in the urine or vaginal discharge. Last period was two weeks ago. The patient does not think she is pregnant. No regular medicines. Allergic to sulfa drugs, got a rash from them once.",
+        "objective": "Temperature 36.9, blood pressure 124/78. Urine dipstick positive for nitrites and leukocytes. Pregnancy test negative. Abdomen soft, mild tenderness above the pubic bone.",
+        "assessment": "Bladder infection.",
+        "plan": "Nitrofurantoin 100 mg twice a day for five days. Drink plenty of water. Return precautions: fever, back pain, or vomiting, same day. If not better in three days, return to see the doctor."
+      },
+      "transcript_words": 257,
+      "flags": [
+        "pronoun_not_in_transcript:she"
+      ],
+      "facts_total": 16,
+      "facts_found": 16,
+      "recall": 1.0,
+      "critical_total": 7,
+      "critical_recall": 1.0,
+      "missed": [],
+      "critical_missed": [],
+      "wrong_section": [],
+      "contradictions": {},
+      "traps": {}
+    },
+    {
+      "id": "s05_asthma",
+      "title": "Moderate asthma attack with an aspirin allergy",
+      "source": "script",
+      "transcribe_seconds": 26.6,
+      "asr_wer_normalised": 0.0179,
+      "draft_seconds": 51.5,
+      "attempts": 1,
+      "failures": [],
+      "note": {
+        "subjective": "The patient reports wheezing, coughing, and shortness of breath for two days. The patient states the patient is using salbutamol six to eight times a day. The patient denies fever and chest pain. The patient reports an allergy to aspirin. The patient does not smoke. The patient's brother smokes inside the house.",
+        "objective": "Breathing rate is twenty-four. Pulse is one hundred and four. Oxygen saturation is ninety-four percent. There is wheeze on both sides of the chest. Peak flow is two hundred and fifty. Best peak flow is about four hundred and fifty.",
+        "assessment": "Moderate asthma attack.",
+        "plan": "Give salbutamol through a spacer, four puffs now, and repeat. Give prednisolone forty milligrams once a day for five days. Start beclometasone two hundred micrograms twice a day, every day, even when the patient feels well. Ask the patient's brother to smoke outside. Return in two days for review. Return at once if the patient cannot finish sentences, if the patient's lips look blue, or if the blue inhaler stops helping."
+      },
+      "transcript_words": 250,
+      "flags": [],
+      "facts_total": 24,
+      "facts_found": 20,
+      "recall": 0.833,
+      "critical_total": 9,
+      "critical_recall": 0.889,
+      "missed": [
+        "dust_trigger",
+        "night_cough",
+        "no_preventer",
+        "full_sentences"
+      ],
+      "critical_missed": [
+        "full_sentences"
+      ],
+      "wrong_section": [],
+      "contradictions": {},
+      "traps": {}
+    },
+    {
+      "id": "s06_possible_tb",
+      "title": "Chronic cough, tuberculosis suspected but not diagnosed",
+      "source": "script",
+      "transcribe_seconds": 34.3,
+      "asr_wer_normalised": 0.0258,
+      "draft_seconds": 46.1,
+      "attempts": 1,
+      "failures": [],
+      "note": {
+        "subjective": "The patient reports coughing for four weeks, with sputum production and some blood in the sputum. The patient reports night sweats, weight loss of five kilograms, and no chest pain or shortness of breath. The patient reports a cousin was treated for TB last year. The patient reports not knowing their HIV status. The patient reports no medicines and no allergies.",
+        "objective": "Temperature 37.8, weight 58 kg, oxygen saturation 96%. Crackles heard in the upper part of the right lung.",
+        "assessment": "Not stated",
+        "plan": "Send two sputum samples for GeneXpert. Request a chest X-ray. Do the HIV test today. Cover your mouth when you cough and wear a mask around others. Keep windows open at home. Come back in three days for the results."
+      },
+      "transcript_words": 252,
+      "flags": [],
+      "facts_total": 19,
+      "facts_found": 18,
+      "recall": 0.947,
+      "critical_total": 10,
+      "critical_recall": 1.0,
+      "missed": [
+        "hiv_status_unknown"
+      ],
+      "critical_missed": [],
+      "wrong_section": [
+        "tb_suspected"
+      ],
+      "contradictions": {},
+      "traps": {}
+    },
+    {
+      "id": "s07_leg_infection",
+      "title": "Cellulitis of the leg with a penicillin allergy",
+      "source": "script",
+      "transcribe_seconds": 27.0,
+      "asr_wer_normalised": 0.0298,
+      "draft_seconds": 51.5,
+      "attempts": 1,
+      "failures": [],
+      "note": {
+        "subjective": "The patient reports a red and painful right leg that was cut on a hoe four days ago. The patient had a fever last night. The patient has no other illnesses, takes no medicines, and is allergic to penicillin. The patient does not remember when they last had a tetanus injection.",
+        "objective": "Temperature thirty-eight point two, pulse ninety-eight, blood pressure one thirty over eighty-four. There is a warm, red, tender area on the right shin, about eight by six centimetres. No pus, no crackling under the skin, and no red streaks going up the leg. A line is drawn around the red area with a pen.",
+        "assessment": "Cellulitis.",
+        "plan": "The patient will receive clindamycin three hundred milligrams four times a day for seven days. The patient will receive a tetanus booster today. The patient should take paracetamol for pain and fever, and keep the leg raised when sitting. The patient should return the same day if the redness spreads past the pen line, or the fever gets worse. The patient will be seen again in two days."
+      },
+      "transcript_words": 255,
+      "flags": [],
+      "facts_total": 19,
+      "facts_found": 17,
+      "recall": 0.895,
+      "critical_total": 7,
+      "critical_recall": 1.0,
+      "missed": [
+        "redness_3_days",
+        "allergy_reaction"
+      ],
+      "critical_missed": [],
+      "wrong_section": [],
+      "contradictions": {},
+      "traps": {}
+    },
+    {
+      "id": "s08_antenatal",
+      "title": "Routine antenatal visit at 24 weeks with mild anaemia",
+      "source": "script",
+      "transcribe_seconds": 21.7,
+      "asr_wer_normalised": 0.02,
+      "draft_seconds": 82.9,
+      "attempts": 2,
+      "failures": [
+        "repetition_detected"
+      ],
+      "note": {
+        "subjective": "the patient is twenty-four weeks pregnant. The baby is moving well. No bleeding, leaking, or pain. No headaches and no swelling. Vision is fine. Second pregnancy. First baby was born normally three years ago. Taking iron and folic acid tablets every day. No allergies. Haemoglobin today is ten point one.",
+        "objective": "Blood pressure one eighteen over seventy-two. The top of the womb measures twenty-four centimetres, which matches your dates. The baby's heart rate is one hundred and forty-four.",
+        "assessment": "not stated",
+        "plan": "Keep taking iron, sixty milligrams a day, with the folic acid, and eat beans and green vegetables. Today you will get your second tetanus injection and your first dose of SP to prevent malaria. Sleep under a treated mosquito net. Come back at twenty-eight weeks. Come at once if you have bleeding, a severe headache, swelling of your face, or if the baby moves less."
+      },
+      "transcript_words": 222,
+      "flags": [],
+      "facts_total": 18,
+      "facts_found": 18,
+      "recall": 1.0,
+      "critical_total": 8,
+      "critical_recall": 1.0,
+      "missed": [],
+      "critical_missed": [],
+      "wrong_section": [
+        "haemoglobin_10_1",
+        "mild_anaemia"
+      ],
+      "contradictions": {},
+      "traps": {}
+    }
+  ]
+}
