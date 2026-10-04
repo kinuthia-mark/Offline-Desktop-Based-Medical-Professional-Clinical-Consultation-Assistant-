@@ -1,0 +1,560 @@
+{
+ "id": "s02_hypertension_diabetes",
+ "title": "Hypertension and type 2 diabetes follow-up",
+ "script": "s02_hypertension_diabetes.txt",
+ "facts": [
+  {
+   "id": "headaches_3_weeks",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "headache",
+     "headaches"
+    ],
+    [
+     "3 weeks"
+    ]
+   ]
+  },
+  {
+   "id": "headache_back_of_head",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "back of",
+     "occipital"
+    ]
+   ]
+  },
+  {
+   "id": "missed_amlodipine",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "amlodipine"
+    ],
+    [
+     "miss",
+     "missed",
+     "misses",
+     "missing",
+     "forget",
+     "forgets",
+     "adherence",
+     "nonadherence",
+     "non adherence",
+     "inconsistent"
+    ]
+   ]
+  },
+  {
+   "id": "forgets_evening_metformin",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "metformin"
+    ],
+    [
+     "evening"
+    ]
+   ]
+  },
+  {
+   "id": "home_bp_150_90",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "150 90",
+     "150 over 90"
+    ]
+   ]
+  },
+  {
+   "id": "nocturia",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "nocturia",
+     "at night",
+     "night"
+    ],
+    [
+     "urine",
+     "urinate",
+     "urinating",
+     "pass urine",
+     "passing urine",
+     "urination",
+     "nocturia"
+    ]
+   ]
+  },
+  {
+   "id": "thirst",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "thirst",
+     "thirsty",
+     "polydipsia"
+    ]
+   ]
+  },
+  {
+   "id": "weight_loss",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "weight loss",
+     "lost weight",
+     "losing weight",
+     "looser",
+     "3 kg"
+    ]
+   ]
+  },
+  {
+   "id": "tingling_feet",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "tingling",
+     "numbness",
+     "pins and needles",
+     "neuropathy",
+     "burning"
+    ],
+    [
+     "feet",
+     "foot",
+     "toes"
+    ]
+   ]
+  },
+  {
+   "id": "ibuprofen_use",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "ibuprofen"
+    ]
+   ]
+  },
+  {
+   "id": "no_allergies",
+   "section": "subjective",
+   "critical": true,
+   "denied": [
+    "allergies",
+    "allergy",
+    "allergic"
+   ]
+  },
+  {
+   "id": "family_history",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "father",
+     "mother",
+     "brother",
+     "family history"
+    ],
+    [
+     "diabetes",
+     "stroke",
+     "blood pressure",
+     "hypertension"
+    ]
+   ]
+  },
+  {
+   "id": "ex_smoker",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "stopped smoking",
+     "ex smoker",
+     "former smoker",
+     "quit smoking",
+     "stopped 4 years",
+     "quit 4 years"
+    ]
+   ]
+  },
+  {
+   "id": "clinic_bp_152_94",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "152 94",
+     "152 over 94"
+    ]
+   ]
+  },
+  {
+   "id": "repeat_bp_148_92",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "148 92",
+     "148 over 92"
+    ]
+   ]
+  },
+  {
+   "id": "pulse_78",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "78"
+    ]
+   ]
+  },
+  {
+   "id": "weight_82",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "82"
+    ]
+   ]
+  },
+  {
+   "id": "reduced_sensation",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "reduced sensation",
+     "decreased sensation",
+     "sensation reduced",
+     "sensation is reduced",
+     "reduced ankle reflexes",
+     "loss of sensation",
+     "monofilament"
+    ]
+   ]
+  },
+  {
+   "id": "random_glucose_11_2",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "11.2",
+     "11 point 2"
+    ]
+   ]
+  },
+  {
+   "id": "pitting_oedema",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "pitting",
+     "edema",
+     "swelling"
+    ]
+   ]
+  },
+  {
+   "id": "stop_ibuprofen",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "stop ibuprofen",
+     "stop the ibuprofen",
+     "stop taking ibuprofen",
+     "discontinue ibuprofen",
+     "avoid ibuprofen",
+     "ibuprofen stopped",
+     "ibuprofen discontinued"
+    ]
+   ]
+  },
+  {
+   "id": "paracetamol_1g",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "paracetamol"
+    ],
+    [
+     "1 g",
+     "1 gram",
+     "1000 mg"
+    ]
+   ]
+  },
+  {
+   "id": "amlodipine_10mg",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "amlodipine"
+    ],
+    [
+     "10 mg",
+     "10 milligrams"
+    ]
+   ]
+  },
+  {
+   "id": "metformin_1g",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "metformin"
+    ],
+    [
+     "1 g",
+     "1 gram",
+     "1000 mg"
+    ]
+   ]
+  },
+  {
+   "id": "hba1c",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "hba 1 c",
+     "glycated",
+     "glycosylated",
+     "a 1 c"
+    ]
+   ]
+  },
+  {
+   "id": "kidney_tests",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "creatinine",
+     "kidney function",
+     "renal function",
+     "electrolytes"
+    ]
+   ]
+  },
+  {
+   "id": "lipids",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "lipid",
+     "lipids",
+     "cholesterol"
+    ]
+   ]
+  },
+  {
+   "id": "eye_referral",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "eye",
+     "eye clinic",
+     "ophthalmology",
+     "ophthalmologist",
+     "retinal"
+    ]
+   ]
+  },
+  {
+   "id": "ecg",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "ecg",
+     "electrocardiogram",
+     "ekg"
+    ]
+   ]
+  },
+  {
+   "id": "foot_care",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "feet",
+     "foot"
+    ],
+    [
+     "check",
+     "inspect",
+     "look",
+     "examine",
+     "care",
+     "every evening",
+     "daily"
+    ]
+   ]
+  },
+  {
+   "id": "diary",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "diary",
+     "record",
+     "log",
+     "keep a"
+    ]
+   ]
+  },
+  {
+   "id": "review_2_weeks",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "2 weeks"
+    ]
+   ]
+  }
+ ],
+ "negatives": [
+  {
+   "id": "no_vomiting",
+   "terms": [
+    "vomiting"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_weakness",
+   "terms": [
+    "weakness"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_fever",
+   "terms": [
+    "fever"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_neck_stiffness",
+   "terms": [
+    "stiff neck",
+    "neck stiffness"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_fall",
+   "terms": [
+    "fall",
+    "fallen",
+    "head injury"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_chest_pain",
+   "terms": [
+    "chest pain"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_foot_ulcers",
+   "terms": [
+    "ulcer",
+    "ulcers",
+    "sores"
+   ],
+   "critical": false
+  }
+ ],
+ "traps": [
+  {
+   "id": "wife_present",
+   "terms": [
+    "wife is present",
+    "wife present",
+    "accompanied by his wife",
+    "accompanied by her wife",
+    "accompanied by wife",
+    "with his wife today",
+    "wife accompanied"
+   ],
+   "unless": [],
+   "why": "the wife was not at the visit; she may come next time",
+   "exact": true
+  },
+  {
+   "id": "current_smoker",
+   "terms": [
+    "smoker",
+    "smokes",
+    "smoking"
+   ],
+   "unless": [
+    "stopped",
+    "quit",
+    "former",
+    "ex",
+    "years ago",
+    "non",
+    "cessation"
+   ],
+   "why": "stopped smoking 4 years ago"
+  },
+  {
+   "id": "blurred_vision_denied",
+   "terms": [
+    "no blurred vision",
+    "denies blurred vision",
+    "no visual disturbance",
+    "no vision problems",
+    "no blurry vision"
+   ],
+   "unless": [],
+   "why": "the patient described slightly blurry vision",
+   "exact": true
+  },
+  {
+   "id": "wrong_bp",
+   "terms": [
+    "150 94",
+    "150 over 94"
+   ],
+   "unless": [],
+   "why": "earlier notes merged 150/90 and 152/94",
+   "exact": true
+  }
+ ]
+}

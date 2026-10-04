@@ -1,0 +1,324 @@
+{
+ "id": "s07_leg_infection",
+ "title": "Cellulitis of the leg with a penicillin allergy",
+ "script": "s07_leg_infection.txt",
+ "facts": [
+  {
+   "id": "cut_while_farming",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "hoe",
+     "cut",
+     "wound",
+     "injury",
+     "laceration"
+    ]
+   ]
+  },
+  {
+   "id": "redness_3_days",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "3 days"
+    ]
+   ]
+  },
+  {
+   "id": "fever_last_night",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "fever"
+    ]
+   ]
+  },
+  {
+   "id": "penicillin_allergy",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "penicillin"
+    ]
+   ]
+  },
+  {
+   "id": "allergy_reaction",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "hives",
+     "urticaria",
+     "lips",
+     "swelling",
+     "angioedema"
+    ]
+   ]
+  },
+  {
+   "id": "tetanus_status_unknown",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "tetanus"
+    ]
+   ]
+  },
+  {
+   "id": "temperature_38_2",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "38.2",
+     "38 point 2"
+    ]
+   ]
+  },
+  {
+   "id": "pulse_98",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "98"
+    ]
+   ]
+  },
+  {
+   "id": "blood_pressure",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "130 84",
+     "130 over 84"
+    ]
+   ]
+  },
+  {
+   "id": "area_8_by_6",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "8 by 6",
+     "8 x 6",
+     "8 6 cm",
+     "8 cm by 6",
+     "8 cm x 6"
+    ]
+   ]
+  },
+  {
+   "id": "margin_marked",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "line",
+     "marked",
+     "outlined",
+     "demarcated",
+     "pen"
+    ]
+   ]
+  },
+  {
+   "id": "cellulitis",
+   "section": "assessment",
+   "critical": true,
+   "match": [
+    [
+     "cellulitis"
+    ]
+   ]
+  },
+  {
+   "id": "clindamycin_300mg",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "clindamycin"
+    ],
+    [
+     "300 mg",
+     "300 milligrams"
+    ]
+   ]
+  },
+  {
+   "id": "clindamycin_7_days",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "7 days"
+    ]
+   ]
+  },
+  {
+   "id": "tetanus_booster",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "tetanus"
+    ],
+    [
+     "booster",
+     "toxoid",
+     "injection",
+     "vaccine",
+     "given",
+     "today",
+     "td",
+     "tt"
+    ]
+   ]
+  },
+  {
+   "id": "paracetamol",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "paracetamol"
+    ]
+   ]
+  },
+  {
+   "id": "elevate_leg",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "elevate",
+     "elevation",
+     "elevated",
+     "raise",
+     "raised",
+     "raising"
+    ]
+   ]
+  },
+  {
+   "id": "return_if_spreads",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "spread",
+     "spreads",
+     "spreading",
+     "beyond",
+     "past"
+    ]
+   ]
+  },
+  {
+   "id": "review_2_days",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "2 days"
+    ]
+   ]
+  }
+ ],
+ "negatives": [
+  {
+   "id": "no_pus",
+   "terms": [
+    "pus"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_crepitus",
+   "terms": [
+    "crackling",
+    "crepitus"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_streaks",
+   "terms": [
+    "streaks",
+    "lymphangitis"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_diabetes",
+   "terms": [
+    "diabetes",
+    "diabetic"
+   ],
+   "critical": false
+  }
+ ],
+ "traps": [
+  {
+   "id": "penicillin_class_given",
+   "terms": [
+    "amoxicillin",
+    "flucloxacillin",
+    "cloxacillin",
+    "augmentin",
+    "co amoxiclav",
+    "ampicillin",
+    "benzylpenicillin",
+    "cephalexin",
+    "cefalexin"
+   ],
+   "unless": [
+    "not",
+    "avoid",
+    "avoided",
+    "allergy",
+    "allergic",
+    "instead",
+    "contraindicated",
+    "because"
+   ],
+   "why": "penicillin allergy: hives and lip swelling"
+  },
+  {
+   "id": "diabetes_invented",
+   "terms": [
+    "diabetic patient",
+    "known diabetic",
+    "history of diabetes",
+    "has diabetes"
+   ],
+   "unless": [],
+   "why": "the patient has no illnesses",
+   "exact": true
+  },
+  {
+   "id": "gender_guessed",
+   "terms": [
+    "he",
+    "she",
+    "his",
+    "her",
+    "him",
+    "himself",
+    "herself"
+   ],
+   "unless": [],
+   "why": "the patient's gender is never stated"
+  }
+ ]
+}

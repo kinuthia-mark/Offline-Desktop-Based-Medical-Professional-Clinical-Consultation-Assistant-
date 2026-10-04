@@ -1,0 +1,365 @@
+{
+ "id": "s05_asthma",
+ "title": "Moderate asthma attack with an aspirin allergy",
+ "script": "s05_asthma.txt",
+ "facts": [
+  {
+   "id": "worse_2_days",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "2 days"
+    ]
+   ]
+  },
+  {
+   "id": "dust_trigger",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "dust",
+     "dusty"
+    ]
+   ]
+  },
+  {
+   "id": "wheeze",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "wheeze",
+     "wheezing",
+     "wheezy"
+    ]
+   ]
+  },
+  {
+   "id": "night_cough",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "night",
+     "nocturnal"
+    ]
+   ]
+  },
+  {
+   "id": "salbutamol_6_8",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "salbutamol",
+     "blue inhaler",
+     "reliever"
+    ],
+    [
+     "6",
+     "8"
+    ]
+   ]
+  },
+  {
+   "id": "no_preventer",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "no brown",
+     "no preventer",
+     "no steroid inhaler",
+     "no inhaled steroid",
+     "does not have",
+     "do not have",
+     "not on",
+     "no controller",
+     "no brown inhaler"
+    ]
+   ]
+  },
+  {
+   "id": "aspirin_allergy",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "aspirin"
+    ]
+   ]
+  },
+  {
+   "id": "non_smoker",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "does not smoke",
+     "non smoker",
+     "nonsmoker",
+     "not smoke",
+     "denies smoking",
+     "no smoking",
+     "doesn't smoke"
+    ]
+   ]
+  },
+  {
+   "id": "brother_smokes",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "brother",
+     "second hand",
+     "passive",
+     "household"
+    ]
+   ]
+  },
+  {
+   "id": "full_sentences",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "full sentences"
+    ]
+   ]
+  },
+  {
+   "id": "resp_rate_24",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "24"
+    ]
+   ]
+  },
+  {
+   "id": "pulse_104",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "104"
+    ]
+   ]
+  },
+  {
+   "id": "spo2_94",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "94"
+    ]
+   ]
+  },
+  {
+   "id": "bilateral_wheeze",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "wheeze",
+     "wheezing"
+    ],
+    [
+     "both",
+     "bilateral",
+     "bilaterally"
+    ]
+   ]
+  },
+  {
+   "id": "peak_flow_250",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "250"
+    ]
+   ]
+  },
+  {
+   "id": "best_450",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "450"
+    ]
+   ]
+  },
+  {
+   "id": "moderate_attack",
+   "section": "assessment",
+   "critical": false,
+   "match": [
+    [
+     "moderate"
+    ]
+   ]
+  },
+  {
+   "id": "salbutamol_spacer",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "spacer"
+    ]
+   ]
+  },
+  {
+   "id": "prednisolone_40mg",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "prednisolone",
+     "prednisone"
+    ],
+    [
+     "40 mg",
+     "40 milligrams"
+    ]
+   ]
+  },
+  {
+   "id": "prednisolone_5_days",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "5 days"
+    ]
+   ]
+  },
+  {
+   "id": "beclometasone_200",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "beclometasone",
+     "beclomethasone",
+     "preventer"
+    ],
+    [
+     "200"
+    ]
+   ]
+  },
+  {
+   "id": "smoke_outside",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "outside"
+    ]
+   ]
+  },
+  {
+   "id": "review_2_days",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "2 days"
+    ]
+   ]
+  },
+  {
+   "id": "return_if_blue_lips",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "blue",
+     "cyanosis",
+     "cannot finish",
+     "unable to finish",
+     "sentences"
+    ]
+   ]
+  }
+ ],
+ "negatives": [
+  {
+   "id": "no_fever",
+   "terms": [
+    "fever"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_chest_pain",
+   "terms": [
+    "chest pain"
+   ],
+   "critical": false
+  }
+ ],
+ "traps": [
+  {
+   "id": "patient_smokes",
+   "terms": [
+    "smoker",
+    "smokes",
+    "smoking"
+   ],
+   "unless": [
+    "brother",
+    "not",
+    "non",
+    "household",
+    "passive",
+    "second hand",
+    "exposure",
+    "outside",
+    "denies"
+   ],
+   "why": "it is the brother who smokes"
+  },
+  {
+   "id": "aspirin_given",
+   "terms": [
+    "aspirin"
+   ],
+   "unless": [
+    "allergy",
+    "allergic",
+    "allergies",
+    "avoid",
+    "worse",
+    "worsens",
+    "sensitivity",
+    "sensitive",
+    "intolerance",
+    "makes"
+   ],
+   "why": "aspirin worsens the patient's asthma"
+  },
+  {
+   "id": "gender_guessed",
+   "terms": [
+    "he",
+    "she",
+    "his",
+    "her",
+    "him",
+    "himself",
+    "herself"
+   ],
+   "unless": [],
+   "why": "the patient's gender is never stated"
+  }
+ ]
+}
