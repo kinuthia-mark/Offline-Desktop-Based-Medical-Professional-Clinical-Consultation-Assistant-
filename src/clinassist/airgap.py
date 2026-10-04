@@ -23,6 +23,7 @@ import os
 import subprocess
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 
 RULE_PREFIX = "ClinAssist block outbound"
 _LOOPBACK_NAMES = {"localhost", "localhost.localdomain"}
@@ -206,3 +207,44 @@ def take_snapshot() -> Snapshot:
         guard_installed=guard_installed(),
         adapters_up=adapters,
     )
+
+
+# ----- setting the firewall rules without a command line -----
+def app_program() -> str:
+    """The program the firewall rule must block: the installed application's .exe, or, when
+    running from source, the Python interpreter (a virtual environment's python.exe only starts
+    the base interpreter)."""
+    if getattr(sys, "frozen", False):
+        return sys.executable
+    return getattr(sys, "_base_executable", sys.executable)
+
+
+def firewall_script() -> Path:
+    base = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parents[2]))
+    return base / "scripts" / "airgap_firewall.ps1"
+
+
+def elevation_command(program: str | None = None) -> tuple[str, str]:
+    """What to run, and its arguments, to set the rules with administrator rights."""
+    script = firewall_script()
+    target = program or app_program()
+    args = f'-NoProfile -ExecutionPolicy Bypass -File "{script}" -Apply -Program "{target}"'
+    return "powershell.exe", args
+
+
+def request_firewall_rules(shell_execute=None) -> bool:
+    """Ask Windows to run the firewall script as administrator. Windows shows its usual
+    "Do you want to allow this app to make changes?" prompt; the user only clicks Yes.
+
+    Returns True if the request was handed to Windows (not whether the user agreed: the start-up
+    check is run again afterwards to see what actually happened)."""
+    if os.name != "nt" and shell_execute is None:
+        return False
+    if shell_execute is None:
+        import ctypes
+
+        shell_execute = ctypes.windll.shell32.ShellExecuteW
+    program, args = elevation_command()
+    # "runas" is the Windows verb for "run as administrator". 0 hides the PowerShell window.
+    result = shell_execute(None, "runas", program, args, None, 0)
+    return int(result) > 32  # ShellExecute returns a value above 32 on success
