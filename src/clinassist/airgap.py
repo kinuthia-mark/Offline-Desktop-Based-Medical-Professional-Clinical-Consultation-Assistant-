@@ -228,7 +228,9 @@ def app_program() -> str:
     running from source, the Python interpreter (a virtual environment's python.exe only starts
     the base interpreter)."""
     if getattr(sys, "frozen", False):
-        return sys.executable
+        # ClinAssist-check.exe sits beside ClinAssist.exe and checks on its behalf: the rule that
+        # matters is the one for the application, not for the checking tool.
+        return str(Path(sys.executable).resolve().parent / "ClinAssist.exe")
     return getattr(sys, "_base_executable", sys.executable)
 
 

@@ -288,6 +288,9 @@ def test_installed_app_blocks_its_own_exe_not_python(monkeypatch):
     monkeypatch.setattr(sys, "frozen", True, raising=False)
     monkeypatch.setattr(sys, "executable", r"C:\Program Files\ClinAssist\ClinAssist.exe")
     assert airgap.app_program() == r"C:\Program Files\ClinAssist\ClinAssist.exe"
+    # The checking tool beside it looks for the application's rule, not its own.
+    monkeypatch.setattr(sys, "executable", r"C:\Program Files\ClinAssist\ClinAssist-check.exe")
+    assert airgap.app_program() == r"C:\Program Files\ClinAssist\ClinAssist.exe"
 
 
 def test_request_asks_windows_to_run_as_administrator():
