@@ -298,3 +298,10 @@ def test_term_recall_counts_each_mention():
     hyp = "amlotyping in the morning, amlodipine at night, paracetamol, amlotyping"
     assert term_recall(ref, hyp, ["amlodipine", "paracetamol"]) == (2, 4)
     assert term_recall("no drugs", "no drugs", ["amlodipine"]) == (0, 0)
+
+
+def test_hundreds_are_read_as_one_number():
+    assert normalize("one hundred and four", numbers_as_digits=True) == ["104"]
+    assert normalize("two hundred and fifty", numbers_as_digits=True) == ["250"]
+    assert normalize("one hundred and forty-four", numbers_as_digits=True) == ["144"]
+    assert normalize("three hundred milligrams", numbers_as_digits=True) == ["300", "milligrams"]
