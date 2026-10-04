@@ -34,24 +34,59 @@ def _password_field() -> QLineEdit:
 
 
 class ReadinessDialog(QDialog):
-    """Shows the startup checks (NFR-07). Continue is only possible when nothing failed."""
+    """Shows the startup checks (NFR-07). Continue is only possible when nothing failed.
 
-    def __init__(self, checks, can_start: bool) -> None:
+    If the firewall rules are missing, a button asks Windows to set them: the user sees the usual
+    "allow this app to make changes?" prompt and clicks Yes, with no command line (ADR-010).
+    `recheck()` runs the checks again and returns (checks, can_start)."""
+
+    def __init__(self, checks, can_start: bool, recheck=None, fix_network=None) -> None:
         super().__init__()
         self.setWindowTitle("Checking this computer")
+        self._recheck, self._fix_network = recheck, fix_network
         self.items = QListWidget()
-        for c in checks:
-            self.items.addItem(f"{_ICON[c.status]}: {check_message(c.code)}")
+        self.note = QLabel()
+        self.note.setWordWrap(True)
+        self.fix_button = QPushButton("Turn on offline protection")
+        self.fix_button.clicked.connect(self.fix)
+        self.check_again_button = QPushButton("Check again")
+        self.check_again_button.clicked.connect(self.check_again)
         buttons = QDialogButtonBox()
         self.continue_button = buttons.addButton("Continue", QDialogButtonBox.ButtonRole.AcceptRole)
         quit_button = buttons.addButton("Quit", QDialogButtonBox.ButtonRole.RejectRole)
-        self.continue_button.setEnabled(can_start)
         self.continue_button.clicked.connect(self.accept)
         quit_button.clicked.connect(self.reject)
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel("Before the first consultation:"))
         layout.addWidget(self.items)
+        layout.addWidget(self.fix_button)
+        layout.addWidget(self.note)
+        layout.addWidget(self.check_again_button)
         layout.addWidget(buttons)
+        self.show_checks(checks, can_start)
+
+    def show_checks(self, checks, can_start: bool) -> None:
+        self.items.clear()
+        for c in checks:
+            self.items.addItem(f"{_ICON[c.status]}: {check_message(c.code)}")
+        self.continue_button.setEnabled(can_start)
+        missing = any(c.code == "firewall_rule_missing" for c in checks)
+        self.fix_button.setVisible(missing and self._fix_network is not None)
+        self.check_again_button.setVisible(self._recheck is not None)
+
+    def fix(self) -> None:
+        if self._fix_network and self._fix_network():
+            self.note.setText(
+                "Windows will ask for permission. Click Yes, wait a few seconds, then press "
+                "Check again."
+            )
+        else:
+            self.note.setText("Windows did not start the change. Ask an administrator.")
+
+    def check_again(self) -> None:
+        if self._recheck:
+            self.note.clear()
+            self.show_checks(*self._recheck())
 
 
 class CreateVaultDialog(QDialog):
