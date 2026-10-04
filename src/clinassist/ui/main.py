@@ -165,7 +165,7 @@ class MainWindow(QMainWindow):
 
 
 def main() -> int:
-    from clinassist.airgap import LABELS, install_network_guard
+    from clinassist.airgap import LABELS, install_network_guard, request_firewall_rules
 
     install_network_guard()  # first, before any part of the program can open a connection
     from clinassist.app import build
@@ -179,8 +179,16 @@ def main() -> int:
     config = AppConfig.load(data_dir / "settings.json")
 
     checks = run_checks(config)
-    if ReadinessDialog(checks, can_start(checks)).exec() != ReadinessDialog.DialogCode.Accepted:
+    latest = {"checks": checks}
+
+    def recheck():
+        latest["checks"] = run_checks(config)
+        return latest["checks"], can_start(latest["checks"])
+
+    readiness = ReadinessDialog(checks, can_start(checks), recheck, request_firewall_rules)
+    if readiness.exec() != ReadinessDialog.DialogCode.Accepted:
         return 1
+    checks = latest["checks"]
     warnings = [c for c in checks if c.status == "warn"]
     summary = f"{len(warnings)} warning(s) at start-up" if warnings else "All checks passed"
     net = next((c for c in checks if c.name == "network"), None)
