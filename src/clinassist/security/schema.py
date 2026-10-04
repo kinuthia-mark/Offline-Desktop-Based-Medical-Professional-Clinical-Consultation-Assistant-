@@ -89,7 +89,10 @@ def current_version(conn) -> int:
 
 def migrate(conn) -> int:
     """Bring the database up to LATEST. Returns the version it ended at."""
+    # The database remembers its own version number. A new vault starts at 0 and runs every
+    # migration; a vault made by an older version of the app runs only the ones it is missing.
     version = current_version(conn)
+    # A vault made by a newer version of the app is refused rather than damaged.
     if version > LATEST:
         raise SchemaError("schema_newer_than_program")
     for target in range(version + 1, LATEST + 1):

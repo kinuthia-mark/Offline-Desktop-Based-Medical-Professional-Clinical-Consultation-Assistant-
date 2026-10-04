@@ -68,9 +68,11 @@ def check_passphrase(passphrase: str) -> None:
     characters not counting leading or trailing spaces, at most 256, not a known common choice,
     and not one character repeated. No "must contain a symbol" rule: it pushes people to
     predictable patterns and makes a memorable multi-word passphrase harder to use."""
+    # Spaces at the start or end are ignored when counting, so "   short   " is still short.
     core = passphrase.strip()
     if not MIN_PASSPHRASE_CHARS <= len(core) <= MAX_PASSPHRASE_CHARS:
         raise VaultError("weak_passphrase")
+    # Refuse well-known choices in any capitalisation, and one character repeated.
     if core.lower() in _COMMON or len(set(core)) == 1:
         raise VaultError("weak_passphrase")
 
@@ -95,6 +97,8 @@ class Vault:
             raise VaultError("vault_exists")
         check_passphrase(passphrase)
         kdf = kdf or KdfParams()
+        # The master key is random; nobody ever types or sees it. It is stored only in wrapped
+        # (encrypted) form, twice: once locked by the passphrase, once by the recovery code.
         master = crypto.new_master_key()
         recovery_code = crypto.new_recovery_code()
         keyring = {
@@ -122,6 +126,8 @@ class Vault:
     @classmethod
     def unlock(cls, directory: Path | str, passphrase: str) -> Vault:
         directory = Path(directory)
+        # Read the keyring, turn the passphrase into a key, and try to unwrap the master key.
+        # If that fails, the passphrase is wrong, and we know it before opening the database.
         keyring = _read_keyring(directory)
         master = _open_slot(keyring, "passphrase", passphrase, _PASS_LABEL)
         if master is None:
@@ -166,8 +172,13 @@ class Vault:
         or replace a file with an open handle)."""
         from sqlcipher3 import dbapi2
 
+        # The database has its own key, derived from the master key, so the audio key and the
+        # database key are never the same.
         key = crypto.subkey(self._require_master(), "db")
         conn = dbapi2.connect(str(self._dir / DATABASE))
+        # "PRAGMA key" hands SQLCipher the key; every page of the file is decrypted with it.
+        # foreign_keys makes the database enforce links between tables (a note must belong to
+        # a session).
         try:
             conn.execute(f"PRAGMA key = \"x'{key.hex()}'\"")  # hex from bytes: safe to inline
             conn.execute("PRAGMA foreign_keys = ON")
@@ -196,6 +207,7 @@ class Vault:
         self._set_passphrase(new)
 
     def lock(self) -> None:
+        # Forget the master key. Every later connect() or audio_key use raises vault_locked.
         self._master = None
 
     @property
@@ -226,12 +238,16 @@ class Vault:
 
 
 def _wrapped_slot(secret: str, master: bytes, kdf: KdfParams, label: bytes) -> dict:
+    # One "slot" in the keyring: a fresh salt, and the master key locked with a key made from
+    # the secret and that salt. Stored as base64 text so the keyring is readable JSON.
     salt = crypto.new_salt()
     kek = crypto.derive_kek(secret, salt, kdf)
     return {"salt": crypto.b64(salt), "wrapped": crypto.b64(crypto.wrap(kek, master, label))}
 
 
 def _open_slot(keyring: dict, slot: str, secret: str, label: bytes) -> bytes | None:
+    # Returns the master key, or None if the secret is wrong. A keyring with missing or
+    # malformed fields is reported as corrupt rather than as a wrong secret.
     try:
         entry = keyring[slot]
         kdf = KdfParams.from_dict(keyring["kdf"])
