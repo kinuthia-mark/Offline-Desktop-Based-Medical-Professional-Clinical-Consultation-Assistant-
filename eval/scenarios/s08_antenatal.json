@@ -1,0 +1,307 @@
+{
+ "id": "s08_antenatal",
+ "title": "Routine antenatal visit at 24 weeks with mild anaemia",
+ "script": "s08_antenatal.txt",
+ "facts": [
+  {
+   "id": "gestation_24_weeks",
+   "section": "subjective",
+   "critical": true,
+   "match": [
+    [
+     "24 weeks"
+    ]
+   ]
+  },
+  {
+   "id": "fetal_movements",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "movement",
+     "movements",
+     "moving"
+    ]
+   ]
+  },
+  {
+   "id": "second_pregnancy",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "second pregnancy",
+     "g 2",
+     "gravida 2",
+     "2nd pregnancy",
+     "second"
+    ]
+   ]
+  },
+  {
+   "id": "previous_normal_delivery",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "normal",
+     "normally",
+     "vaginal",
+     "svd"
+    ],
+    [
+     "delivery",
+     "birth",
+     "born",
+     "delivered"
+    ]
+   ]
+  },
+  {
+   "id": "taking_iron_folic",
+   "section": "subjective",
+   "critical": false,
+   "match": [
+    [
+     "iron"
+    ],
+    [
+     "folic"
+    ]
+   ]
+  },
+  {
+   "id": "no_allergies",
+   "section": "subjective",
+   "critical": true,
+   "denied": [
+    "allergies",
+    "allergy",
+    "allergic"
+   ]
+  },
+  {
+   "id": "blood_pressure",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "118 72",
+     "118 over 72"
+    ]
+   ]
+  },
+  {
+   "id": "fundal_height_24",
+   "section": "objective",
+   "critical": false,
+   "match": [
+    [
+     "fundal",
+     "fundus",
+     "womb",
+     "symphysis"
+    ],
+    [
+     "24"
+    ]
+   ]
+  },
+  {
+   "id": "fetal_heart_144",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "144"
+    ]
+   ]
+  },
+  {
+   "id": "haemoglobin_10_1",
+   "section": "objective",
+   "critical": true,
+   "match": [
+    [
+     "10.1",
+     "10 point 1"
+    ]
+   ]
+  },
+  {
+   "id": "mild_anaemia",
+   "section": "assessment",
+   "critical": false,
+   "match": [
+    [
+     "anemia",
+     "low",
+     "hemoglobin"
+    ]
+   ]
+  },
+  {
+   "id": "iron_60mg",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "iron"
+    ],
+    [
+     "60 mg",
+     "60 milligrams"
+    ]
+   ]
+  },
+  {
+   "id": "diet_advice",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "beans",
+     "green",
+     "vegetables",
+     "diet"
+    ]
+   ]
+  },
+  {
+   "id": "tetanus_dose",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "tetanus",
+     "tt",
+     "td"
+    ]
+   ]
+  },
+  {
+   "id": "sp_malaria_prevention",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "sp",
+     "sulfadoxine",
+     "iptp",
+     "fansidar"
+    ]
+   ]
+  },
+  {
+   "id": "mosquito_net",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "net"
+    ]
+   ]
+  },
+  {
+   "id": "return_28_weeks",
+   "section": "plan",
+   "critical": false,
+   "match": [
+    [
+     "28 weeks"
+    ]
+   ]
+  },
+  {
+   "id": "danger_signs",
+   "section": "plan",
+   "critical": true,
+   "match": [
+    [
+     "bleeding",
+     "headache",
+     "reduced movements",
+     "moves less",
+     "swelling"
+    ]
+   ]
+  }
+ ],
+ "negatives": [
+  {
+   "id": "no_bleeding",
+   "terms": [
+    "bleeding"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_leaking",
+   "terms": [
+    "leaking",
+    "leak"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_headache",
+   "terms": [
+    "headache",
+    "headaches"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_swelling",
+   "terms": [
+    "swelling"
+   ],
+   "critical": false
+  },
+  {
+   "id": "no_vision_problems",
+   "terms": [
+    "vision problems",
+    "visual disturbance",
+    "blurred vision"
+   ],
+   "critical": false
+  }
+ ],
+ "traps": [
+  {
+   "id": "pre_eclampsia",
+   "terms": [
+    "pre eclampsia",
+    "preeclampsia",
+    "pregnancy induced hypertension",
+    "hypertension"
+   ],
+   "unless": [
+    "if",
+    "signs",
+    "warning",
+    "danger",
+    "risk",
+    "no",
+    "watch"
+   ],
+   "why": "blood pressure was normal"
+  },
+  {
+   "id": "caesarean_invented",
+   "terms": [
+    "caesarean",
+    "cesarean",
+    "c section"
+   ],
+   "unless": [
+    "no",
+    "not",
+    "normal"
+   ],
+   "why": "the first birth was normal"
+  }
+ ]
+}

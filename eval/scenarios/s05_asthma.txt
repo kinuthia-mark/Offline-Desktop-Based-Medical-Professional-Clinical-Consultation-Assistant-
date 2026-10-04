@@ -1,0 +1,17 @@
+# SYNTHETIC consultation invented for evaluation. Not a real patient.
+Doctor: Hello. You look a bit short of breath. What happened?
+Patient: My asthma has been bad for two days, since I cleaned a dusty store. I am wheezing, and I wake up at night coughing.
+Doctor: How often are you using your blue inhaler?
+Patient: Salbutamol, maybe six to eight times a day now. I do not have a brown inhaler at home.
+Doctor: Any fever or chest pain?
+Patient: No fever and no chest pain.
+Doctor: Do you smoke?
+Patient: I do not smoke. My brother smokes inside the house, though.
+Doctor: Any allergies to medicines?
+Patient: Yes. Aspirin makes my wheezing worse.
+Doctor: Let me examine you. You can speak in full sentences. Breathing rate is twenty-four, pulse one hundred and four, oxygen saturation ninety-four percent. There is wheeze on both sides of the chest. Your peak flow is two hundred and fifty. Your best is about four hundred and fifty.
+Patient: Is it bad?
+Doctor: It is a moderate attack. I will give you salbutamol through a spacer, four puffs now, and we will repeat it. Then prednisolone forty milligrams once a day for five days. I will also start a preventer, beclometasone two hundred micrograms twice a day, every day, even when you feel well.
+Patient: Okay.
+Doctor: Ask your brother to smoke outside. Come back in two days for review. Come back at once if you cannot finish sentences, if your lips look blue, or if the blue inhaler stops helping.
+Patient: Thank you.

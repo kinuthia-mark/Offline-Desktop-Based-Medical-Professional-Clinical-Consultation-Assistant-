@@ -1,0 +1,19 @@
+# SYNTHETIC consultation invented for evaluation. Not a real patient.
+Doctor: Welcome back. How are you and the baby?
+Patient: I am fine. I am twenty-four weeks now. The baby is moving well.
+Doctor: Any bleeding, leaking of fluid, or pain?
+Patient: No bleeding, no leaking, no pain.
+Doctor: Any headaches, swelling of the face, or problems with your vision?
+Patient: No headaches and no swelling. My vision is fine.
+Doctor: This is your second pregnancy?
+Patient: Yes. My first baby was born normally, three years ago.
+Doctor: Are you taking the iron and folic acid tablets?
+Patient: Yes, every day.
+Doctor: Any allergies?
+Patient: No allergies.
+Doctor: Let me check you. Blood pressure one eighteen over seventy-two. The top of the womb measures twenty-four centimetres, which matches your dates. The baby's heart rate is one hundred and forty-four. Your haemoglobin today is ten point one, which is a little low.
+Patient: Is that a problem?
+Doctor: It is mild. Keep taking the iron, sixty milligrams a day, with the folic acid, and eat beans and green vegetables. Today you will get your second tetanus injection and your first dose of SP to prevent malaria. Sleep under a treated mosquito net.
+Patient: Okay.
+Doctor: Come back at twenty-eight weeks. Come at once if you have bleeding, a severe headache, swelling of your face, or if the baby moves less.
+Patient: Thank you.
