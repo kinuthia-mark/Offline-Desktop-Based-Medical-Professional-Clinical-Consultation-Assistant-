@@ -235,3 +235,38 @@ def test_stream_is_closed_when_the_deadline_passes():
     gen = SoapGenerator(GeneratorSettings(max_seconds=-1), client=client)
     assert reason_of(lambda: gen.generate(TRANSCRIPT, 1)) == "timeout"
     assert client.stream.closed
+
+
+# ---------- long input starts with the penalty (9 of 9 long runs looped without it) ----------
+
+
+def test_long_input_uses_the_penalty_from_the_first_attempt(server):
+    fake = server(lambda r: good_script())
+    long_text = "Doctor: question. Patient: answer. " * 150  # 600 words
+    generator(fake).generate(long_text, attempt=1)
+    assert fake.chat_requests[0]["options"]["repeat_penalty"] == 1.1
+
+
+def test_the_long_input_threshold_is_configurable(server):
+    fake = server(lambda r: good_script())
+    generator(fake, long_input_words=5).generate(TRANSCRIPT, attempt=1)
+    assert fake.chat_requests[0]["options"]["repeat_penalty"] == 1.1
+
+
+# ---------- debugging aid: partial output travels with the error, not in its message ----------
+
+
+def test_a_loop_failure_carries_the_partial_output_but_not_in_the_message(server):
+    script = Script(pieces=['{"subjective": "'], loop_piece=LOOP_SENTENCE, delay=0.003)
+    fake = server(lambda r: script)
+    with pytest.raises(GenerationFailed) as failed:
+        generator(fake).generate(TRANSCRIPT, 1)
+    assert failed.value.partial_output.startswith('{"subjective": "Patient reports')
+    assert str(failed.value) == "repetition_detected"
+
+
+def test_invalid_output_keeps_what_the_model_wrote(server):
+    fake = server(lambda r: good_script("not json at all"))
+    with pytest.raises(GenerationFailed) as failed:
+        generator(fake).generate(TRANSCRIPT, 1)
+    assert failed.value.partial_output == "not json at all"
