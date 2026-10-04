@@ -182,7 +182,7 @@ is recorded.
 | Accounts, roles, lockout, idle timeout | FR-08, FR-10a | built and tested |
 | Tamper-evident audit log | FR-09, FR-10d | built and tested |
 | Input check (prompt injection, personal data) and checks on the model's reply | FR-05, AMD-11 | built and tested |
-| Microphone recorder | FR-01 | planned |
+| Microphone recorder | FR-01 | built and tested, including on the real microphone |
 | Speech-to-text | FR-02 | planned |
 | Desktop interface | FR-03, FR-06, FR-16 to FR-18 | planned |
 | Air-gap enforcement (firewall rule, startup check) | NFR-01, NFR-02, NFR-07 | planned |
@@ -238,6 +238,15 @@ generator watches for repeated sentences and stops early instead of waiting for 
 
 These sentences were written by the same person who wrote the rules, so the rates are a best case.
 
+**Microphone** ([ADR-006](docs/ADR/006-audio-recorder.md),
+[results file](docs/spikes/mic-mark-pc.json))
+
+| What | Result |
+|---|---|
+| Records at 16 kHz mono directly (what Whisper needs) | yes |
+| Time to start recording | 0.13 s |
+| 60-second recording | 59.9 s captured, no audio lost |
+
 **What the notes got wrong** (7 notes read by hand against their transcripts). Plan items were
 accurate. But every note left out allergies or pertinent negatives; 3 of 4 short notes stated a
 diagnosis the doctor had not made; one long note changed a blood-pressure reading, contradicted a
@@ -279,7 +288,7 @@ on its own.
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-pip install -e ".[dev,storage]"
+pip install -e ".[dev,storage,audio]"
 pre-commit install
 ```
 
@@ -301,8 +310,10 @@ python scripts/try_note.py spikes/transcripts/synthetic_consult_long.txt --attem
 **Repeat the measurements** on another machine:
 
 ```powershell
+python scripts/check_microphone.py               # live level meter; speak and watch the bar
 python spikes/storage_spike.py --label my-pc     # SQLCipher, Argon2id, AES-GCM checks
 python spikes/vault_timing.py --label my-pc      # unlock, login and save times
+python spikes/mic_spike.py --label my-pc         # microphone capture checks
 python spikes/llm_spike.py --help                # model speed and memory (needs Ollama)
 ```
 
@@ -323,6 +334,7 @@ src/clinassist/
     loopcheck.py       spots the model repeating itself
     groundcheck.py     advisory flags: pronouns, numbers not in the transcript, merged words
     input_guard.py     holds back text aimed at the AI; hides phone numbers, emails and ID numbers
+    recorder.py        records the microphone at 16 kHz into memory; reports silence and errors
     numbers.py         reads numbers written as digits or words, for the number check
     store.py           saves a finished consultation into the vault in one transaction
     audio_store.py     optional encrypted audio files (off by default)
@@ -378,7 +390,7 @@ code, then the tests and measurements that check that requirement, before moving
 | [`docs/traceability.md`](docs/traceability.md) | every requirement, the branch that builds it, the test that checks it, and its status |
 | [`docs/AMENDMENTS.md`](docs/AMENDMENTS.md) | every change from the approved proposal, with the reason |
 | [`docs/proposal/CROSSCHECK.md`](docs/proposal/CROSSCHECK.md) | how the code maps onto the proposal's use cases, diagrams, schema and wireframe |
-| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005) |
+| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006) |
 | [`docs/spikes/`](docs/spikes/) | raw measurement results from the reference PC |
 | [`docs/PRIOR_ART.md`](docs/PRIOR_ART.md) | what was reused from the earlier MedgemmaV2 prototype and what was left out |
 

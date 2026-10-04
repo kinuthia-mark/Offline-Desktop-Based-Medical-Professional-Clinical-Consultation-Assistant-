@@ -7,7 +7,7 @@ diagram's only other clinician use case). See `proposal/CROSSCHECK.md` for the f
 
 | ID | Requirement | UC | Branch | Test / measurement | Status |
 |---|---|---|---|---|---|
-| FR-01 | Record consultation audio from the local microphone | UC-01 | feature/audio-recorder | fake-device tests | planned |
+| FR-01 | Record consultation audio from the local microphone | UC-01 | feature/audio-recorder | tests/test_recorder.py (fake audio system: format, limit, silence, errors, device list, release); real-microphone test and docs/spikes/mic-mark-pc.json | in progress (built and tested; verified when CI is green) |
 | FR-02 | Transcribe audio locally | UC-02 | feature/asr-whisper | WER on scripted audio | planned |
 | FR-03 | Clinician reviews and edits the transcript | UC-03 (inferred) | feature/ui-dashboard | UI tests | planned |
 | FR-04 | Load the quantized model locally | UC-04 | spike/ollama-medgemma, feature/llm-soap | client, loopback, proxy-bypass and unload tests; memory table under typical load (docs/spikes/llm-results.md) | in progress (client done) |
