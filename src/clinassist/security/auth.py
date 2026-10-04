@@ -145,9 +145,12 @@ class AuthService:
             raise AuthError("invalid_credentials")
 
         user_id, name, display, role, pw_hash, failed, locked_until, active = row
+        # Check 1: is the account locked? While it is, even the right password is refused.
         if locked_until and now < datetime.fromisoformat(locked_until):
             self._auditor.record("login_refused_locked", NO_SESSION, user_id)
             raise AuthError("account_locked")
+        # Check 2: the password. A wrong one adds to the failure count; the fifth in a row
+        # locks the account for 15 minutes and resets the count.
         if not self._verify(pw_hash, password):
             failed += 1
             lock = failed >= MAX_FAILED_ATTEMPTS
@@ -167,6 +170,8 @@ class AuthService:
             self._auditor.record("login_refused_inactive", NO_SESSION, user_id)
             raise AuthError("account_inactive")
 
+        # Success: clear the failure count. If the stored hash was made with weaker settings
+        # than today's, replace it now, while we have the password in hand.
         with self._vault.connect() as conn, conn:
             new_hash = self._hasher.hash(password) if self._needs_rehash(pw_hash) else pw_hash
             conn.execute(
@@ -200,6 +205,8 @@ class AuthService:
     def _insert(self, username: str, password: str, display_name: str, role: str) -> str:
         from sqlcipher3 import dbapi2
 
+        # Rules for a new account: a known role; a username of 3 to 64 characters with no
+        # spaces; a password that passes the same policy as the vault and is not the username.
         username = username.strip()
         if role not in ROLES:
             raise AuthError("invalid_role")
@@ -235,6 +242,8 @@ class AuthService:
             raise AuthError("weak_password") from None
 
     def _verify(self, stored: str, password: str) -> bool:
+        # True only for the right password. Any problem with the stored hash counts as a wrong
+        # password, never as a crash.
         try:
             return self._hasher.verify(stored, password)
         except (VerifyMismatchError, VerificationError, InvalidHashError):

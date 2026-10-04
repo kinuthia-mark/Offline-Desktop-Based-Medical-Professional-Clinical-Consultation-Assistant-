@@ -40,6 +40,8 @@ from clinassist.ports import (
 )
 
 
+# The stages a consultation can be in. Every action below first checks the current stage
+# (`_require`), so the interface cannot skip a step, even by mistake.
 class State(Enum):
     IDLE = auto()
     RECORDING = auto()
@@ -62,14 +64,21 @@ class ConsultationController:
         max_attempts: int = 2,
         id_factory: Callable[[], str] = lambda: uuid.uuid4().hex,
     ) -> None:
+        # The controller is handed its parts instead of creating them. The real app passes the
+        # microphone, Whisper, Ollama and the vault; the tests pass simple fakes, which is how
+        # every rule here can be tested in seconds without any hardware or model.
         self._recorder, self._transcriber, self._guard = recorder, transcriber, guard
         self._generator, self._store = generator, store
         self._auditor = auditor or NullAuditor()
+        # At most two model attempts per transcript, so a failing model cannot keep the
+        # clinician waiting. After that, the note is written by hand.
         self._max_attempts = max_attempts
         self._id_factory = id_factory
         self._clear()
 
     # ----- read-only view for the interface -----
+    # The interface can read these values but has no way to set them; only the workflow
+    # methods below change the state.
     @property
     def state(self) -> State:
         return self._state
@@ -93,6 +102,7 @@ class ConsultationController:
     # ----- workflow -----
     def start_recording(self) -> None:
         self._require(State.IDLE)
+        # A new random id for this consultation; it links the stored record and audit entries.
         self._session_id = self._id_factory()
         self._recorder.start()
         self._state = State.RECORDING
@@ -100,6 +110,7 @@ class ConsultationController:
 
     def stop_recording(self) -> str:
         self._require(State.RECORDING)
+        # Stop the microphone and turn the audio into text. The audio itself is not kept here.
         self._transcript = self._transcriber.transcribe(self._recorder.stop())
         self._state = State.TRANSCRIBED
         self._audit("transcribed")
@@ -110,6 +121,8 @@ class ConsultationController:
         self._require(State.TRANSCRIBED)
         if not edited_text.strip():
             raise WorkflowError("empty_transcript")
+        # The clinician's corrected text replaces the raw speech-to-text output, and we record
+        # who approved it. From here on, this is the only text the model will ever see.
         self._transcript, self._approved_by = edited_text, clinician_id
         self._state = State.APPROVED
         self._audit("transcript_approved", clinician_id)
@@ -117,6 +130,8 @@ class ConsultationController:
     def reopen_transcript(self) -> None:
         """Back to editing, for example when the draft exposed a transcription error."""
         self._require(State.APPROVED, State.DRAFTED, State.GENERATION_FAILED)
+        # Any draft made from the old text is thrown away, because it may contain the error the
+        # clinician is about to fix. The attempt count starts again for the corrected text.
         self._draft, self._attempts = None, 0
         self._state = State.TRANSCRIBED
         self._audit("transcript_reopened", self._approved_by)
@@ -127,14 +142,20 @@ class ConsultationController:
         self._require(State.APPROVED, State.GENERATION_FAILED)
         if self._attempts >= self._max_attempts:
             raise WorkflowError("attempts_exhausted")
+        # Screen the approved text before the model sees it. Text that looks like an attempt to
+        # give the model instructions is held back (quarantined) and no model call is made.
         verdict = self._guard.check(self._transcript)
         if verdict.quarantined:
             self._audit("quarantined", self._approved_by)
             raise Quarantined(verdict.reason)
         self._attempts += 1
         try:
+            # The guard may return a cleaned copy (for example with phone numbers masked);
+            # the model gets that copy, not the original.
             draft = self._generator.generate(verdict.clean_text or self._transcript, self._attempts)
         except GenerationFailed:
+            # The model failed (it looped, timed out or wrote invalid output). The transcript is
+            # kept and the clinician can retry or write the note by hand.
             self._state = State.GENERATION_FAILED
             self._audit("generation_failed", self._approved_by)
             raise
@@ -161,13 +182,20 @@ class ConsultationController:
         storage failure leaves the session editable."""
         self._require(State.DRAFTED)
         assert self._draft is not None
+        # FR-15: allergies, medicines and pertinent negatives must all be ticked. In testing,
+        # every model note read by hand left at least one of these out.
         if not checklist.complete:
             raise WorkflowError("history_not_confirmed")
+        # FR-14: the assessment must be written by the clinician; it cannot be left empty for
+        # the model's text to fill.
         if not final_note.assessment.strip():
             raise WorkflowError("assessment_required")
+        # Suggestions the clinician accepts are referred to by position in the draft's list.
         if any(not 0 <= i < len(self._draft.suggestions) for i in accepted_suggestions):
             raise WorkflowError("invalid_suggestion_index")
 
+        # Record where the assessment came from, so a later reader can tell whether the
+        # clinician wrote it, edited the model's text, or accepted the model's words unchanged.
         if self._draft.source == "manual":
             origin = "clinician_manual"
         elif final_note.assessment.strip() == self._draft.ai_assessment.strip():
@@ -187,6 +215,8 @@ class ConsultationController:
             checklist=checklist,
             generation_attempts=self._attempts,
         )
+        # Save first, then change the state. If saving fails, the exception leaves the state at
+        # DRAFTED, so the clinician's note is still on screen and nothing is lost.
         self._store.save(record)
         self._state = State.FINALIZED
         self._audit("finalized", clinician_id)
@@ -216,8 +246,12 @@ class ConsultationController:
         self._attempts = 0
 
     def _require(self, *allowed: State) -> None:
+        # The guard on every action: refuse anything that is not allowed in the current stage.
+        # The error is a code naming the stage, never anything from the consultation.
         if self._state not in allowed:
             raise WorkflowError(f"action_not_allowed_in_{self._state.name}")
 
     def _audit(self, event: str, user_id: str | None = None) -> None:
+        # Audit entries carry only the event name, the session id and the user id. Transcript
+        # and note text are never passed to the auditor.
         self._auditor.record(event, self._session_id or "", user_id or None)

@@ -24,9 +24,9 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
-KEY_BYTES = 32
-SALT_BYTES = 16
-NONCE_BYTES = 12
+KEY_BYTES = 32  # 256-bit keys, as used by AES-256
+SALT_BYTES = 16  # random value mixed into each password, so equal passwords give different keys
+NONCE_BYTES = 12  # fresh random value for each encryption
 RECOVERY_BYTES = 20  # 160 bits, shown as 32 base32 characters
 
 
@@ -58,6 +58,9 @@ TEST_KDF = KdfParams(time_cost=1, memory_cost_kib=8192, parallelism=1)
 
 
 def derive_kek(secret: str, salt: bytes, params: KdfParams) -> bytes:
+    # Turn a passphrase (or the recovery code) into a key-encryption key. Argon2id is slow and
+    # memory-hungry on purpose (about 0.17 s and 128 MiB here), so each guess an attacker
+    # makes costs the same.
     return hash_secret_raw(
         secret=secret.encode("utf-8"),
         salt=salt,
@@ -81,10 +84,13 @@ def wrap(kek: bytes, master_key: bytes, label: bytes) -> bytes:
     """Encrypt the master key. `label` is bound as associated data, so a passphrase wrap
     cannot be swapped into the recovery slot."""
     nonce = secrets.token_bytes(NONCE_BYTES)
+    # Stored as nonce followed by the encrypted key; unwrap splits them again.
     return nonce + AESGCM(kek).encrypt(nonce, master_key, label)
 
 
 def unwrap(kek: bytes, blob: bytes, label: bytes) -> bytes:
+    # AES-GCM refuses to decrypt if the key is wrong or a single bit was changed, so a wrong
+    # passphrase is detected here, before the database is touched.
     try:
         return AESGCM(kek).decrypt(blob[:NONCE_BYTES], blob[NONCE_BYTES:], label)
     except (InvalidTag, ValueError):
@@ -103,6 +109,8 @@ def subkey(master_key: bytes, purpose: str) -> bytes:
 
 def new_recovery_code() -> str:
     """A printable code, for example 'ABCD-EFGH-...'. Shown once, at vault creation."""
+    # Base32 uses only capital letters and the digits 2 to 7, so there is no 0/O or 1/l
+    # confusion when the code is read off paper. Groups of four make it easier to type.
     raw = base64.b32encode(secrets.token_bytes(RECOVERY_BYTES)).decode("ascii")
     return "-".join(raw[i : i + 4] for i in range(0, len(raw), 4))
 

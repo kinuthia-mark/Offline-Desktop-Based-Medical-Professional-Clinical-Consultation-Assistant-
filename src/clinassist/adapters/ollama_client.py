@@ -10,7 +10,10 @@ from urllib.parse import urlparse
 
 from clinassist.domain import GenerationFailed
 
+# Ollama's address on this same computer. 127.0.0.1 ("loopback") can only be reached from the
+# machine itself, so this connection never touches a network.
 DEFAULT_HOST = "http://127.0.0.1:11434"
+# The only host names the client will accept. Anything else is refused when the client is made.
 _LOOPBACK = {"127.0.0.1", "localhost", "::1"}
 # Ignore proxy settings from the environment and from the Windows registry: a proxy on a clinic PC
 # must never see, or sit between the application and, the local model server.
@@ -24,6 +27,9 @@ class ChatStream:
         self._response = response
 
     def __iter__(self) -> Iterator[dict]:
+        # Ollama sends its reply a few words at a time, one JSON object per line. Handing each
+        # piece on as it arrives lets the generator show progress and stop a bad reply early.
+        # Any network or format problem becomes a GenerationFailed code.
         try:
             for raw in self._response:
                 line = raw.strip()
@@ -44,6 +50,7 @@ class ChatStream:
 
 class OllamaClient:
     def __init__(self, host: str = DEFAULT_HOST, read_timeout: float = 300.0) -> None:
+        # Air-gap rule: refuse to even create a client that points anywhere but this computer.
         if urlparse(host).hostname not in _LOOPBACK:
             raise ValueError("non_loopback_host")
         self._host = host.rstrip("/")
@@ -57,6 +64,9 @@ class OllamaClient:
         )
         try:
             return _DIRECT.open(request, timeout=timeout)  # loopback only, never via a proxy
+        # Each kind of failure is turned into one short code the interface can explain:
+        # 404 means the model is not installed; a timeout means Ollama took too long;
+        # anything else means Ollama is not running or not answering.
         except urllib.error.HTTPError as exc:
             raise GenerationFailed(
                 "model_not_available" if exc.code == 404 else "ollama_error"
@@ -74,6 +84,9 @@ class OllamaClient:
         self, model: str, messages: list[dict], options: dict, output_format: str | None,
         keep_alive: str,
     ) -> ChatStream:  # fmt: skip
+        # The request: which model, the prompt, the settings (temperature, token cap and so on),
+        # "stream" so words arrive as they are written, and how long Ollama keeps the model in
+        # memory afterwards (keep_alive).
         payload: dict = {
             "model": model,
             "messages": messages,
@@ -81,12 +94,16 @@ class OllamaClient:
             "options": options,
             "keep_alive": keep_alive,
         }
+        # "json" asks Ollama to make the reply valid JSON, which the note parser expects.
         if output_format:
             payload["format"] = output_format
         return ChatStream(self._open("/api/chat", payload, self._read_timeout))
 
     def unload(self, model: str) -> None:
         """Ask Ollama to free the model's memory now. Best effort."""
+        # On an 8 GB PC the language model and the speech model should not both be in memory.
+        # keep_alive 0 tells Ollama to drop the model straight away. If Ollama is not running,
+        # there is nothing to free, so the error is ignored.
         try:
             with self._open("/api/generate", {"model": model, "keep_alive": 0}, 30.0) as response:
                 response.read()
