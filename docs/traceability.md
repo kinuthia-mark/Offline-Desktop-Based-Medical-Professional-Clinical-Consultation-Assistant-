@@ -13,8 +13,8 @@ assumed to be transcript review (confirm against the use case diagram).
 | FR-05 | Generate a structured SOAP draft with differentials | UC-05 | spike/ollama-medgemma, feature/llm-soap, feature/input-guard | schema, retry, and flag tests (numbers, merged words) done on real outputs; injection tests pending (feature/input-guard) | in progress (generator done; guard pending) |
 | FR-06 | Clinician reviews, edits and finalizes the note | UC-06 | feature/ui-dashboard | UI tests | planned |
 | FR-07 | Save the session to encrypted local storage | UC-07 | spike/sqlcipher-windows, feature/secure-store | tests/test_vault.py, tests/test_store.py, tests/test_audio_store.py (wrong key, tamper, recovery, transactional save, schema gates); timing in docs/spikes/vault-timing-mark-pc.json | in progress (built and tested locally; verified when CI is green) |
-| FR-08 | Authenticate users and enforce roles | n/a | feature/auth-audit | auth tests | planned |
-| FR-09 | Tamper-evident audit log | n/a | feature/auth-audit | chain-break test | planned |
+| FR-08 | Authenticate users and enforce roles | n/a | feature/auth-audit | tests/test_auth.py (lockout, idle timeout, roles, no username discovery, hash upgrade); login timing in docs/spikes/vault-timing-mark-pc.json | in progress (built and tested locally; verified when CI is green) |
+| FR-09 | Tamper-evident audit log | n/a | feature/auth-audit | tests/test_audit.py (edit, forged hash, middle deletion, reorder, truncation with anchor, no free text) | in progress (built and tested locally; verified when CI is green) |
 | FR-10 | SystemAdmin functions (accounts, model update, backup) | n/a | reserved | to be defined | planned |
 | FR-11 | The LLM never runs before the clinician approves the transcript | UC-05 | feature/domain-controller | tests/test_controller.py | in progress (controller done) |
 | FR-12 | A session cannot be finalized without a drafted note the clinician reviewed | UC-06 | feature/domain-controller | tests/test_controller.py | in progress (controller done) |
