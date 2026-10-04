@@ -13,6 +13,7 @@ dependencies = ["pyspellchecker>=0.8"]
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6", "pre-commit>=3.7", "psutil>=6"]
 storage = ["sqlcipher3>=0.5", "argon2-cffi>=23.1", "cryptography>=42"]
+audio = ["sounddevice>=0.5"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -20,6 +21,7 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+markers = ["hardware: needs a real microphone; run with CLINASSIST_HARDWARE=1"]
 
 [tool.ruff]
 line-length = 100
