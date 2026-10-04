@@ -42,6 +42,9 @@ Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription:
 [Files]
 ; The application folder built by PyInstaller.
 Source: "{#BuildDir}\dist\ClinAssist\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
+; The firewall script, at the exact path the [Run] and [UninstallRun] steps below use.
+; (PyInstaller puts its own copy under _internal\, which the application itself uses.)
+Source: "..\scripts\airgap_firewall.ps1"; DestDir: "{app}\scripts"; Flags: ignoreversion
 ; The bundle checker, unpacked to a temporary folder and run before anything is installed.
 Source: "verify_bundle.ps1"; Flags: dontcopy
 ; Models, copied from the bundle beside the installer ("external": not inside the .exe).
