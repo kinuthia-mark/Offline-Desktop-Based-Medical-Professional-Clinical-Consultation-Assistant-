@@ -1,0 +1,42 @@
+{
+  "environment": {
+    "python": "3.11.9",
+    "system": "Windows",
+    "machine": "AMD64"
+  },
+  "setup": "Whisper small (int8, CPU), input guard, MedGemma 4B Q4_K_M via Ollama, vault",
+  "audio": "synthetic consultations read by Windows TTS; best-case speech",
+  "results": [
+    {
+      "case": "consult_01",
+      "audio_seconds": 104.36,
+      "transcript_words": 185,
+      "stages_seconds": {
+        "start": 0.51,
+        "transcribe": 20.96,
+        "guard_and_draft": 53.65,
+        "finalize_and_save": 0.29
+      },
+      "total_seconds": 75.4,
+      "generation_attempts": 1,
+      "draft_flags": [],
+      "free_ram_before_gb": 1.29,
+      "lowest_free_ram_gb": 0.03,
+      "peak_app_rss_mb": 518.0,
+      "peak_ollama_rss_mb": 38.3,
+      "audit_chain_ok": true,
+      "memory_plan_steps": [
+        "llm_unloaded",
+        "whisper_loaded",
+        "transcribed",
+        "whisper_unloaded"
+      ],
+      "draft": {
+        "subjective": "The patient reports a fever for three days, a headache, chills, joint pain, and vomiting once yesterday. The patient takes paracetamol twice, which helps for a few hours. The patient has no allergies to medicines. The patient has no long-term illnesses or regular medication. The patient denies cough, sore throat, vomiting, diarrhea, rash, or pain when passing urine.",
+        "objective": "Temperature 38.6, pulse 96, blood pressure 118 over 76. Throat looks normal, chest is clear, abdomen is soft with mild tenderness under the ribs on the right.",
+        "assessment_by_model": "Not stated",
+        "plan": "Check for malaria and do a full blood count today. Keep taking paracetamol, drink plenty of fluids and rest. If you vomit repeatedly, get confused, or the fever worsens, come back immediately. Otherwise, see me again in two days with the results."
+      }
+    }
+  ]
+}
