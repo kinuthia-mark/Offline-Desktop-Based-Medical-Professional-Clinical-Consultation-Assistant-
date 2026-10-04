@@ -10,7 +10,7 @@ assumed to be transcript review (confirm against the use case diagram).
 | FR-02 | Transcribe audio locally | UC-02 | feature/asr-whisper | WER on scripted audio | planned |
 | FR-03 | Clinician reviews and edits the transcript | UC-03 | feature/ui-dashboard | UI tests | planned |
 | FR-04 | Load the quantized model locally | UC-04 | spike/ollama-medgemma, feature/llm-soap | client, loopback and unload tests; memory table under typical load | in progress (client done) |
-| FR-05 | Generate a structured SOAP draft with differentials | UC-05 | spike/ollama-medgemma, feature/llm-soap, feature/input-guard | schema, retry and flag tests done; injection tests pending (feature/input-guard) | in progress (generator done; guard pending) |
+| FR-05 | Generate a structured SOAP draft with differentials | UC-05 | spike/ollama-medgemma, feature/llm-soap, feature/input-guard | schema, retry, and flag tests (numbers, merged words) done on real outputs; injection tests pending (feature/input-guard) | in progress (generator done; guard pending) |
 | FR-06 | Clinician reviews, edits and finalizes the note | UC-06 | feature/ui-dashboard | UI tests | planned |
 | FR-07 | Save the session to encrypted local storage | UC-07 | spike/sqlcipher-windows, feature/secure-store | wrong-key and tamper tests | in progress (spike done) |
 | FR-08 | Authenticate users and enforce roles | n/a | feature/auth-audit | auth tests | planned |

@@ -23,8 +23,9 @@ Develop against option 1 behind an `LLMClient` interface, so the runtime and mod
 swapped. Compare option 2 on the evaluation set before the final model choice. Options 3 and 4
 are not pursued now.
 
-Provisional settings: context 8192; temperature 0.2; no repetition penalty by default; a hard
-cap on generated tokens; apply repetition penalty 1.1 only when a retry follows a detected loop.
+Provisional settings: context 8192; temperature 0.2; a hard cap on generated tokens; repetition
+penalty 1.1 from the first attempt when the transcript is long (500 words or more) and on any
+retry, otherwise none.
 
 ## Evidence
 Reference PC: Ryzen 5 5625U (6 cores), 8 GB RAM (7.35 GB usable), Windows, CPU only
@@ -51,8 +52,9 @@ Long-consultation termination:
 | Penalty 1.1 | 4 | 4 (632, 670, 737, 867 tokens) |
 
 Without a penalty, the output repeated sentences until the token cap. Short consultations ended
-normally with or without a penalty. The penalty has a cost: merged words ("healthand",
-"Temperatureis") appeared in 4 of 5 penalised notes and 0 of 2 unpenalised short notes.
+normally with or without a penalty. Merged words ("healthand", "Temperatureis", "whenpassing") appear with and without the
+penalty: in 4 of 5 penalised notes read and in 1 of 3 unpenalised short notes read. The penalty is
+therefore not their only cause, and the cause is not yet known.
 
 Memory: free RAM before every run was 0.67 to 3.59 GB. That is the reference PC's normal
 condition with a browser, a messaging app and an editor open, and no more could be freed, so no
@@ -72,6 +74,23 @@ content under the wrong heading.
 Limits: one PC, one model, two synthetic consultations, 1 to 3 trials per setting, and manual
 review of a few notes. These results choose what to test next. They are not accuracy figures.
 
+Real generator runs on the reference PC (`scripts/try_note.py`, branch `feature/llm-soap`, with the
+new prompt rules; one run each, so anecdotal):
+
+| Run | Result |
+|---|---|
+| Short consultation, attempt 1, no penalty | OK in 50 s. Included allergies, long-term illness and pertinent negatives; assessment "not stated" (no invented diagnosis); one merged word ("whenpassing") |
+| Long consultation, attempt 1, no penalty | Repetition detected after about 600 tokens; 132 s spent before the retry |
+| Long consultation, attempt 2, penalty 1.1 | OK in 173 s (about 875 tokens) |
+
+Errors in the long note, found by reading it against the transcript: home blood pressure written
+as 150/94 (transcript: 150/90) and the clinic reading as 150/94 (transcript: 152/94); "no blurred
+vision" although the patient described it; "the patient's wife is present" although she was not;
+the blood tests and the paracetamol advice are missing from the plan; examination findings are
+repeated under Subjective; a merged word ("tohypertension"). The advisory flags caught the
+150/94 pair, the merged word and the pronoun, and nothing else. Long consultations without the
+penalty have now looped in 9 of 9 runs.
+
 ## Consequences
 - `feature/llm-soap` must implement FR-13: hard output cap, repetition detector with retry, schema
   check, and a failure state that keeps the transcript and offers manual entry.
@@ -80,6 +99,10 @@ review of a few notes. These results choose what to test next. They are not accu
 - AI diagnosis suggestions stay separate from the clinician's assessment (FR-14), and required
   history is confirmed by the clinician (FR-15).
 - A startup check warns on low free RAM (NFR-07). Set its threshold from a clean measurement.
+- Long transcripts start with the penalty, because first attempts without it looped in 9 of 9
+  runs. A retry therefore matters mainly for short transcripts that loop.
+- Evaluation transcripts should be written as Whisper writes them (digits for numbers), because the
+  number check compares the note with the transcript.
 - Ollama remains a separate local process listening on loopback (see NFR-02 and ADR-001's note on
   residual risk).
 
@@ -93,3 +116,9 @@ review of a few notes. These results choose what to test next. They are not accu
 - Measure tokens per word for Swahili and mixed-language speech.
 - Evaluate quality with scripted consultations, key-fact lists, and clinician scoring.
 - Review the MedGemma licence terms and ship them with the model in the installer.
+- Find the transcript length at which loops start (between 204 and 1,472 words) and whether the
+  500-word threshold is right.
+- Find the cause of merged words (JSON mode, sampling or quantisation) with an A/B run using
+  `--format none`, counted with the dictionary check.
+- Several errors need a faithfulness metric, not a flag: contradicted negations, invented
+  statements and omitted orders. The evaluation harness must measure them.
