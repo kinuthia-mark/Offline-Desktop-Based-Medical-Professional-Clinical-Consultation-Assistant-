@@ -1,0 +1,124 @@
+{
+  "environment": {
+    "python": "3.11.9",
+    "system": "Windows",
+    "machine": "AMD64",
+    "logical_cpus": 12,
+    "total_ram_gb": 7.35
+  },
+  "audio": "synthetic consultations read by Windows TTS (David and Hazel voices), 16 kHz",
+  "results": [
+    {
+      "model": "faster-whisper-base",
+      "compute_type": "int8",
+      "free_ram_before_gb": 1.54,
+      "rss_start_mb": 20.8,
+      "load_seconds": 0.7,
+      "peak_rss_during_load_mb": 204.9,
+      "rss_loaded_mb": 147.4,
+      "rss_after_unload_mb": 115.2,
+      "cases": {
+        "consult_01": {
+          "audio_seconds": 104.36,
+          "processing_seconds": 5.88,
+          "real_time_factor": 0.056,
+          "wer": 0.0625,
+          "wer_numbers_as_digits": 0.0266,
+          "wer_normalised": 0.016,
+          "errors_normalised": {
+            "substitutions": 1,
+            "deletions": 2,
+            "insertions": 0,
+            "reference_words": 188
+          },
+          "medicine_names_correct": "2 of 2",
+          "numbers_written_as_digits": 3,
+          "numbers_written_as_words": 2,
+          "confidence": 0.811,
+          "language": "en",
+          "language_probability": 1.0,
+          "peak_rss_mb": 293.9,
+          "transcript": "Good morning. What brings you in today? I have had a fever for three days, and a headache that will not go away. Any chills or sweating? Yes, chills mostly at night. My joints also ache. Any cough, sore throat, vomiting or diarrhea. No cough and no sore throat. I vomited once yesterday. No diarrhea. Any rash, or pain when you pass urine. No rash. No pain when passing urine. Do you have any long-term illnesses or take regular medication? None. I took paracetamol twice, it helps for a few hours. Any allergies to medicines. No. Let me examine you. Your temperature is 38.6, pulse 96, blood pressure 118 over 76. You look tired but alert. Throat looks normal, chest is clear, abdomen is soft with mild tenderness under the ribs on the right. Is it serious? I want to check for malaria and do a full blood count today. Keep taking paracetamol, drink plenty of fluids and rest. If you vomit repeatedly, get confused, or the fever worsens, come back immediately. Otherwise, see me again in two days with the results. Thank you, doctor."
+        },
+        "consult_long": {
+          "audio_seconds": 651.07,
+          "processing_seconds": 39.41,
+          "real_time_factor": 0.061,
+          "wer": 0.0514,
+          "wer_numbers_as_digits": 0.0209,
+          "wer_normalised": 0.0166,
+          "errors_normalised": {
+            "substitutions": 14,
+            "deletions": 8,
+            "insertions": 1,
+            "reference_words": 1387
+          },
+          "medicine_names_correct": "4 of 9",
+          "numbers_written_as_digits": 28,
+          "numbers_written_as_words": 21,
+          "confidence": 0.827,
+          "language": "en",
+          "language_probability": 1.0,
+          "peak_rss_mb": 848.5,
+          "transcript": "Good afternoon, please have a seat. I see you are here for your follow up. How have you been since the last visit? Not so good, doctor. The headaches have come back almost every evening for about three weeks now. Tell me more about these headaches. Where do you feel them? At the back of my head and sometimes across the forehead. It is a heavy, pressing feeling. It is not sharp. Does anything make it better or worse? Parasetamol helps a little. It is worse when I am stressed at work, or when I skip lunch. Any vomiting, blurred vision, flashing lights, or weakness in your arms or legs. No vomiting and no weakness. Sometimes my vision is slightly blurry when I read in the evening, but it clears. Any fever, next stiffness, or a recent fall or knock to the head. No fever, no stiff neck, and I have not fallen. Okay. You were started on amlotyping 5mg once daily for your blood pressure at the last visit. Have you been taking it? Most days, I miss it maybe 2 or 3 times a week, especially when I travel to the shop in the morning and leave my tablets at home. And the Metformin, 500 mg twice daily with meals. The morning one I take. The evening one I often forget. Have you been checking your blood pressure at home? My neighbor has a machine. Last week it read 150 over 90 and another day 148 over 92. Thank you. That is helpful. What about your blood sugar? Do you have a glacometer? Yes, the small one you gave me. In the morning before eating it is around 9 to 10. After meals I have seen 12. Any increased thirst, passing urine very often, or waking at night to pass urine. Yes, I wake up two times in the night to pass urine, and I am thirsty a lot. I thought it was the weather. Any weight loss that you did not intend. A little. My belt is loser. Maybe two or three kilograms in two months. Now, any numbness, tingling, or burning in your feet or hands. Yes, in my feet, mostly at night. It feels like pins and needles in both feet, the toes especially. How long has that been going on? About two months, but it is getting worse. Any wounds or sores on your feet that are slow to heal. No sauce. I do not walk barefoot. Good. Any chest pain, palpitations or shortness of breath, particularly when you climb stairs. No chest pain. I get a bit tired on the stairs, but no pain. Any swelling of the legs or face. Sometimes my ankles are a little swollen by the evening. Let us talk about food. What does a normal day look like for you? Tea with two spoons of sugar and bread in the morning. Lunch is usually rice or you galley with stew. In the evening, the same, and I like fried fish. I drink soda almost every day. How many sodas? 1. Sometimes 2. half liter ones. and do you add a lot of salt to your food? my wife says I do. I like salty food. do you smoke or drink alcohol? I stopped smoking four years ago. I drink two or three beers on Saturdays. any exercise. not really. I sit most of the day at the office. I walk to the stage in the morning, about 10 minutes. Any family history I should know about? Diabetes, high blood pressure, heart disease, stroke, kidney problems. My father had diabetes and died of a stroke at 63. My mother has high blood pressure. My brother has diabetes too. Thank you. Any other medicines, herbal remedies, or supplements. Only the ones you prescribed, and sometimes ibuprofen when the headache is very bad. How often is sometimes? Maybe three times a week for the last two weeks. I will come back to that. Any allergies to medicines. No allergies. How is your mood and sleep, with the headaches and the night time urination? I sleep badly, maybe 5 hours. I am worried about my health and about work. But I am not feeling very low. Alright. Let me examine you now. Please roll up your sleeve. Your blood pressure today is 152 over 94. I will repeat it in a minute after you rest. Okay. The second reading is 148 over 92. Your pulse is 78 and regular. Your weight is 82 kilograms, which is 3 kilograms less than last time. Temperature is normal. Is the pressure very high? It is above target, yes. Let me finish the examination. Sounds are normal, no murmur. Chest is clear. Abdomen is soft, no tenderness. There is mild pitting swelling at both ankles. Now I will check your feet. Please take off your shoes and socks. Okay. The skin is intact, no ulcers. The pulses at the feet are present. Now I will touch the soleys with this thin filament. me when you feel it. I feel it here. Not here. Yes, I do not feel it on the toes. So sensation is reduced on both big toes and the front of both feet. Ankle reflexes are reduced as well. Your random blood sugar from the finger prick is 11.2 millimoles per liter. Is that bad? It is higher than we want. Let me explain what I think is happening. Your blood pressure and your sugar are both not well controlled, and the tingling in your feet suggests the diabetes may have started to affect your nerves. The headaches are most likely related to the high blood pressure and poor sleep, though we will keep an open mind. The ibuprofen is not helping, because it can raise blood pressure and strain your kidneys, so I would like you to stop it. What can I take for the pain then? Parasetimal is safer. No more than 1 gram, four times a day. Okay. I would like to do some blood tests today. A glycated hemoglobin, kidney function with creatinine and electrolytes, a lipid profile, and a urine test for protein. I would also like an eye check, because of the blurry vision and the diabetes. I will refer you to the eye clinic. When will the results be ready? The blood results should be back in two days. I will also do an ECG today, because of your tiredness on the stairs and your risk factors. Alright. For the medicines, I am going to increase the amlotyping to 10 milligrams once daily, and I want you to take it at the same time every morning. Keep the tablets by your toothbrush so you do not forget. For the diabetes, I will increase the metformin to 1 gram with breakfast and 500 milligrams with the evening meal, and take it with food to avoid stomach upset. What about the swelling in my ankles? Amlotyping can cause some ankle swelling, so we will watch that. If it gets worse, or if you notice swelling of the face or breathlessness, come back at once. Ok. Now the lifestyle part. Please cut the soda completely and reduce sugar in your tea. Choose water. Reduce the salt, and try to grill the fish instead of frying it. Walk for 30 minutes at least 5 days a week. the beer to one on Saturdays, if possible. That will be difficult, but I will try. Small steps are fine. Also, look at your feet every evening, wear closed shoes, and check inside the shoes before you put them on. If you see any wound, blister, or redness, come in the same day. I will do that. The diary of your home blood pressure and your morning sugar for the next two weeks and bring it with you. I would like to see you again in two weeks, sooner if the headache becomes severe, if you get vomiting, vision loss, chest pain, weakness on one side, or confusion. Do you have any questions? Should my wife come with me next time? She cooks and she can help with the food. Yes, please bring her. It will help a lot thank you for being so open with me today. Thank you, doctor."
+        }
+      }
+    },
+    {
+      "model": "faster-whisper-small",
+      "compute_type": "int8",
+      "free_ram_before_gb": 1.25,
+      "rss_start_mb": 20.8,
+      "load_seconds": 1.45,
+      "peak_rss_during_load_mb": 650.0,
+      "rss_loaded_mb": 315.2,
+      "rss_after_unload_mb": 116.0,
+      "cases": {
+        "consult_01": {
+          "audio_seconds": 104.36,
+          "processing_seconds": 17.07,
+          "real_time_factor": 0.164,
+          "wer": 0.0625,
+          "wer_numbers_as_digits": 0.0266,
+          "wer_normalised": 0.016,
+          "errors_normalised": {
+            "substitutions": 1,
+            "deletions": 2,
+            "insertions": 0,
+            "reference_words": 188
+          },
+          "medicine_names_correct": "2 of 2",
+          "numbers_written_as_digits": 3,
+          "numbers_written_as_words": 2,
+          "confidence": 0.867,
+          "language": "en",
+          "language_probability": 1.0,
+          "peak_rss_mb": 520.3,
+          "transcript": "Good morning. What brings you in today? I have had a fever for three days, and a headache that will not go away. Any chills or sweating? Yes, chills mostly at night. My joints also ache. Any cough, sore throat, vomiting or diarrhea? No cough and no sore throat. I vomited once yesterday. No diarrhea. Any rash, or pain when you pass urine? No rash. No pain when passing urine. Do you have any long-term illnesses or take regular medication? None. I took paracetamol twice. It helps for a few hours. Any allergies to medicines? No. Let me examine you. Your temperature is 38.6, pulse 96, blood pressure 118 over 76. You look tired but alert. Throat looks normal, chest is clear, abdomen is soft with mild tenderness under the ribs on the right. Is it serious? I want to check for malaria and do a full blood count today. Keep taking paracetamol, drink plenty of fluids and rest. If you vomit repeatedly, get confused, or the fever worsens, come back immediately. Otherwise, see me again in two days with the results. Thank you, doctor."
+        },
+        "consult_long": {
+          "audio_seconds": 651.07,
+          "processing_seconds": 108.68,
+          "real_time_factor": 0.167,
+          "wer": 0.0486,
+          "wer_numbers_as_digits": 0.0181,
+          "wer_normalised": 0.0072,
+          "errors_normalised": {
+            "substitutions": 5,
+            "deletions": 2,
+            "insertions": 3,
+            "reference_words": 1387
+          },
+          "medicine_names_correct": "7 of 9",
+          "numbers_written_as_digits": 28,
+          "numbers_written_as_words": 22,
+          "confidence": 0.866,
+          "language": "en",
+          "language_probability": 1.0,
+          "peak_rss_mb": 968.7,
+          "transcript": "Good afternoon, please have a seat. I see you are here for your follow-up. How have you been since the last visit? Not so good, doctor. The headaches have come back, almost every evening for about three weeks now. Tell me more about these headaches. Where do you feel them? At the back of my head and sometimes across the forehead. It is a heavy, pressing feeling. It is not sharp. Does anything make it better or worse? Parasetamol helps a little. It is worse when I am stressed at work, or when I skip lunch. Any vomiting, blurred vision, flashing lights, or weakness in your arms or legs? No vomiting and no weakness. Sometimes my vision is slightly blurry when I read in the evening, but it clears. Any fever, neck stiffness, or a recent fall or knock to the head? No fever, no stiff neck, and I have not fallen. Okay. You were started on amlodipine 5 mg once daily for your blood pressure at the last visit. Have you been taking it? Most days. I miss it maybe two or three times a week, especially when I travel to the shop in the morning and leave my tablets at home. And the metformin, 500 mg twice daily with meals. The morning one I take. The evening one I often forget. Have you been checking your blood pressure at home? My neighbor has a machine. Last week it read 150 over 90, and another day 148 over 92. Thank you, that is helpful. What about your blood sugar, do you have a glucometer? Yes, the small one you gave me. In the morning before eating it is around 9 to 10. After meals I have seen 12. Any increased thirst, passing urine very often, or waking at night to pass urine? Yes, I wake up two times in the night to pass urine, and I am thirsty a lot. I thought it was the weather. Any weight loss that you did not intend? A little. My belt is looser. Maybe two or three kilograms in two months. Now, any numbness, tingling, or burning in your feet or hands? Yes, in my feet, mostly at night. It feels like pins and needles in both feet, the toes especially. How long has that been going on? About two months, but it is getting worse. Any wounds or sores on your feet that are slow to heal? No sores. I do not walk barefoot. Good. Any chest pain, palpitations or shortness of breath, particularly when you climb stairs. No chest pain. I get a bit tired on the stairs, but no pain. Any swelling of the legs or face? Sometimes my ankles are a little swollen by the evening. Let us talk about food. What does a normal day look like for you? Tea with two spoons of sugar and bread in the morning. Lunch is usually rice or you gaily with stew. In the evening, the same, and I like fried fish. I drink soda almost every day. How many sodas? 1. Sometimes 2. The half liter ones. And do you add a lot of salt to your food? My wife says I do. I like salty food. Do you smoke or drink alcohol? I stopped smoking four years ago. I drink two or three beers on Saturdays. Any exercise? Not really. I sit most of the day at the office. I walk to the stage in the morning, about 10 minutes. Any family history I should know about. Diabetes, high blood pressure, heart disease, stroke, kidney problems. My father had diabetes and died of a stroke at 63. My mother has high blood pressure. My brother has diabetes too. Thank you. Any other medicines, herbal remedies or supplements? Only the ones you prescribed, and sometimes I bupren when the headache is very bad. How often is sometimes? Maybe three times a week for the last two weeks. I will come back to that. Any allergies to medicines? No allergies. How is your mood and sleep, with the headaches and the nighttime urination? I sleep badly, maybe five hours. I am worried about my health, and about work. But I am not feeling very low. All right. Let me examine you now. Please roll up your sleeve. Your blood pressure today is 152 over 94. I will repeat it in a minute after you rest. Okay. The second reading is 148 over 92. Your pulse is 78 and regular. Your weight is 82 kg, which is 3 kg less than last time. Temperature is normal. Is the pressure very high? It is above target, yes. Let me finish the examination. Heart sounds are normal, no murmur. Chest is clear. Abdomen is soft, no tenderness. There is mild pitting swelling at both ankles. Now I will check your feet. Please take off your shoes and socks. Okay. The skin is intact, no ulcers. The pulses at the feet are present. Now I will touch the soleace with this thin filament. Tell me when you feel it. I feel it here. Not here. Yes. I do not feel it on the toes. So sensation is reduced on both big toes and the front of both feet. Ankle reflexes are reduced as well. Your random blood sugar from the finger prick is 11.2 millimoles per liter. Is that bad? It is higher than we want. Let me explain what I think is happening. Your blood pressure and your sugar are both not well controlled, and the tingling in In your feet suggests the diabetes may have started to affect your nerves. The headaches are most likely related to the high blood pressure and poor sleep, though we will keep an open mind. The ibuprofen is not helping, because it can raise blood pressure and strain your kidneys, so I would like you to stop it. What can I take for the pain then? Paracetamol is safer. No more than 1 gram, 4 times a day. Okay. I would like to do some blood tests today. A glycated hemoglobin, kidney function with creatinine and electrolytes, a lipid profile, and a urine test for protein. I would also like an eye check, because of the blurry vision and the diabetes. I will refer you to the eye clinic. When will the results be ready? The blood results should be back in two days. I will also do an ECG today, because of your tiredness on the stairs and your risk factors. All right. For the medicines, I am going to increase the amlodipine to 10 mg once daily, and I want you to take it at the same time every morning. Keep the tablets by your toothbrush so you do not forget. For the diabetes, I will increase the metformin to 1 gram with breakfast and 500 milligrams with the evening meal, and take it with food to avoid stomach upset. What about the swelling in my ankles? Amlodipine can cause some ankle swelling, so we will watch that. If it gets worse, or if you notice swelling of the face or breathlessness, come back at once. Okay. Now the lifestyle part. Please cut the soda completely and reduce sugar in your tea. Choose water. Reduce the salt, and try to grill the fish instead of frying it. Walk for 30 minutes at least 5 days a week. Limit the beer to 1 on Saturdays, if possible. That will be difficult, but I will try. Small steps are fine. Also, look at your feet every evening, wear closed shoes, and check inside the shoes before you put them on. If you see any wound, blister, or redness, come in the same day. I will do that. Keep a diary of your home blood pressure and your morning sugar for the next two weeks and bring it with you. I would like to see you again in two weeks, sooner if the headache becomes severe, If you get vomiting, vision loss, chest pain, weakness on one side, or confusion. Do you have any questions? Should my wife come with me next time? She cooks and she can help with the food. Yes, please bring her. It will help a lot. Thank you for being so open with me today. Thank you, doctor."
+        }
+      }
+    }
+  ]
+}
