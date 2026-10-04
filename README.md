@@ -185,7 +185,8 @@ is recorded.
 | Microphone recorder | FR-01 | built and tested, including on the real microphone |
 | Speech-to-text (Faster-Whisper small, offline) | FR-02 | built and measured with synthetic speech |
 | Desktop interface | FR-03, FR-06, FR-16 to FR-18 | planned |
-| Air-gap enforcement (firewall rule, startup check) | NFR-01, NFR-02, NFR-07 | planned |
+| Wiring of all parts, memory plan, startup checks | NFR-04, NFR-07 | built and run end to end |
+| Air-gap enforcement (firewall rule, network self-check) | NFR-01, NFR-02 | planned |
 | Evaluation with scripted consultations | NFR-03, NFR-06 | planned |
 | Installer and offline model bundle | release | planned |
 
@@ -261,6 +262,19 @@ Windows computer voices, which is a best case:
 Whisper writes one block of text without saying who spoke; the clinician can add labels while
 reviewing (AMD-37).
 
+**The whole chain** ([ADR-008](docs/ADR/008-composition-and-startup.md),
+[results file](docs/spikes/pipeline-mark-pc.json)): speech in, Whisper, input check, MedGemma,
+encrypted save, with the speech model and the language model never in memory together.
+
+| What | Short consultation (1 min 44 s) | Long consultation (10 min 51 s) |
+|---|---|---|
+| Wait from end of consultation to draft note | 70 s | 4.9 minutes |
+| of which speech-to-text | 21 s | 126 s |
+| of which drafting the note | 49 s | 165 s |
+
+The PC had only 0.55 to 1.4 GB free at the start because other programs were open; with more
+free memory the drafting step is faster (ADR-002).
+
 **What the notes got wrong** (7 notes read by hand against their transcripts). Plan items were
 accurate. But every note left out allergies or pertinent negatives; 3 of 4 short notes stated a
 diagnosis the doctor had not made; one long note changed a blood-pressure reading, contradicted a
@@ -313,6 +327,12 @@ pytest
 ruff check . ; ruff format --check .
 ```
 
+**Check this PC is ready** (models, Ollama, free memory, microphone):
+
+```powershell
+python -m clinassist.startup
+```
+
 **Try the note generator** on a synthetic transcript. This needs [Ollama](https://ollama.com)
 installed and the model pulled once (`ollama pull medgemma:4b`); after that it works offline.
 
@@ -342,6 +362,9 @@ Results are written to `docs/spikes/` with the machine label in the file name.
 src/clinassist/
   metrics.py         word error rate and medicine-name recall, for measuring speech-to-text
   model_files.py     the published fingerprint of each model file, and a check against it
+  app.py             builds the real parts and connects them; keeps the two models apart in memory
+  config.py          the settings file, with the reason for each default
+  startup.py         checks this PC is ready: models, Ollama, memory, microphone, data folder
   domain.py          the data the app works with (draft, note, checklist, session record) and its errors
   ports.py           the small interfaces each outside part must provide
   controller.py      the consultation steps and the clinician gates (the heart of the app)
@@ -408,7 +431,7 @@ code, then the tests and measurements that check that requirement, before moving
 | [`docs/traceability.md`](docs/traceability.md) | every requirement, the branch that builds it, the test that checks it, and its status |
 | [`docs/AMENDMENTS.md`](docs/AMENDMENTS.md) | every change from the approved proposal, with the reason |
 | [`docs/proposal/CROSSCHECK.md`](docs/proposal/CROSSCHECK.md) | how the code maps onto the proposal's use cases, diagrams, schema and wireframe |
-| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007) |
+| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008) |
 | [`docs/spikes/`](docs/spikes/) | raw measurement results from the reference PC |
 | [`docs/PRIOR_ART.md`](docs/PRIOR_ART.md) | what was reused from the earlier MedgemmaV2 prototype and what was left out |
 
