@@ -1,0 +1,40 @@
+{
+  "environment": {
+    "python": "3.11.9",
+    "system": "Windows"
+  },
+  "snapshot": {
+    "app_listeners": [],
+    "app_remote_hosts": [],
+    "ollama_listeners": [
+      {
+        "ip": "127.0.0.1",
+        "port": 60789,
+        "process": "ollama app.exe"
+      },
+      {
+        "ip": "127.0.0.1",
+        "port": 11434,
+        "process": "ollama.exe"
+      }
+    ],
+    "firewall_rules": [],
+    "guard_installed": true,
+    "adapters_up": [
+      "Ethernet 3",
+      "WiFi"
+    ]
+  },
+  "assessment": {
+    "status": "warn",
+    "code": "firewall_rule_missing",
+    "label": "Offline: firewall rule not set"
+  },
+  "check_seconds": 1.64,
+  "guarded_attempts": {
+    "tcp_to_10.255.255.1": "name_lookup_blocked",
+    "dns_example.com": "name_lookup_blocked",
+    "listen_on_0.0.0.0": "listening_socket_blocked"
+  },
+  "note": "Taken with the guard installed, as the application does at start-up."
+}
