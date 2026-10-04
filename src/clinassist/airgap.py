@@ -164,15 +164,28 @@ def _ollama_pids() -> set[int]:
     return pids
 
 
-def firewall_rules() -> tuple[str, ...]:
-    """Enabled outbound block rules whose name starts with RULE_PREFIX. Reads only; works
-    without administrator rights."""
+def rules_for_program(lines: list[str], program: str) -> tuple[str, ...]:
+    """From "name|program" lines, the rules that block `program` itself. A rule for another
+    program (for example python.exe while ClinAssist.exe is running) does not count."""
+    target = os.path.normcase(os.path.abspath(program))
+    found = []
+    for line in lines:
+        name, _, path = line.partition("|")
+        if path.strip() and os.path.normcase(os.path.abspath(path.strip())) == target:
+            found.append(name.strip())
+    return tuple(found)
+
+
+def firewall_rules(program: str | None = None) -> tuple[str, ...]:
+    """Enabled outbound block rules (name starting with RULE_PREFIX) for the program that is
+    running now. Reads only; works without administrator rights."""
     if os.name != "nt":
         return ()
     script = (
         f"Get-NetFirewallRule -DisplayName '{RULE_PREFIX}*' -ErrorAction SilentlyContinue | "
         "Where-Object { $_.Enabled -eq 'True' -and $_.Direction -eq 'Outbound' "
-        "-and $_.Action -eq 'Block' } | ForEach-Object { $_.DisplayName }"
+        "-and $_.Action -eq 'Block' } | ForEach-Object { $_.DisplayName + '|' + "
+        "($_ | Get-NetFirewallApplicationFilter).Program }"
     )
     try:
         out = subprocess.run(
@@ -184,7 +197,7 @@ def firewall_rules() -> tuple[str, ...]:
         ).stdout
     except (OSError, subprocess.TimeoutExpired):
         return ()
-    return tuple(line.strip() for line in out.splitlines() if line.strip())
+    return rules_for_program(out.splitlines(), program or app_program())
 
 
 def take_snapshot() -> Snapshot:
@@ -215,7 +228,9 @@ def app_program() -> str:
     running from source, the Python interpreter (a virtual environment's python.exe only starts
     the base interpreter)."""
     if getattr(sys, "frozen", False):
-        return sys.executable
+        # ClinAssist-check.exe sits beside ClinAssist.exe and checks on its behalf: the rule that
+        # matters is the one for the application, not for the checking tool.
+        return str(Path(sys.executable).resolve().parent / "ClinAssist.exe")
     return getattr(sys, "_base_executable", sys.executable)
 
 

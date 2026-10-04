@@ -202,7 +202,7 @@ is recorded.
 | Wiring of all parts, memory plan, startup checks | NFR-04, NFR-07 | built and run end to end |
 | Air-gap enforcement: in-app network guard, firewall rules, checks shown on screen | NFR-01, NFR-02, FR-18 | built; firewall rules to be applied on the reference PC |
 | Evaluation: 8 scripted consultations with key facts and traps, scored end to end | FR-05, NFR-03, NFR-06 | built and run; clinician scoring pending |
-| Installer and offline model bundle | release | planned |
+| Windows installer and offline model bundle, with a self-test | release, AMD-15 | built; test on a second PC pending |
 
 More than 350 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
@@ -337,6 +337,26 @@ is still to come.
 
 ## 9. Running it
 
+**Installing on a clinic PC** (no internet needed): copy `ClinAssist-Setup.exe` and the `bundle`
+folder together, run the installer, accept Windows' permission prompt and the model licence.
+It checks every bundled file first, installs the program and the models, installs Ollama if
+needed, and turns on the firewall rules. To confirm it works:
+
+```powershell
+& "C:\Program Files\ClinAssist\ClinAssist-check.exe" --self-test
+```
+
+**Building the installer** (development PC; needs PyInstaller and Inno Setup 6):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File release\build_release.ps1
+```
+
+It runs the tests, packages the program, builds and checks the bundle, self-tests the built
+program and compiles the installer, stopping at the first failure. Output: `build\`.
+
+**From source:**
+
 **Start the application** (needs the speech model in `models/` and Ollama running):
 
 ```powershell
@@ -422,6 +442,8 @@ src/clinassist/
   startup.py         checks this PC is ready: models, Ollama, memory, microphone, data folder
   ui/                the desktop screens: consultation workspace, records, audit and accounts, dialogs
   evaluation.py      scores a note against a consultation's key facts, denied symptoms and traps
+  bundle.py          builds and checks the offline model bundle shipped beside the installer
+  selftest.py        uses every heavy part once, to prove an installed copy works
   domain.py          the data the app works with (draft, note, checklist, session record) and its errors
   ports.py           the small interfaces each outside part must provide
   controller.py      the consultation steps and the clinician gates (the heart of the app)
@@ -488,7 +510,7 @@ code, then the tests and measurements that check that requirement, before moving
 | [`docs/traceability.md`](docs/traceability.md) | every requirement, the branch that builds it, the test that checks it, and its status |
 | [`docs/AMENDMENTS.md`](docs/AMENDMENTS.md) | every change from the approved proposal, with the reason |
 | [`docs/proposal/CROSSCHECK.md`](docs/proposal/CROSSCHECK.md) | how the code maps onto the proposal's use cases, diagrams, schema and wireframe |
-| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011) |
+| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012) |
 | [`docs/spikes/`](docs/spikes/) | raw measurement results from the reference PC |
 | [`docs/PRIOR_ART.md`](docs/PRIOR_ART.md) | what was reused from the earlier MedgemmaV2 prototype and what was left out |
 

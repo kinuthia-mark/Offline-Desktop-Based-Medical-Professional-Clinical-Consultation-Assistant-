@@ -9,10 +9,20 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from dataclasses import asdict, dataclass, fields, replace
 from pathlib import Path
 
 from clinassist.adapters.ollama_client import DEFAULT_HOST
+
+
+def app_folder() -> Path:
+    """Where the program's own files are: next to ClinAssist.exe once installed, or the project
+    folder when running from source. Models are looked up here, never relative to wherever the
+    program happened to be started from."""
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parents[2]
 
 
 def default_data_dir() -> Path:
@@ -32,7 +42,7 @@ class AppConfig:
     # Where the encrypted vault (and optional audio) live. Created on first run.
     data_dir: str = str(default_data_dir())
     # Where the Whisper models are, next to the program (shipped by the installer).
-    models_dir: str = "models"
+    models_dir: str = str(app_folder() / "models")
     # small: right on 9 of 11 medicine names, against 6 of 11 for base (ADR-007).
     whisper_model: str = "small"
     # MedGemma 4B, Q4_K_M, run by Ollama on this PC only (ADR-002).
