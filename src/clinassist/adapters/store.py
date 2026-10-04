@@ -32,6 +32,10 @@ class VaultSessionStore:
 
         draft, note, ticks = record.draft, record.final_note, record.checklist
         accepted = set(record.accepted_suggestions)
+        # One consultation is written to three tables: the session itself, the two notes
+        # (model draft and clinician's final), and the model's suggestions. The "?" marks are
+        # placeholders the database fills in safely, so text from a note can never be read as
+        # a database command.
         try:
             with self._vault.connect() as conn:
                 with conn:  # one transaction: commit on success, roll back on any error
@@ -94,6 +98,9 @@ class VaultSessionStore:
                             for i, s in enumerate(draft.suggestions)
                         ],
                     )
+        # The database refused the record. Either the session was already saved, or a rule in the
+        # schema was broken (for example a history box not ticked). The original database message
+        # is dropped ("from None") because it could quote part of the note.
         except dbapi2.IntegrityError as exc:
             duplicate = "UNIQUE" in str(exc) and "sessions.session_id" in str(exc)
             raise StoreError("duplicate_session" if duplicate else "rejected_by_schema") from None
@@ -126,6 +133,8 @@ class VaultSessionStore:
                 (session_id,),
             ).fetchall()
 
+        # Rebuild the same objects that were saved, so a stored session reads back exactly as it
+        # was finalized (the round-trip tests check this field by field).
         ds, do, da, dp = notes["model_draft"]
         draft = Draft(
             subjective=ds,
