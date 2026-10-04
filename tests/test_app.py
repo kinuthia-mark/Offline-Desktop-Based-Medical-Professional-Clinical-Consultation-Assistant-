@@ -285,4 +285,4 @@ def test_a_crashing_check_does_not_stop_the_others(tmp_path):
     checks = run_checks(AppConfig(data_dir=str(tmp_path)), available_gb=boom)
     memory = next(c for c in checks if c.name == "memory")
     assert (memory.status, memory.code) == ("fail", "check_crashed")
-    assert len(checks) == 6
+    assert len(checks) == 7  # including the network check (ADR-010)
