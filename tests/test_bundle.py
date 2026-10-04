@@ -149,3 +149,15 @@ def test_installer_check_agrees_with_the_python_check(tmp_path, fake_store):
     weights.write_bytes(bytes(data))
     bad = run()
     assert bad.returncode == 1 and "changed: ollama-models/blobs/" in bad.stdout
+
+
+def test_self_test_passes_in_this_environment():
+    """`ClinAssist-check.exe --self-test` runs this; here it runs from source. On a machine
+    without the speech model that part is reported as skipped, not failed."""
+    run = subprocess.run(
+        [sys.executable, "-m", "clinassist.ui", "--self-test"],
+        capture_output=True, text=True, cwd=ROOT,
+        env={**__import__("os").environ, "QT_QPA_PLATFORM": "offscreen"},
+    )  # fmt: skip
+    assert run.returncode == 0, run.stdout
+    assert "Self-test passed." in run.stdout and "FAIL" not in run.stdout
