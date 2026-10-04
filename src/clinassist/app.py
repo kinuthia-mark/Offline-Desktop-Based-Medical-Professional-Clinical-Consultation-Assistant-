@@ -42,6 +42,11 @@ class SequentialModels:
         self._preload = threading.Thread(target=self._safe_preload, daemon=True)
         self._preload.start()
 
+    @property
+    def last_info(self):
+        """Facts about the last transcription (language, confidence hint), for the screen."""
+        return getattr(self._transcriber, "last_info", None)
+
     def _safe_preload(self) -> None:
         try:
             self._transcriber.load()
@@ -76,12 +81,26 @@ class _PlannedRecorder:
         return self._recorder.stop()
 
 
+class ProgressRelay:
+    """Passes the generator's progress (a growing count of pieces received) to whoever is
+    listening, usually the interface's progress bar."""
+
+    def __init__(self) -> None:
+        self.listener = None
+
+    def __call__(self, pieces: int) -> None:
+        if self.listener is not None:
+            self.listener(pieces)
+
+
 @dataclass
 class Services:
     """Everything the interface needs, built once after the vault is unlocked."""
 
     config: AppConfig
     recorder: Recorder
+    microphone: object  # the unwrapped recorder: level meter and elapsed time for the screen
+    progress: ProgressRelay
     plan: SequentialModels
     guard: InputGuard
     generator: NoteGenerator
@@ -118,9 +137,10 @@ def build(config: AppConfig, vault, *, recorder=None, transcriber=None, generato
         from clinassist.adapters.transcriber import WhisperTranscriber
 
         transcriber = WhisperTranscriber(config.whisper_dir())
+    progress = ProgressRelay()
     if generator is None:
         generator = SoapGenerator(
-            GeneratorSettings(model=config.llm_model, host=config.ollama_host)
+            GeneratorSettings(model=config.llm_model, host=config.ollama_host), progress=progress
         )
 
     plan = SequentialModels(transcriber, generator)
@@ -128,6 +148,8 @@ def build(config: AppConfig, vault, *, recorder=None, transcriber=None, generato
     return Services(
         config=config,
         recorder=_PlannedRecorder(recorder, plan),
+        microphone=recorder,
+        progress=progress,
         plan=plan,
         guard=PatternInputGuard(),
         generator=generator,
