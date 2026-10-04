@@ -268,3 +268,37 @@ def test_firewall_script_blocks_outbound_and_needs_admin():
     assert "-Direction Outbound -Action Block" in script
     assert "Test-Admin" in script and "Run as administrator" in script
     assert "Inbound" not in script  # it never opens anything
+
+
+# ----- setting the rules without a command line -----
+def test_elevation_runs_the_script_for_this_program():
+    from clinassist.airgap import elevation_command, firewall_script
+
+    program, args = elevation_command(r"C:\Program Files\ClinAssist\ClinAssist.exe")
+    assert program == "powershell.exe"
+    assert f'-File "{firewall_script()}"' in args and "-Apply" in args
+    assert r'-Program "C:\Program Files\ClinAssist\ClinAssist.exe"' in args
+    assert "-Remove" not in args
+    assert firewall_script().is_file()
+
+
+def test_installed_app_blocks_its_own_exe_not_python(monkeypatch):
+    from clinassist import airgap
+
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    monkeypatch.setattr(sys, "executable", r"C:\Program Files\ClinAssist\ClinAssist.exe")
+    assert airgap.app_program() == r"C:\Program Files\ClinAssist\ClinAssist.exe"
+
+
+def test_request_asks_windows_to_run_as_administrator():
+    from clinassist.airgap import elevation_command, request_firewall_rules
+
+    calls = []
+
+    def fake_shell_execute(hwnd, verb, program, args, folder, show):
+        calls.append((verb, program, args, show))
+        return 42  # Windows returns a value above 32 when the request was accepted
+
+    assert request_firewall_rules(fake_shell_execute) is True
+    assert calls == [("runas", *elevation_command(), 0)]
+    assert request_firewall_rules(lambda *a: 5) is False  # 5: access denied / user said No
