@@ -237,3 +237,21 @@ def test_v1_vault_upgrades_to_v2_keeping_sessions(tmp_path, monkeypatch):
     with reopened.connect() as conn:
         assert schema.current_version(conn) == 2
     assert not AuthService(reopened, hasher=FAST).has_users()
+
+
+def test_admin_can_list_accounts_without_password_hashes(rig):
+    auth, admin, doc_id, *_ = rig
+    users = auth.list_users(admin)
+    assert [u["username"] for u in users] == ["admin", "dr.wanjiru"]
+    assert all("password" not in str(u) and "argon2" not in str(u) for u in users)
+    for _ in range(MAX_FAILED_ATTEMPTS):
+        with pytest.raises(AuthError):
+            auth.login("dr.wanjiru", "wrong password attempt")
+    doctor = next(u for u in auth.list_users(admin) if u["user_id"] == doc_id)
+    assert doctor["locked"] and doctor["active"] and doctor["role"] == "clinician"
+
+
+def test_clinician_cannot_list_accounts(rig):
+    auth, *_ = rig
+    with pytest.raises(AuthError, match="^forbidden$"):
+        auth.list_users(auth.login("dr.wanjiru", DOC_PW))
