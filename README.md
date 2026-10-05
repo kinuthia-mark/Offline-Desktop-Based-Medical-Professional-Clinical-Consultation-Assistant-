@@ -106,7 +106,8 @@ Nothing typed is lost.
 ![The consultation screen with a synthetic consultation](docs/screenshots/workspace.png)
 
 Left to right: the recording controls, the transcript the clinician corrects and approves, and the
-drafted note. The clinician's own assessment is separate from the model's text, which is labelled
+drafted note. A clinician who does not want to record can choose "Type the transcript instead" and
+type it; the typed text goes through the same approval and checks as a spoken one (AMD-39). The clinician's own assessment is separate from the model's text, which is labelled
 as AI-generated. "Finalize and save" stays disabled until the assessment is written and all three
 history boxes are ticked; here one is still unticked.
 

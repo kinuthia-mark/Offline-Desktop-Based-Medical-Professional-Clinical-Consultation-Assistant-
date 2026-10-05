@@ -457,3 +457,32 @@ def test_misheard_medicine_names_are_flagged_before_approval(qapp, tmp_path, oll
     assert "Glendamycin" in ws.medicine_label.text() and "clindamycin?" in ws.medicine_label.text()
     ws.transcript_box.setPlainText(heard.replace("Glendamycin", "clindamycin"))
     wait_until(lambda: ws.medicine_label.text() == "", seconds=3)
+
+
+def test_a_consultation_can_be_typed_without_recording(qapp, tmp_path, ollama):
+    """The clinician types the transcript; approval, drafting and saving work as for speech."""
+
+    class CountingMic(FakeMic):
+        starts = 0
+
+        def start(self) -> None:
+            self.starts += 1
+
+    mic = CountingMic()
+    vault, _ = Vault.create(tmp_path / "v", "a long synthetic passphrase 42", kdf=TEST_KDF)
+    config = AppConfig(data_dir=str(tmp_path), ollama_host=ollama.url)
+    services = build(config, vault, recorder=mic, transcriber=FakeWhisper())
+    ws = workspace(services)
+    assert ws.type_button.isEnabled()
+    ws.type_button.click()
+    assert ws.controller.state is State.TRANSCRIBED and mic.starts == 0
+    assert not ws.transcript_box.isReadOnly() and not ws.type_button.isEnabled()
+    assert not ws.start_button.isEnabled()  # one way in per consultation
+    typed = "Doctor: What brings you in? Patient: A sore throat for three days."
+    ws.transcript_box.setPlainText(typed)
+    ws.approve_button.click()
+    wait_until(lambda: ws.controller.state is State.DRAFTED and not ws._busy)
+    ws.assessment_box.setPlainText("Viral pharyngitis.")
+    tick_all(ws)
+    ws.finalize_button.click()
+    assert services.store.load(services.store.session_ids()[0]).transcript == typed

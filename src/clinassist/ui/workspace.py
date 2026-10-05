@@ -111,10 +111,13 @@ class ConsultationWorkspace(QWidget):
         self.level_bar.setFormat("Level")
         self.start_button = QPushButton("Start recording")
         self.stop_button = QPushButton("Stop recording")
+        # For a consultation without recording: the clinician types the transcript instead.
+        self.type_button = QPushButton("Type the transcript instead")
         self.discard_button = QPushButton("Discard consultation")
         self.new_button = QPushButton("New consultation")
         self.start_button.clicked.connect(self.start_recording)
         self.stop_button.clicked.connect(self.stop_recording)
+        self.type_button.clicked.connect(self.type_transcript)
         self.discard_button.clicked.connect(self.discard)
         self.new_button.clicked.connect(self.new_consultation)
         audio = QGroupBox("1. Session and audio")
@@ -123,6 +126,7 @@ class ConsultationWorkspace(QWidget):
             a.addWidget(w)
         a.addWidget(self.start_button)
         a.addWidget(self.stop_button)
+        a.addWidget(self.type_button)
         a.addWidget(self.status_label)
         a.addWidget(self.duration_label)
         a.addWidget(self.level_bar)
@@ -132,7 +136,8 @@ class ConsultationWorkspace(QWidget):
 
         # Panel 2: transcript
         self.transcript_box = _text_box(
-            "The transcript appears here after recording. Correct any mistakes, and add "
+            "The transcript appears here after recording, or type it here after choosing 'Type "
+            "the transcript instead'. Correct any mistakes, and add "
             "'Doctor:' and 'Patient:' where it helps, before approving."
         )
         self.asr_label = QLabel()
@@ -270,6 +275,20 @@ class ConsultationWorkspace(QWidget):
         # Stopping also transcribes, which can take a minute or two: run it in the background.
         self._run("Turning speech into text...", self.controller.stop_recording, self._on_text)
 
+    def type_transcript(self) -> None:
+        """Start without recording. The typed text is approved and screened like spoken text."""
+        if not self._step():
+            return
+        try:
+            self.controller.start_typed_transcript()
+        except Exception as exc:
+            self._show_error(exc)
+            return
+        self._clear_all()
+        self.asr_label.setText("Typed by the clinician (no recording)")
+        self.refresh()
+        self.transcript_box.setFocus()
+
     def check_medicines(self) -> None:
         """Show words that look like a misheard medicine, with the likely intended name."""
         suspects = suspect_medicines(self.transcript_box.toPlainText())
@@ -375,6 +394,7 @@ class ConsultationWorkspace(QWidget):
         self.session_label.setText("Session: " + (self.controller.session_id or "-")[:8].upper())
         self.status_label.setText("Status: " + (self._busy or _STATUS[state]))
         self.start_button.setEnabled(not busy and state is State.IDLE)
+        self.type_button.setEnabled(not busy and state is State.IDLE)
         self.stop_button.setEnabled(not busy and state is State.RECORDING)
         self.discard_button.setEnabled(not busy and not idle_or_done)
         self.new_button.setEnabled(not busy and state is State.FINALIZED)
