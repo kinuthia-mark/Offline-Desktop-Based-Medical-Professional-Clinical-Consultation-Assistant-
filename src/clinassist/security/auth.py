@@ -184,6 +184,17 @@ class AuthService:
         session.must_change_password = False
         self._auditor.record("password_changed", NO_SESSION, session.user_id)
 
+    def display_name(self, session: UserSession, user_id: str) -> str:
+        """The full name of an account, for example to print who finalized a note."""
+        self.require(session)
+        with self._vault.connect() as conn:
+            row = conn.execute(
+                "SELECT display_name, username FROM users WHERE user_id = ?", (user_id,)
+            ).fetchone()
+        if row is None:
+            return "unknown account"
+        return row[0] or row[1]
+
     # ----- login -----
     def login(self, username: str, password: str) -> UserSession:
         now = self._clock()

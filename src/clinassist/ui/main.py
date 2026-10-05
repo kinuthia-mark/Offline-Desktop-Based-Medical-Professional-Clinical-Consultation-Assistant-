@@ -100,7 +100,9 @@ class MainWindow(QMainWindow):
         self.workspace = ConsultationWorkspace(
             services, user_id=lambda: self.session.user_id, before_action=self.require
         )
-        self.records = RecordsView(services.store, before_action=self.require)
+        self.records = RecordsView(
+            services.store, before_action=self.require, export=self.export_note
+        )
         self.tabs = QTabWidget()
         self.tabs.addTab(self.workspace, "Consultation")
         self.tabs.addTab(self.records, "Session records")
@@ -164,6 +166,26 @@ class MainWindow(QMainWindow):
 
     def log_out(self) -> None:
         self.lock_screen("")
+
+    def export_note(self, session_id: str, path: str, include_transcript: bool) -> str:
+        """Write one saved consultation as a PDF (FR-17) and record the export in the audit
+        log. Returns where the file was saved."""
+        from clinassist.ui.export import ExportDetails, note_html, write_pdf
+
+        auth, store = self._services.auth, self._services.store
+        self.require()
+        record = store.load(session_id)
+        details = ExportDetails(
+            saved_at=store.saved_at(session_id),
+            finalized_by=auth.display_name(self.session, record.finalized_by),
+            exported_by=self.session.display_name,
+            exported_at=datetime.now(UTC).isoformat(timespec="seconds"),
+            include_transcript=include_transcript,
+        )
+        saved = write_pdf(note_html(record, details), path)
+        event = "note_exported_with_transcript" if include_transcript else "note_exported"
+        self._services.auditor.record(event, session_id, self.session.user_id)
+        return str(saved)
 
     def change_password(self) -> None:
         auth = self._services.auth
