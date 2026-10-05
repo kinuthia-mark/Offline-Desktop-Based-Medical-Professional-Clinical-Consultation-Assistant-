@@ -174,10 +174,29 @@ def window_icon_path() -> Path:
     return Path(__file__).resolve().parents[3] / "release" / "art" / "clinassist.png"
 
 
+# The name the installer looks for (AppMutex in release/clinassist.iss). Keep the two the same.
+RUNNING_MARKER = "ClinAssistRunning"
+
+
+def hold_running_marker() -> int | None:
+    """Tell the installer the program is open, so it asks the user to close it first.
+
+    Windows' automatic "close the applications" step hung the installer on the reference PC
+    after the program had already closed. Instead, the program holds a named Windows mutex while
+    it runs, and the installer and uninstaller wait until it is gone. Windows releases the mutex
+    when the program exits, even after a crash, so there is nothing to clean up."""
+    if sys.platform != "win32":
+        return None
+    import ctypes
+
+    return ctypes.windll.kernel32.CreateMutexW(None, False, RUNNING_MARKER) or None
+
+
 def main() -> int:
     from clinassist.airgap import LABELS, install_network_guard, request_firewall_rules
 
     install_network_guard()  # first, before any part of the program can open a connection
+    hold_running_marker()
     from clinassist.app import build
     from clinassist.config import AppConfig
     from clinassist.security.vault import KEYRING, Vault
