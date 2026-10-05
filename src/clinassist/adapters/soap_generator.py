@@ -45,17 +45,21 @@ SYSTEM_PROMPT = (
     "Reply with JSON only, with exactly these keys, each a string: "
     '{"subjective": "", "objective": "", "assessment": "", "plan": ""}'
 )
-# The rules for suggestions answer what the first evaluation with suggestions found (ADR-013):
-# allergies, exposures and prevention listed as if they were diagnoses, and "pregnancy" suggested
-# although the pregnancy test was negative.
+# Kept short on purpose. A longer version listing what not to suggest (allergies, prevention,
+# conditions a test ruled out) was tried and was worse: the model listed symptoms such as "Fever;
+# Headache" instead of conditions, and drafting took 55% longer (ADR-013). Non-diagnoses are
+# removed in code instead (`_NOT_A_DIAGNOSIS`).
 SUGGESTIONS_PROMPT = (
     '\nAlso add a key "suggestions": up to 3 objects ordered most likely first, each '
     '{"diagnosis": "", "rationale": "", "management": ""}. These are suggestions for the '
-    "clinician and never go in assessment. Rules for suggestions:\n"
-    "- Each diagnosis is a medical condition that could explain why the patient came today.\n"
-    "- Do not list allergies, risk factors, exposures, preventive care or vaccinations.\n"
-    "- Do not suggest a condition the transcript rules out, for example by a negative test.\n"
-    "- The rationale uses only findings stated in the transcript."
+    "clinician and never go in assessment."
+)
+# Words that mark a suggestion as something other than a condition: the model sometimes lists the
+# patient's allergy, an exposure or a preventive measure as a "diagnosis" (ADR-013).
+_NOT_A_DIAGNOSIS = re.compile(
+    r"\b(allerg\w*|sensitivity|intolerance|prevention|preventive|prophylaxis|exposure|"
+    r"vaccin\w*|immuni[sz]ation|risk)\b",
+    re.I,
 )
 # Finds <transcript> or </transcript> typed inside the transcript itself, which could otherwise
 # be used to "close" the data section early and slip in instructions.
@@ -128,9 +132,12 @@ def parse_draft(content: str, transcript: str, include_suggestions: bool = False
             for i in items
         ):
             raise GenerationFailed("invalid_output", content)
+        # Drop allergies, exposures and preventive measures listed as diagnoses, then rank what
+        # is left from 1.
+        conditions = [i for i in items if not _NOT_A_DIAGNOSIS.search(i["diagnosis"])]
         suggestions = tuple(
             AiSuggestion(i["diagnosis"], i["rationale"], i["management"], rank)
-            for rank, i in enumerate(items, start=1)
+            for rank, i in enumerate(conditions, start=1)
         )
 
     # Step 4: build the draft and attach the advisory flags (groundcheck.py) for the clinician.
