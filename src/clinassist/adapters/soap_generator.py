@@ -93,7 +93,7 @@ class GeneratorSettings:
     read_timeout: float = 300.0  # longest silent wait; the model reads the transcript first
     keep_alive: str = "2m"
     loop_check_every: int = 16  # chunks between repetition checks
-    include_suggestions: bool = False  # extra tokens cost latency, so off until evaluated
+    include_suggestions: bool = False  # the app turns this on from config.ai_suggestions (ADR-013)
 
 
 def build_messages(
