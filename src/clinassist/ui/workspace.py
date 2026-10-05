@@ -53,6 +53,31 @@ NO_AI_ASSESSMENT = (
     "Its possible diagnoses are on the Diagnostics tab."
 )
 
+
+def ai_impression(draft: Draft) -> str:
+    """The text for the "Model's assessment" box.
+
+    If the clinician said a diagnosis aloud, the model's assessment repeats it. If not, the
+    note's assessment stays empty (the model must not put a diagnosis nobody made into the note,
+    ADR-002), and the box shows the model's own impression from its suggestions instead, so the
+    clinician can see what the AI thinks without it entering the note unless they copy it."""
+    stated = draft.ai_assessment.strip()
+    if stated and stated.lower().rstrip(".") != "not stated":
+        return stated
+    if not draft.suggestions:
+        return ""
+    top, others = draft.suggestions[0], draft.suggestions[1:]
+    lines = [
+        "AI impression (the clinician did not state a diagnosis):",
+        f"Most likely: {top.diagnosis}. {top.rationale}".rstrip(),
+    ]
+    if others:
+        lines.append("Also consider: " + "; ".join(s.diagnosis for s in others) + ".")
+    if top.management.strip():
+        lines.append(f"Suggested management: {top.management}".rstrip())
+    return "\n".join(lines)
+
+
 # Advisory flag codes in plain words, shown under the note.
 FLAG_TEXT = {
     "empty_section": "Section left empty by the model",
@@ -438,12 +463,10 @@ class ConsultationWorkspace(QWidget):
         self.objective_box.setPlainText(draft.objective)
         self.plan_box.setPlainText(draft.plan)
         self.assessment_box.clear()  # always blank: the clinician writes it (FR-14)
-        stated = draft.ai_assessment.strip()
-        if not stated or stated.lower().rstrip(".") == "not stated":
-            self.ai_assessment_box.clear()
+        impression = ai_impression(draft)
+        self.ai_assessment_box.setPlainText(impression)
+        if not impression:
             self.ai_assessment_box.setPlaceholderText(NO_AI_ASSESSMENT)
-        else:
-            self.ai_assessment_box.setPlainText(stated)
         self.flags_list.clear()
         for flag in draft.flags:
             kind, _, detail = flag.partition(":")
