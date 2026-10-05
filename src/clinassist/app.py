@@ -140,7 +140,12 @@ def build(config: AppConfig, vault, *, recorder=None, transcriber=None, generato
     progress = ProgressRelay()
     if generator is None:
         generator = SoapGenerator(
-            GeneratorSettings(model=config.llm_model, host=config.ollama_host), progress=progress
+            GeneratorSettings(
+                model=config.llm_model,
+                host=config.ollama_host,
+                include_suggestions=config.ai_suggestions,
+            ),
+            progress=progress,
         )
 
     plan = SequentialModels(transcriber, generator)
