@@ -1,9 +1,10 @@
-"""Audit and accounts, for administrators (FR-09, FR-10a, FR-10d).
+"""Audit, accounts, and backup and restore, for administrators (FR-09, FR-10a, FR-10c, FR-10d).
 
 - The audit log, newest first, with a button that checks the whole hash chain and shows the
   newest entry's number and fingerprint. Writing those two down somewhere off the PC (for example
   in a paper register each evening) is what makes deleting the newest entries detectable later.
 - Creating accounts, and turning an account off or back on.
+- Making a backup of the encrypted vault to a file, and restoring one (security/backup.py).
 """
 
 from __future__ import annotations
@@ -12,11 +13,14 @@ from collections.abc import Callable
 
 from PySide6.QtWidgets import (
     QComboBox,
+    QFileDialog,
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QLineEdit,
+    QMessageBox,
     QPushButton,
     QTableWidget,
     QTableWidgetItem,
@@ -29,9 +33,28 @@ from clinassist.ui.workers import error_code
 
 
 class AdminView(QWidget):
-    def __init__(self, auditor, auth, admin_session: Callable[[], object]) -> None:
+    def __init__(
+        self,
+        auditor,
+        auth,
+        admin_session: Callable[[], object],
+        backups=None,
+        on_restored: Callable[[], None] | None = None,
+        ask_save_path: Callable[[str], str] | None = None,
+        ask_open_path: Callable[[], str] | None = None,
+        ask_secret: Callable[[], str] | None = None,
+        confirm: Callable[[str], bool] | None = None,
+    ) -> None:
+        """`backups` (app.Backups) enables backup and restore. `on_restored` is called after a
+        restore, when the program must close. The `ask_*` and `confirm` callables show the file
+        dialogs and questions; tests replace them."""
         super().__init__()
         self._auditor, self._auth, self._admin = auditor, auth, admin_session
+        self._backups, self._on_restored = backups, on_restored or (lambda: None)
+        self._ask_save_path = ask_save_path or self._dialog_save_path
+        self._ask_open_path = ask_open_path or self._dialog_open_path
+        self._ask_secret = ask_secret or self._dialog_secret
+        self._confirm = confirm or self._dialog_confirm
 
         # Audit log
         self.table = QTableWidget(0, 5)
@@ -88,9 +111,35 @@ class AdminView(QWidget):
         form.addRow(buttons)
         form.addRow(self.account_message)
 
+        # Backup and restore (FR-10c)
+        self.backup_button = QPushButton("Make a backup...")
+        self.restore_button = QPushButton("Restore from a backup...")
+        self.backup_button.clicked.connect(self.make_backup)
+        self.restore_button.clicked.connect(self.restore)
+        self.backup_message = QLabel()
+        self.backup_message.setWordWrap(True)
+        backups = QGroupBox("Backup and restore")
+        b = QVBoxLayout(backups)
+        explain = QLabel(
+            "A backup is one encrypted file. Keep it on a USB drive away from this PC. "
+            "Restoring needs the passphrase the vault had when the backup was made, or the "
+            "recovery code. The current vault is moved aside, never deleted."
+        )
+        explain.setWordWrap(True)
+        b.addWidget(explain)
+        row = QHBoxLayout()
+        row.addWidget(self.backup_button)
+        row.addWidget(self.restore_button)
+        b.addLayout(row)
+        b.addWidget(self.backup_message)
+        backups.setVisible(self._backups is not None)
+
+        right = QVBoxLayout()
+        right.addWidget(accounts, 3)
+        right.addWidget(backups, 1)
         layout = QHBoxLayout(self)
         layout.addWidget(audit, 3)
-        layout.addWidget(accounts, 2)
+        layout.addLayout(right, 2)
 
     def reload(self) -> None:
         self._reload_users()
@@ -171,3 +220,70 @@ class AdminView(QWidget):
             return
         self.account_message.setText("Account unlocked.")
         self._reload_users()
+
+    # ----- backup and restore -----
+    def make_backup(self) -> None:
+        try:
+            self._auth.require(self._admin(), "admin")
+            path = self._ask_save_path(self._backups.default_name())
+            if not path:
+                return
+            info = self._backups.make(path, self._admin().user_id)
+        except Exception as exc:
+            self.backup_message.setText(message_for(error_code(exc)))
+            return
+        self.backup_message.setText(
+            f"Backup saved ({info.created_at} UTC, {info.audit_entries} audit entries). "
+            "Copy it to a drive kept away from this PC."
+        )
+
+    def restore(self) -> None:
+        try:
+            self._auth.require(self._admin(), "admin")
+            path = self._ask_open_path()
+            if not path:
+                return
+            secret = self._ask_secret()
+            if not secret:
+                return
+            # Check first and say what the backup holds, before asking to replace anything.
+            info = self._backups.check(path, secret)
+            question = (
+                f"This backup is from {info.created_at} UTC and holds {info.sessions} saved "
+                "consultation(s). Consultations saved since then will not be in the restored "
+                "vault; the current vault is moved aside, not deleted. The program will close "
+                "afterwards. Restore it?"
+            )
+            if not self._confirm(question):
+                return
+            self._backups.restore(path, secret, self._admin().user_id)
+        except Exception as exc:
+            self.backup_message.setText(message_for(error_code(exc)))
+            return
+        self.backup_message.setText("Restored. The program will now close.")
+        self._on_restored()
+
+    def _dialog_save_path(self, suggested: str) -> str:
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Save the backup", suggested, "ClinAssist backup (*.clinbak)"
+        )
+        return path
+
+    def _dialog_open_path(self) -> str:
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Choose a backup", "", "ClinAssist backup (*.clinbak)"
+        )
+        return path
+
+    def _dialog_secret(self) -> str:
+        text, ok = QInputDialog.getText(
+            self,
+            "Open the backup",
+            "The passphrase the vault had when the backup was made, or the recovery code:",
+            QLineEdit.EchoMode.Password,
+        )
+        return text if ok else ""
+
+    def _dialog_confirm(self, question: str) -> bool:
+        answer = QMessageBox.question(self, "Restore a backup", question)
+        return answer == QMessageBox.StandardButton.Yes
