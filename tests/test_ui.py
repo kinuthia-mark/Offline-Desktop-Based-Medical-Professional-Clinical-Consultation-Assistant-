@@ -409,7 +409,7 @@ def test_no_fix_button_when_the_rules_are_already_set(qapp):
     dialog.close()
 
 
-def test_suggestions_fill_the_diagnostics_tab_and_not_stated_is_explained(qapp, services, ollama):
+def test_suggestions_fill_the_diagnostics_tab_and_the_ai_impression(qapp, services, ollama):
     """AMD-32: the AI's possible diagnoses are on their own tab; the note keeps "not stated"."""
     reply = {
         "subjective": "Fever for 3 days.",
@@ -426,11 +426,26 @@ def test_suggestions_fill_the_diagnostics_tab_and_not_stated_is_explained(qapp, 
     record_and_draft(ws)
     assert ws.suggestions_list.count() == 2
     assert ws.tabs.tabText(1) == "Diagnostics (2)"
-    assert ws.ai_assessment_box.toPlainText() == ""
-    assert "Diagnostics tab" in ws.ai_assessment_box.placeholderText()
-    assert not ws.copy_ai_button.isEnabled()  # nothing to copy
+    # No diagnosis was said aloud, so the box shows the AI's own impression, not "not stated".
+    shown = ws.ai_assessment_box.toPlainText()
+    assert shown.startswith("AI impression") and "Most likely: Malaria" in shown
+    assert "Also consider: Viral illness" in shown
+    assert ws.assessment_box.toPlainText() == ""  # FR-14: the clinician's box stays blank
+    assert ws.copy_ai_button.isEnabled()
     ws.new_consultation()
     assert ws.tabs.tabText(1) == "Diagnostics"
+
+
+def test_ai_impression_repeats_a_stated_diagnosis_and_explains_an_empty_one():
+    from clinassist.domain import AiSuggestion, Draft
+    from clinassist.ui.workspace import ai_impression
+
+    assert ai_impression(Draft("s", "o", "p", ai_assessment="Malaria, as discussed.")) == (
+        "Malaria, as discussed."
+    )
+    assert ai_impression(Draft("s", "o", "p", ai_assessment="Not stated.")) == ""
+    one = Draft("s", "o", "p", ai_assessment="", suggestions=(AiSuggestion("UTI", "", "", 1),))
+    assert ai_impression(one).splitlines()[1:] == ["Most likely: UTI."]
 
 
 def test_the_note_scrolls_instead_of_squeezing_boxes_away(qapp, services):
