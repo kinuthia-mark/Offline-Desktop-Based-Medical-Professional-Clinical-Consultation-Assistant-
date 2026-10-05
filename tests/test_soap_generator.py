@@ -270,3 +270,28 @@ def test_invalid_output_keeps_what_the_model_wrote(server):
     with pytest.raises(GenerationFailed) as failed:
         generator(fake).generate(TRANSCRIPT, 1)
     assert failed.value.partial_output == "not json at all"
+
+
+def test_allergies_exposures_and_prevention_are_not_kept_as_suggestions():
+    """Seen in evaluation: "Sulfur allergy", "Smoking exposure", "malaria prevention" were
+    listed as diagnoses (ADR-013)."""
+    import json
+
+    from clinassist.adapters.soap_generator import parse_draft
+
+    reply = {
+        "subjective": "s", "objective": "o", "assessment": "not stated", "plan": "p",
+        "suggestions": [
+            {"diagnosis": "Urinary tract infection", "rationale": "r", "management": "m"},
+            {"diagnosis": "Sulfur allergy", "rationale": "r", "management": "m"},
+            {"diagnosis": "Smoking exposure", "rationale": "r", "management": "m"},
+            {"diagnosis": "Malaria prevention", "rationale": "r", "management": "m"},
+            {"diagnosis": "Aspirin sensitivity", "rationale": "r", "management": "m"},
+            {"diagnosis": "Cystitis", "rationale": "r", "management": "m"},
+        ],
+    }  # fmt: skip
+    draft = parse_draft(json.dumps(reply), "transcript", include_suggestions=True)
+    assert [(s.rank, s.diagnosis) for s in draft.suggestions] == [
+        (1, "Urinary tract infection"),
+        (2, "Cystitis"),
+    ]
