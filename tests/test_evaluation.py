@@ -151,3 +151,13 @@ def test_exact_trap_fires_even_when_negated():
 def test_questions_are_dropped_but_query_shorthand_is_kept():
     assert drop_questions("Any cough? No cough.").strip() == "No cough."
     assert "?malaria" in drop_questions("Fever ?malaria.")
+
+
+def test_a_negation_at_the_end_of_a_list_covers_the_whole_list():
+    """Found in the suggestions run: "chest pain, palpitations or shortness of breath are not
+    present" was counted as a positive mention."""
+    text = "Chest pain, palpitations or shortness of breath are not present."
+    assert positive_mentions(text, ["chest pain"]) == []
+    assert positive_mentions(text, ["palpitations"]) == []
+    # A clause that does not end by negating is unaffected.
+    assert positive_mentions("Chest pain for two days and getting worse.", ["chest pain"])

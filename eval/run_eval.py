@@ -100,7 +100,12 @@ def run_one(scenario, source: str, model: str) -> dict:
         },
         transcript_words=len(transcript.split()),
         flags=list(draft.flags),
-    )
+        suggestions=[
+            {"rank": s.rank, "diagnosis": s.diagnosis, "rationale": s.rationale,
+             "management": s.management}
+            for s in draft.suggestions
+        ],
+    )  # fmt: skip
     return add_scores(scenario, result)
 
 
@@ -223,12 +228,19 @@ def write_clinician_sheet(path: Path, results) -> None:
             "",
             f"**Plan:** {n['plan']}",
             "",
+            *[
+                f"**AI suggestion {s['rank']}:** {s['diagnosis']} ({s['rationale']}; "
+                f"{s['management']})"
+                for s in r.get("suggestions", [])
+            ],
+            "",
             "| Item | Score 1 to 5 | Comment |",
             "|---|---|---|",
             "| Accurate (nothing wrong or invented) | | |",
             "| Complete (nothing important missing) | | |",
             "| Organised (right section, easy to read) | | |",
             "| Safe to use after review | | |",
+            "| AI suggestions sensible (if any) | | |",
             "",
         ]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
