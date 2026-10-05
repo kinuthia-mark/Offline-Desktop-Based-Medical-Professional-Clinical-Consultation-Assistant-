@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
 
 from clinassist.controller import State
 from clinassist.ui.admin import AdminView
+from clinassist.ui.database import DatabaseView
 from clinassist.ui.dialogs import (
     CreateVaultDialog,
     FirstAdminDialog,
@@ -107,6 +108,8 @@ class MainWindow(QMainWindow):
             on_restored=self._restored,
         )
         self.admin_index = self.tabs.addTab(self.admin, "Audit and accounts")
+        self.database = DatabaseView(services.database, auth, admin_session=lambda: self.session)
+        self.database_index = self.tabs.addTab(self.database, "Database")
         self.tabs.currentChanged.connect(self._tab_opened)
 
         body = QWidget()
@@ -160,13 +163,17 @@ class MainWindow(QMainWindow):
 
     def _show_user(self) -> None:
         self.user_label.setText(f"{self.session.display_name} ({self.session.role})")
-        self.tabs.setTabVisible(self.admin_index, self.session.role == "admin")
+        is_admin = self.session.role == "admin"
+        self.tabs.setTabVisible(self.admin_index, is_admin)
+        self.tabs.setTabVisible(self.database_index, is_admin)
 
     def _tab_opened(self, index: int) -> None:
         if self.tabs.widget(index) is self.records:
             self.records.reload()
         elif self.tabs.widget(index) is self.admin and self.session.role == "admin":
             self.admin.reload()
+        elif self.tabs.widget(index) is self.database and self.session.role == "admin":
+            self.database.reload()
 
     def _restored(self) -> None:
         """After a restore the open vault no longer matches the files on disk, so the program

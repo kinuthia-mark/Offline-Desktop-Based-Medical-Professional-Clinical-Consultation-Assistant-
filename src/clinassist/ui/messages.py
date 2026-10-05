@@ -67,6 +67,8 @@ MESSAGES: dict[str, str] = {
         "Nothing was changed."
     ),
     "restore_failed": "The backup could not be put in place. The current vault was kept.",
+    # database tab
+    "unknown_table": "That table is not in the database.",
     # accounts
     "invalid_credentials": "Username or password is not correct.",
     "account_locked": "Too many wrong attempts. The account is locked for 15 minutes.",
