@@ -13,12 +13,14 @@ to 5 (excellent). Note anything unsafe. All consultations are synthetic.
 
 **Plan:** Check for malaria and do a full blood count today. Keep taking paracetamol, drink plenty of fluids and rest. If the patient vomits repeatedly, gets confused, or the fever worsens, come back immediately. Otherwise, see the patient again in two days with the results.
 
+
 | Item | Score 1 to 5 | Comment |
 |---|---|---|
 | Accurate (nothing wrong or invented) | | |
 | Complete (nothing important missing) | | |
 | Organised (right section, easy to read) | | |
 | Safe to use after review | | |
+| AI suggestions sensible (if any) | | |
 
 ## s02_hypertension_diabetes: Hypertension and type 2 diabetes follow-up
 
@@ -30,12 +32,14 @@ to 5 (excellent). Note anything unsafe. All consultations are synthetic.
 
 **Plan:** Stop ibuprofen. Increase amlodipine to 10 mg once daily, taken with breakfast. Increase metformin to 1 gram with breakfast and 500 milligrams in the evening, taken with food. Monitor ankle swelling closely; seek immediate attention if it worsens or causes breathlessness. Cut soda completely and reduce sugar in tea. Choose water. Reduce salt intake. Grill fish instead of frying. Walk for at least 30 minutes, 5 days a week. Limit beer to one on Saturdays. Keep a diary of home blood pressure and morning blood sugar readings for two weeks. Bring the diary with you next visit. Schedule eye check. Refer patient to eye clinic. Follow up in two weeks or sooner if severe headache, vomiting, vision loss, chest pain, weakness, or confusion occur. Wife is welcome at follow-up appointments.
 
+
 | Item | Score 1 to 5 | Comment |
 |---|---|---|
 | Accurate (nothing wrong or invented) | | |
 | Complete (nothing important missing) | | |
 | Organised (right section, easy to read) | | |
 | Safe to use after review | | |
+| AI suggestions sensible (if any) | | |
 
 ## s03_child_diarrhoea: Child with watery diarrhoea and some dehydration
 
@@ -47,12 +51,14 @@ to 5 (excellent). Note anything unsafe. All consultations are synthetic.
 
 **Plan:** Give oral rehydration solution, 50-100 ml after each loose stool, and zinc 20 mg once a day for 10 days. Keep breastfeeding and keep giving food. Return immediately if you see blood in the stool, if he cannot drink, if he becomes very sleepy, or if the vomiting returns. Bring him back in two days.
 
+
 | Item | Score 1 to 5 | Comment |
 |---|---|---|
 | Accurate (nothing wrong or invented) | | |
 | Complete (nothing important missing) | | |
 | Organised (right section, easy to read) | | |
 | Safe to use after review | | |
+| AI suggestions sensible (if any) | | |
 
 ## s04_urinary_infection: Uncomplicated bladder infection with a sulfa allergy
 
@@ -64,12 +70,14 @@ to 5 (excellent). Note anything unsafe. All consultations are synthetic.
 
 **Plan:** Nitrofuranta 100 mg twice a day for five days, drink plenty of water, return same day for fever, back pain, or vomiting, return to see me if not better in three days
 
+
 | Item | Score 1 to 5 | Comment |
 |---|---|---|
 | Accurate (nothing wrong or invented) | | |
 | Complete (nothing important missing) | | |
 | Organised (right section, easy to read) | | |
 | Safe to use after review | | |
+| AI suggestions sensible (if any) | | |
 
 ## s05_asthma: Moderate asthma attack with an aspirin allergy
 
@@ -81,12 +89,14 @@ to 5 (excellent). Note anything unsafe. All consultations are synthetic.
 
 **Plan:** I will give you salbutamol through a spacer, four puffs now, and we will repeat it. And prednisolone 40 mg once a day for five days. I will also start a preventer, bechlametisone 200 micrograms twice a day, every day, even when you feel well. OK. Ask your brother to smoke outside. Come back in two days for review. Come back at once if you cannot finish sentences, if your lips look blue, or if the blue inhaler stops helping. Thank you.
 
+
 | Item | Score 1 to 5 | Comment |
 |---|---|---|
 | Accurate (nothing wrong or invented) | | |
 | Complete (nothing important missing) | | |
 | Organised (right section, easy to read) | | |
 | Safe to use after review | | |
+| AI suggestions sensible (if any) | | |
 
 ## s06_possible_tb: Chronic cough, tuberculosis suspected but not diagnosed
 
@@ -98,12 +108,14 @@ to 5 (excellent). Note anything unsafe. All consultations are synthetic.
 
 **Plan:** Send two sputum samples for gene expert and request a chest x-ray. Do the HIV test today. Cover mouth when coughing and wear a mask around others. Keep windows open at home. Return in three days for results.
 
+
 | Item | Score 1 to 5 | Comment |
 |---|---|---|
 | Accurate (nothing wrong or invented) | | |
 | Complete (nothing important missing) | | |
 | Organised (right section, easy to read) | | |
 | Safe to use after review | | |
+| AI suggestions sensible (if any) | | |
 
 ## s07_leg_infection: Cellulitis of the leg with a penicillin allergy
 
@@ -115,12 +127,14 @@ to 5 (excellent). Note anything unsafe. All consultations are synthetic.
 
 **Plan:** Glendamycin 300 mg four times a day for seven days. Tetanus booster today. Paracetamol for pain and fever. Keep the leg raised when sitting. Return the same day if the redness spreads past the pen line, or the fever gets worse. Follow-up in two days.
 
+
 | Item | Score 1 to 5 | Comment |
 |---|---|---|
 | Accurate (nothing wrong or invented) | | |
 | Complete (nothing important missing) | | |
 | Organised (right section, easy to read) | | |
 | Safe to use after review | | |
+| AI suggestions sensible (if any) | | |
 
 ## s08_antenatal: Routine antenatal visit at 24 weeks with mild anaemia
 
@@ -132,10 +146,12 @@ to 5 (excellent). Note anything unsafe. All consultations are synthetic.
 
 **Plan:** The patient should take 60 mg of iron a day with folic acid. The patient should eat beans and green vegetables. The patient should get a tetanus injection and SP to prevent malaria. The patient should sleep under a treated mosquito net. The patient should come back at 28 weeks. The patient should come at once if she has bleeding, a severe headache, swelling of the face, or if the baby moves less.
 
+
 | Item | Score 1 to 5 | Comment |
 |---|---|---|
 | Accurate (nothing wrong or invented) | | |
 | Complete (nothing important missing) | | |
 | Organised (right section, easy to read) | | |
 | Safe to use after review | | |
+| AI suggestions sensible (if any) | | |
 
