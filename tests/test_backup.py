@@ -11,6 +11,7 @@ pytest.importorskip("sqlcipher3")
 pytest.importorskip("argon2")
 
 from clinassist.adapters.store import VaultSessionStore  # noqa: E402
+from clinassist.domain import Draft, HistoryChecklist, SessionRecord, SoapNote  # noqa: E402
 from clinassist.security.audit import HashChainAuditor  # noqa: E402
 from clinassist.security.backup import (  # noqa: E402
     BackupError,
@@ -22,9 +23,25 @@ from clinassist.security.backup import (  # noqa: E402
 )
 from clinassist.security.crypto import TEST_KDF  # noqa: E402
 from clinassist.security.vault import Vault  # noqa: E402
-from tests.test_store import SECRET, _record  # noqa: E402
 
 PASS = "a long synthetic passphrase 42"
+SECRET = "SECRET-PHI-4471"  # synthetic text that must never appear in the backup file
+
+
+def _record(session_id: str) -> SessionRecord:
+    """A complete, valid consultation record with synthetic content."""
+    return SessionRecord(
+        session_id=session_id,
+        transcript=f"Patient reports cough. {SECRET}",
+        transcript_approved_by="dr-a",
+        finalized_by="dr-a",
+        draft=Draft("Cough for 3 days.", "T 38.1", "Fluids.", ai_assessment="Possible URTI."),
+        final_note=SoapNote("Cough 3 days.", "T 38.1", "Viral URTI.", "Fluids."),
+        accepted_suggestions=(),
+        assessment_origin="clinician_manual",
+        checklist=HistoryChecklist(True, True, True),
+        generation_attempts=1,
+    )
 
 
 @pytest.fixture
