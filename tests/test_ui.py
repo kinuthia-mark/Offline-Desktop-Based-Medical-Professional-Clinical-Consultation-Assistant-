@@ -377,7 +377,7 @@ def test_header_shows_what_the_network_check_found(qapp, services):
         network=("warn", "Offline: firewall rule not set"),
     )
     assert window.network_label.text() == "Offline: firewall rule not set"
-    assert "#8a5a00" in window.network_label.styleSheet()
+    assert "#c98a00" in window.network_label.styleSheet()
     window.close()
 
 
@@ -407,3 +407,38 @@ def test_no_fix_button_when_the_rules_are_already_set(qapp):
     dialog.show()
     assert not dialog.fix_button.isVisible()
     dialog.close()
+
+
+def test_suggestions_fill_the_diagnostics_tab_and_not_stated_is_explained(qapp, services, ollama):
+    """AMD-32: the AI's possible diagnoses are on their own tab; the note keeps "not stated"."""
+    reply = {
+        "subjective": "Fever for 3 days.",
+        "objective": "Temperature 38.6.",
+        "assessment": "Not stated",
+        "plan": "Malaria test.",
+        "suggestions": [
+            {"diagnosis": "Malaria", "rationale": "fever", "management": "test, treat if positive"},
+            {"diagnosis": "Viral illness", "rationale": "aches", "management": "rest, fluids"},
+        ],
+    }
+    ollama.behavior = lambda r: Script(pieces=stream_text(json.dumps(reply)))
+    ws = workspace(services)
+    record_and_draft(ws)
+    assert ws.suggestions_list.count() == 2
+    assert ws.tabs.tabText(1) == "Diagnostics (2)"
+    assert ws.ai_assessment_box.toPlainText() == ""
+    assert "Diagnostics tab" in ws.ai_assessment_box.placeholderText()
+    assert not ws.copy_ai_button.isEnabled()  # nothing to copy
+    ws.new_consultation()
+    assert ws.tabs.tabText(1) == "Diagnostics"
+
+
+def test_the_note_scrolls_instead_of_squeezing_boxes_away(qapp, services):
+    from PySide6.QtWidgets import QScrollArea
+
+    ws = workspace(services)
+    assert isinstance(ws.tabs.widget(0), QScrollArea)
+    assert all(
+        box.minimumHeight() >= 60
+        for box in (ws.subjective_box, ws.objective_box, ws.assessment_box, ws.plan_box)
+    )
