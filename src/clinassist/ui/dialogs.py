@@ -248,3 +248,39 @@ class LoginDialog(QDialog):
             self.password.clear()
             return
         self.accept()
+
+
+class ChangePasswordDialog(QDialog):
+    """Choose a new password. Shown from the header, and straight after login when an
+    administrator has reset the password (the user must replace the temporary one)."""
+
+    def __init__(self, change: Callable[[str, str], None], notice: str = "") -> None:
+        """`change(current, new)` changes the password or raises with a code."""
+        super().__init__()
+        self.setWindowTitle("Change your password")
+        self._change = change
+        self.current = _password_field()
+        self.new = _password_field()
+        self.repeat = _password_field()
+        self.message = QLabel(notice)
+        self.message.setWordWrap(True)
+        button = QPushButton("Change password")
+        button.clicked.connect(self.submit)
+        self.repeat.returnPressed.connect(self.submit)
+        form = QFormLayout(self)
+        form.addRow(self.message)
+        form.addRow("Current password", self.current)
+        form.addRow("New password", self.new)
+        form.addRow("New password again", self.repeat)
+        form.addRow(button)
+
+    def submit(self) -> None:
+        if self.new.text() != self.repeat.text():
+            self.message.setText(message_for("passwords_do_not_match"))
+            return
+        try:
+            self._change(self.current.text(), self.new.text())
+        except Exception as exc:
+            self.message.setText(message_for(error_code(exc)))
+            return
+        self.accept()

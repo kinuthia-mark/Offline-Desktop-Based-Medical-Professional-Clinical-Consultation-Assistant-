@@ -628,3 +628,88 @@ def test_database_tab_is_only_for_admins(qapp, services):
 def test_database_inspector_refuses_unknown_tables(services):
     with pytest.raises(ValueError):
         services.database.rows('sessions"; DROP TABLE users; --', "admin1")
+
+
+# ----- password reset and change (FR-10a) -----
+def test_admin_resets_a_password_and_the_user_must_replace_it(qapp, services):
+    from clinassist.ui.main import replace_reset_password
+
+    admin = _admin(services)
+    services.auth.create_user(admin, "dr.a", "doctor synthetic password 2", "Dr A", "clinician")
+    view = AdminView(
+        services.auditor,
+        services.auth,
+        admin_session=lambda: admin,
+        ask_temporary_password=lambda: "temporary synthetic pass 3",
+    )
+    view.reload()
+    names = [view.users.item(r, 0).text() for r in range(view.users.rowCount())]
+    view.users.selectRow(names.index("dr.a"))
+    view.reset_button.click()
+    assert "Password reset" in view.account_message.text()
+
+    session = services.auth.login("dr.a", "temporary synthetic pass 3")
+
+    def fill_and_accept(dialog):
+        dialog.current.setText("temporary synthetic pass 3")
+        dialog.new.setText("my own new synthetic pass 4")
+        dialog.repeat.setText("my own new synthetic pass 4")
+        dialog.submit()
+        return dialog.result()
+
+    assert replace_reset_password(services.auth, session, fill_and_accept) is session
+    assert not session.must_change_password
+    assert services.auth.login("dr.a", "my own new synthetic pass 4")
+
+
+def test_declining_to_replace_a_reset_password_logs_out(qapp, services):
+    from clinassist.ui.main import replace_reset_password
+
+    admin = _admin(services)
+    doc = services.auth.create_user(admin, "dr.b", "doctor synthetic password 2", "B", "clinician")
+    services.auth.reset_password(admin, doc, "temporary synthetic pass 3")
+    session = services.auth.login("dr.b", "temporary synthetic pass 3")
+    assert replace_reset_password(services.auth, session, lambda dialog: 0) is None
+    assert session.ended
+
+
+def test_change_password_dialog_checks_the_repeat(qapp):
+    from clinassist.ui.dialogs import ChangePasswordDialog
+
+    calls = []
+    dialog = ChangePasswordDialog(lambda old, new: calls.append(new))
+    dialog.current.setText("old one")
+    dialog.new.setText("first new password 1")
+    dialog.repeat.setText("first new password 2")
+    dialog.submit()
+    assert calls == [] and dialog.message.text() == MESSAGES["passwords_do_not_match"]
+
+
+# ----- PDF export from the records screen (FR-17) -----
+def test_export_a_saved_note_as_pdf_from_the_records_screen(qapp, services, tmp_path):
+    session = _admin(services)
+    ws = workspace(services)
+    record_and_draft(ws)
+    ws.assessment_box.setPlainText("Viral upper respiratory tract infection.")
+    tick_all(ws)
+    ws.finalize_button.click()
+    window = MainWindow(services, session, login_again=lambda n: None)
+    target = tmp_path / "out" / "note.pdf"
+    target.parent.mkdir()
+    window.records._ask_pdf_path = lambda suggested: str(target)
+    window.records.reload()
+    window.records.session_list.setCurrentRow(0)
+    window.records.export_button.click()
+    assert target.read_bytes().startswith(b"%PDF")
+    assert "Saved" in window.records.message.text()
+    assert services.auditor.events(1)[0][2] == "note_exported"
+    window.close()
+
+
+def test_export_needs_a_selected_consultation(qapp, services):
+    session = _admin(services)
+    window = MainWindow(services, session, login_again=lambda n: None)
+    window.records.reload()
+    window.records.export_button.click()
+    assert "Select a saved consultation" in window.records.message.text()
+    window.close()

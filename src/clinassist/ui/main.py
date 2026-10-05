@@ -36,6 +36,7 @@ from clinassist.controller import State
 from clinassist.ui.admin import AdminView
 from clinassist.ui.database import DatabaseView
 from clinassist.ui.dialogs import (
+    ChangePasswordDialog,
     CreateVaultDialog,
     FirstAdminDialog,
     LoginDialog,
@@ -83,6 +84,8 @@ class MainWindow(QMainWindow):
         self.network_label.setStyleSheet(f"color: {colour}; font-weight: bold;")
         logout = QPushButton("Log out")
         logout.clicked.connect(self.log_out)
+        self.password_button = QPushButton("Change password")
+        self.password_button.clicked.connect(self.change_password)
         header = QHBoxLayout()
         title = QLabel(APP_TITLE)
         title.setStyleSheet("font-weight: bold;")
@@ -91,12 +94,15 @@ class MainWindow(QMainWindow):
         header.addWidget(self.network_label)
         header.addWidget(self.status_label)
         header.addWidget(self.user_label)
+        header.addWidget(self.password_button)
         header.addWidget(logout)
 
         self.workspace = ConsultationWorkspace(
             services, user_id=lambda: self.session.user_id, before_action=self.require
         )
-        self.records = RecordsView(services.store, before_action=self.require)
+        self.records = RecordsView(
+            services.store, before_action=self.require, export=self.export_note
+        )
         self.tabs = QTabWidget()
         self.tabs.addTab(self.workspace, "Consultation")
         self.tabs.addTab(self.records, "Session records")
@@ -161,6 +167,30 @@ class MainWindow(QMainWindow):
     def log_out(self) -> None:
         self.lock_screen("")
 
+    def export_note(self, session_id: str, path: str, include_transcript: bool) -> str:
+        """Write one saved consultation as a PDF (FR-17) and record the export in the audit
+        log. Returns where the file was saved."""
+        from clinassist.ui.export import ExportDetails, note_html, write_pdf
+
+        auth, store = self._services.auth, self._services.store
+        self.require()
+        record = store.load(session_id)
+        details = ExportDetails(
+            saved_at=store.saved_at(session_id),
+            finalized_by=auth.display_name(self.session, record.finalized_by),
+            exported_by=self.session.display_name,
+            exported_at=datetime.now(UTC).isoformat(timespec="seconds"),
+            include_transcript=include_transcript,
+        )
+        saved = write_pdf(note_html(record, details), path)
+        event = "note_exported_with_transcript" if include_transcript else "note_exported"
+        self._services.auditor.record(event, session_id, self.session.user_id)
+        return str(saved)
+
+    def change_password(self) -> None:
+        auth = self._services.auth
+        ChangePasswordDialog(lambda old, new: auth.change_password(self.session, old, new)).exec()
+
     def _show_user(self) -> None:
         self.user_label.setText(f"{self.session.display_name} ({self.session.role})")
         is_admin = self.session.role == "admin"
@@ -216,6 +246,26 @@ def hold_running_marker() -> int | None:
     import ctypes
 
     return ctypes.windll.kernel32.CreateMutexW(None, False, RUNNING_MARKER) or None
+
+
+RESET_NOTICE = (
+    "An administrator reset your password. Choose a new one that only you know before "
+    "continuing. Type the temporary password as the current password."
+)
+
+
+def replace_reset_password(auth, session, run=lambda dialog: dialog.exec()):
+    """After login: if an administrator reset this password, the user must replace it before
+    the main screen opens. Returns the session, or None (and logs out) if they decline."""
+    if not session.must_change_password:
+        return session
+    dialog = ChangePasswordDialog(
+        lambda old, new: auth.change_password(session, old, new), RESET_NOTICE
+    )
+    if run(dialog) == ChangePasswordDialog.DialogCode.Accepted:
+        return session
+    auth.logout(session)
+    return None
 
 
 def main() -> int:
@@ -284,7 +334,9 @@ def main() -> int:
 
     def login(notice: str = ""):
         dialog = LoginDialog(services.auth.login, notice)
-        return dialog.session if dialog.exec() == LoginDialog.DialogCode.Accepted else None
+        if dialog.exec() != LoginDialog.DialogCode.Accepted:
+            return None
+        return replace_reset_password(services.auth, dialog.session)
 
     session = login()
     if session is None:

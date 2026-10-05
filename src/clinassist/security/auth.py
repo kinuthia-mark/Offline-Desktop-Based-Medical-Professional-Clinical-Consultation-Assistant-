@@ -48,6 +48,9 @@ class UserSession:
     role: str
     last_active: datetime
     ended: bool = field(default=False)
+    # Set after an administrator reset the password: the user must choose a new one before
+    # doing anything else.
+    must_change_password: bool = field(default=False)
 
     def expired(self, now: datetime, idle: timedelta = IDLE_TIMEOUT) -> bool:
         return self.ended or now - self.last_active >= idle
@@ -135,8 +138,33 @@ class AuthService:
             )
         self._auditor.record("account_unlocked", NO_SESSION, admin.user_id)
 
+    def reset_password(self, admin: UserSession, user_id: str, temporary: str) -> None:
+        """For a user who forgot their password. The administrator sets a temporary password,
+        which also clears any lockout; the user must replace it at their next login, so the
+        administrator never knows the password actually in use. An administrator changes their
+        own password with change_password, which needs the current one."""
+        self.require(admin, "admin")
+        if user_id == admin.user_id:
+            raise AuthError("cannot_reset_own_password")
+        with self._vault.connect() as conn:
+            row = conn.execute(
+                "SELECT username FROM users WHERE user_id = ?", (user_id,)
+            ).fetchone()
+        if row is None:
+            raise AuthError("user_not_found")
+        self._check_policy(temporary)
+        if temporary.strip().lower() == row[0].lower():
+            raise AuthError("weak_password")
+        with self._vault.connect() as conn, conn:
+            conn.execute(
+                "UPDATE users SET password_hash = ?, must_change_password = 1,"
+                " failed_attempts = 0, locked_until = NULL WHERE user_id = ?",
+                (self._hasher.hash(temporary), user_id),
+            )
+        self._auditor.record("password_reset", NO_SESSION, admin.user_id)
+
     def change_password(self, session: UserSession, old: str, new: str) -> None:
-        self.require(session)
+        self.require(session, changing_password=True)  # the one action allowed after a reset
         with self._vault.connect() as conn:
             row = conn.execute(
                 "SELECT password_hash FROM users WHERE user_id = ?", (session.user_id,)
@@ -144,12 +172,28 @@ class AuthService:
         if row is None or not self._verify(row[0], old):
             raise AuthError("invalid_credentials")
         self._check_policy(new)
+        if new == old:
+            raise AuthError("password_unchanged")
+        if new.strip().lower() == session.username.lower():
+            raise AuthError("weak_password")
         with self._vault.connect() as conn, conn:
             conn.execute(
-                "UPDATE users SET password_hash = ? WHERE user_id = ?",
+                "UPDATE users SET password_hash = ?, must_change_password = 0 WHERE user_id = ?",
                 (self._hasher.hash(new), session.user_id),
             )
+        session.must_change_password = False
         self._auditor.record("password_changed", NO_SESSION, session.user_id)
+
+    def display_name(self, session: UserSession, user_id: str) -> str:
+        """The full name of an account, for example to print who finalized a note."""
+        self.require(session)
+        with self._vault.connect() as conn:
+            row = conn.execute(
+                "SELECT display_name, username FROM users WHERE user_id = ?", (user_id,)
+            ).fetchone()
+        if row is None:
+            return "unknown account"
+        return row[0] or row[1]
 
     # ----- login -----
     def login(self, username: str, password: str) -> UserSession:
@@ -157,7 +201,7 @@ class AuthService:
         with self._vault.connect() as conn:
             row = conn.execute(
                 "SELECT user_id, username, display_name, role, password_hash, failed_attempts,"
-                " locked_until, active FROM users WHERE username = ?",
+                " locked_until, active, must_change_password FROM users WHERE username = ?",
                 (username.strip(),),
             ).fetchone()
         if row is None:
@@ -165,7 +209,7 @@ class AuthService:
             self._auditor.record("login_failed", NO_SESSION, None)
             raise AuthError("invalid_credentials")
 
-        user_id, name, display, role, pw_hash, failed, locked_until, active = row
+        user_id, name, display, role, pw_hash, failed, locked_until, active, must_change = row
         # Check 1: is the account locked? While it is, even the right password is refused.
         if locked_until and now < datetime.fromisoformat(locked_until):
             self._auditor.record("login_refused_locked", NO_SESSION, user_id)
@@ -201,22 +245,28 @@ class AuthService:
                 (new_hash, user_id),
             )
         self._auditor.record("login_succeeded", NO_SESSION, user_id)
-        return UserSession(user_id, name, display, role, now)
+        return UserSession(
+            user_id, name, display, role, now, must_change_password=bool(must_change)
+        )
 
     def logout(self, session: UserSession) -> None:
         if not session.ended:
             session.ended = True
             self._auditor.record("logout", NO_SESSION, session.user_id)
 
-    def require(self, session: UserSession, role: str | None = None) -> None:
-        """Call before every protected action. Ends an idle session; checks the role; refreshes
-        the activity time."""
+    def require(
+        self, session: UserSession, role: str | None = None, changing_password: bool = False
+    ) -> None:
+        """Call before every protected action. Ends an idle session; refuses everything until a
+        reset password is replaced; checks the role; refreshes the activity time."""
         now = self._clock()
         if session.expired(now, self._idle):
             if not session.ended:
                 session.ended = True
                 self._auditor.record("session_timed_out", NO_SESSION, session.user_id)
             raise AuthError("session_expired")
+        if session.must_change_password and not changing_password:
+            raise AuthError("password_change_required")
         if role is not None and session.role != role:
             self._auditor.record("access_denied", NO_SESSION, session.user_id)
             raise AuthError("forbidden")

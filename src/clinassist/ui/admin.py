@@ -44,6 +44,7 @@ class AdminView(QWidget):
         ask_open_path: Callable[[], str] | None = None,
         ask_secret: Callable[[], str] | None = None,
         confirm: Callable[[str], bool] | None = None,
+        ask_temporary_password: Callable[[], str] | None = None,
     ) -> None:
         """`backups` (app.Backups) enables backup and restore. `on_restored` is called after a
         restore, when the program must close. The `ask_*` and `confirm` callables show the file
@@ -55,6 +56,7 @@ class AdminView(QWidget):
         self._ask_open_path = ask_open_path or self._dialog_open_path
         self._ask_secret = ask_secret or self._dialog_secret
         self._confirm = confirm or self._dialog_confirm
+        self._ask_temporary = ask_temporary_password or self._dialog_temporary_password
 
         # Audit log
         self.table = QTableWidget(0, 5)
@@ -95,6 +97,8 @@ class AdminView(QWidget):
         disable.clicked.connect(lambda: self._set_active(False))
         enable.clicked.connect(lambda: self._set_active(True))
         unlock.clicked.connect(self.unlock_account)
+        self.reset_button = QPushButton("Reset password")
+        self.reset_button.clicked.connect(self.reset_password)
         self.account_message = QLabel()
         self.account_message.setWordWrap(True)
         accounts = QGroupBox("Accounts")
@@ -106,7 +110,7 @@ class AdminView(QWidget):
         form.addRow(create)
         form.addRow(self.users)
         buttons = QHBoxLayout()
-        for b in (disable, enable, unlock):
+        for b in (disable, enable, unlock, self.reset_button):
             buttons.addWidget(b)
         form.addRow(buttons)
         form.addRow(self.account_message)
@@ -211,6 +215,36 @@ class AdminView(QWidget):
             return
         self.account_message.setText("Account turned " + ("on." if active else "off."))
         self._reload_users()
+
+    def reset_password(self) -> None:
+        """For a user who forgot their password: set a temporary one to tell them in person.
+        They must replace it at their next login."""
+        user_id = self._selected_user()
+        if not user_id:
+            self.account_message.setText("Select an account first.")
+            return
+        temporary = self._ask_temporary()
+        if not temporary:
+            return
+        try:
+            self._auth.reset_password(self._admin(), user_id, temporary)
+        except Exception as exc:
+            self.account_message.setText(message_for(error_code(exc)))
+            return
+        self.account_message.setText(
+            "Password reset. Tell the user the temporary password in person; they must choose "
+            "a new one when they next log in."
+        )
+        self._reload_users()
+
+    def _dialog_temporary_password(self) -> str:
+        text, ok = QInputDialog.getText(
+            self,
+            "Reset password",
+            "Temporary password (at least 12 characters). The user replaces it at next login:",
+            QLineEdit.EchoMode.Normal,  # shown, so the administrator can read it out correctly
+        )
+        return text if ok else ""
 
     def unlock_account(self) -> None:
         try:
