@@ -55,7 +55,7 @@ jobs:
       - name: Everything is where it should be
         run: |
           $app = "$env:ProgramFiles\ClinAssist"
-          foreach ($f in "ClinAssist.exe", "ClinAssist-check.exe", "models\faster-whisper-small\model.bin", "licences\medgemma.txt", "scripts\airgap_firewall.ps1") {
+          foreach ($f in "ClinAssist.exe", "ClinAssist-check.exe", "models\faster-whisper-small\model.bin", "licences\HAI-DEF-terms-of-use.txt", "licences\NOTICE.txt", "licences\ClinAssist-terms-of-use.txt","scripts\airgap_firewall.ps1") {
             if (-not (Test-Path "$app\$f")) { throw "missing after install: $f" }
           }
           if (-not (Test-Path "$env:USERPROFILE\.ollama\models\manifests\registry.ollama.ai\library\medgemma\4b")) { throw "Ollama model manifest not copied" }
