@@ -45,10 +45,17 @@ SYSTEM_PROMPT = (
     "Reply with JSON only, with exactly these keys, each a string: "
     '{"subjective": "", "objective": "", "assessment": "", "plan": ""}'
 )
+# The rules for suggestions answer what the first evaluation with suggestions found (ADR-013):
+# allergies, exposures and prevention listed as if they were diagnoses, and "pregnancy" suggested
+# although the pregnancy test was negative.
 SUGGESTIONS_PROMPT = (
     '\nAlso add a key "suggestions": up to 3 objects ordered most likely first, each '
     '{"diagnosis": "", "rationale": "", "management": ""}. These are suggestions for the '
-    "clinician and never go in assessment."
+    "clinician and never go in assessment. Rules for suggestions:\n"
+    "- Each diagnosis is a medical condition that could explain why the patient came today.\n"
+    "- Do not list allergies, risk factors, exposures, preventive care or vaccinations.\n"
+    "- Do not suggest a condition the transcript rules out, for example by a negative test.\n"
+    "- The rationale uses only findings stated in the transcript."
 )
 # Finds <transcript> or </transcript> typed inside the transcript itself, which could otherwise
 # be used to "close" the data section early and slip in instructions.
