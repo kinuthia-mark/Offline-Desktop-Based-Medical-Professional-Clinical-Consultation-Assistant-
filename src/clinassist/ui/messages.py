@@ -52,6 +52,21 @@ MESSAGES: dict[str, str] = {
     "vault_corrupt": "The vault file is damaged. Restore it from a backup.",
     "vault_locked": "The vault is locked. Unlock it again.",
     "schema_newer_than_program": "This vault was made by a newer version of the application.",
+    # backup and restore
+    "backup_write_failed": "The backup could not be written there. Choose another folder or drive.",
+    "not_a_backup": "That file is not a ClinAssist backup.",
+    "backup_format_unknown": "That backup was made by a different version of the application.",
+    "backup_damaged": "That backup file is damaged or incomplete. Nothing was changed.",
+    "backup_unreadable": "That backup file could not be read. Check the drive and try again.",
+    "backup_secret_incorrect": (
+        "Neither the passphrase nor the recovery code opens that backup. Use the passphrase the "
+        "vault had when the backup was made, or the recovery code. Nothing was changed."
+    ),
+    "backup_audit_broken": (
+        "The audit log inside that backup has been changed, so it cannot be trusted. "
+        "Nothing was changed."
+    ),
+    "restore_failed": "The backup could not be put in place. The current vault was kept.",
     # accounts
     "invalid_credentials": "Username or password is not correct.",
     "account_locked": "Too many wrong attempts. The account is locked for 15 minutes.",

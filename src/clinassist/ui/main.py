@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMainWindow,
+    QMessageBox,
     QPushButton,
     QTabWidget,
     QVBoxLayout,
@@ -98,7 +99,13 @@ class MainWindow(QMainWindow):
         self.tabs = QTabWidget()
         self.tabs.addTab(self.workspace, "Consultation")
         self.tabs.addTab(self.records, "Session records")
-        self.admin = AdminView(services.auditor, auth, admin_session=lambda: self.session)
+        self.admin = AdminView(
+            services.auditor,
+            auth,
+            admin_session=lambda: self.session,
+            backups=services.backups,
+            on_restored=self._restored,
+        )
         self.admin_index = self.tabs.addTab(self.admin, "Audit and accounts")
         self.tabs.currentChanged.connect(self._tab_opened)
 
@@ -161,6 +168,18 @@ class MainWindow(QMainWindow):
         elif self.tabs.widget(index) is self.admin and self.session.role == "admin":
             self.admin.reload()
 
+    def _restored(self) -> None:
+        """After a restore the open vault no longer matches the files on disk, so the program
+        closes. Starting it again opens the restored vault."""
+        QMessageBox.information(
+            self,
+            "Backup restored",
+            "The backup was restored. The program will now close. Start it again and unlock "
+            "with the passphrase the vault had when the backup was made, or the recovery code.",
+        )
+        self._services.backups.close_vault()
+        QApplication.instance().quit()
+
     def closeEvent(self, event) -> None:  # noqa: N802 - Qt's name
         QApplication.instance().removeEventFilter(self._activity)
         super().closeEvent(event)
@@ -174,10 +193,29 @@ def window_icon_path() -> Path:
     return Path(__file__).resolve().parents[3] / "release" / "art" / "clinassist.png"
 
 
+# The name the installer looks for (AppMutex in release/clinassist.iss). Keep the two the same.
+RUNNING_MARKER = "ClinAssistRunning"
+
+
+def hold_running_marker() -> int | None:
+    """Tell the installer the program is open, so it asks the user to close it first.
+
+    Windows' automatic "close the applications" step hung the installer on the reference PC
+    after the program had already closed. Instead, the program holds a named Windows mutex while
+    it runs, and the installer and uninstaller wait until it is gone. Windows releases the mutex
+    when the program exits, even after a crash, so there is nothing to clean up."""
+    if sys.platform != "win32":
+        return None
+    import ctypes
+
+    return ctypes.windll.kernel32.CreateMutexW(None, False, RUNNING_MARKER) or None
+
+
 def main() -> int:
     from clinassist.airgap import LABELS, install_network_guard, request_firewall_rules
 
     install_network_guard()  # first, before any part of the program can open a connection
+    hold_running_marker()
     from clinassist.app import build
     from clinassist.config import AppConfig
     from clinassist.security.vault import KEYRING, Vault

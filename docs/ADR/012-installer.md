@@ -77,6 +77,14 @@ rule, so a rule for `python.exe` would have made `ClinAssist.exe` look protected
 requires a rule for the application itself (`airgap.rules_for_program`); `ClinAssist-check.exe`
 looks for the rule of `ClinAssist.exe` beside it, not for its own.
 
+Installing a new version over an open copy hung the installer on the reference PC. Inno
+Setup's "automatically close the applications" option uses the Windows Restart Manager, which
+kept waiting after the program had already closed; nothing had been copied yet, so the old copy
+was untouched. That option is now off. Instead the program holds a named Windows mutex while it
+runs (`RUNNING_MARKER`), and Setup and the uninstaller ask the user to close the program first
+(`AppMutex`). Windows frees the mutex when the program exits, even after a crash.
+`tests/test_installer.py` checks that both use the same name.
+
 The bundle check first used PowerShell's `Get-FileHash`, which was missing on GitHub's machines
 (it is defined in a module that a different PowerShell module path hides). It now computes SHA-256
 through .NET, which every Windows has, and checks the 3.6 GB bundle in about 5 s.
