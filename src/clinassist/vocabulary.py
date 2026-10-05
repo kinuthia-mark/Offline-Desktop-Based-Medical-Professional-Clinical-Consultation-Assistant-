@@ -46,6 +46,18 @@ MEDICINES: tuple[str, ...] = (
     "clotrimazole", "fluconazole", "nystatin", "miconazole",
 )  # fmt: skip
 
+# Other correct words that are not on the list above: other spellings of listed medicines (for
+# example American spellings) and names of drug classes. They are never flagged as misheard.
+ALSO_CORRECT: frozenset[str] = frozenset(
+    {
+        "beclomethasone", "cotrimoxazole", "sulfamethoxazole", "sulphamethoxazole",
+        "amoxycillin", "frusemide", "acetaminophen", "albuterol", "cephalexin",
+        "statin", "statins", "antimalarial", "antimalarials", "antihypertensive",
+        "antihypertensives", "antihistamine", "antihistamines", "antiretroviral",
+        "antiretrovirals", "corticosteroid", "corticosteroids",
+    }
+)  # fmt: skip
+
 
 def speech_prompt(limit_words: int = 120) -> str:
     """A short text Whisper reads before listening, so these words are expected. Whisper keeps

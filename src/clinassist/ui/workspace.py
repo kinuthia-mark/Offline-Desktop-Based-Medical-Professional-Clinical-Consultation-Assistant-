@@ -38,6 +38,7 @@ from PySide6.QtWidgets import (
 
 from clinassist.controller import State
 from clinassist.domain import Draft, HistoryChecklist, SoapNote
+from clinassist.medcheck import suspect_medicines
 from clinassist.ui.messages import message_for
 from clinassist.ui.workers import error_code, run_in_background
 
@@ -135,6 +136,15 @@ class ConsultationWorkspace(QWidget):
             "'Doctor:' and 'Patient:' where it helps, before approving."
         )
         self.asr_label = QLabel()
+        # Medicine names that may have been misheard (AMD-38), refreshed as the clinician edits.
+        self.medicine_label = QLabel()
+        self.medicine_label.setWordWrap(True)
+        self.medicine_label.setStyleSheet(f"color: {AI_COLOUR}; font-weight: bold;")
+        self._medicine_timer = QTimer(self)
+        self._medicine_timer.setSingleShot(True)
+        self._medicine_timer.setInterval(400)
+        self._medicine_timer.timeout.connect(self.check_medicines)
+        self.transcript_box.textChanged.connect(self._medicine_timer.start)
         self.approve_button = QPushButton("Approve transcript and draft the note")
         self.manual_button = QPushButton("Write the note by hand")
         self.reopen_button = QPushButton("Edit the transcript again")
@@ -145,6 +155,7 @@ class ConsultationWorkspace(QWidget):
         t = QVBoxLayout(transcript)
         t.addWidget(self.transcript_box, 1)
         t.addWidget(self.asr_label)
+        t.addWidget(self.medicine_label)
         t.addWidget(self.approve_button)
         row = QHBoxLayout()
         row.addWidget(self.manual_button)
@@ -259,8 +270,18 @@ class ConsultationWorkspace(QWidget):
         # Stopping also transcribes, which can take a minute or two: run it in the background.
         self._run("Turning speech into text...", self.controller.stop_recording, self._on_text)
 
+    def check_medicines(self) -> None:
+        """Show words that look like a misheard medicine, with the likely intended name."""
+        suspects = suspect_medicines(self.transcript_box.toPlainText())
+        if suspects:
+            listed = ", ".join(f'"{s.word}" ({s.meant}?)' for s in suspects)
+            self.medicine_label.setText(f"Check these medicine names before approving: {listed}")
+        else:
+            self.medicine_label.clear()
+
     def _on_text(self, text: str) -> None:
         self.transcript_box.setPlainText(text)
+        self.check_medicines()
         info = self._services.plan.last_info
         if info is not None:
             self.asr_label.setText(
@@ -502,6 +523,7 @@ class ConsultationWorkspace(QWidget):
         self._clear_note()
         self.transcript_box.clear()
         self.asr_label.clear()
+        self.medicine_label.clear()
         self._last_error = ""
         self.error_label.clear()
         self.level_bar.setValue(0)
