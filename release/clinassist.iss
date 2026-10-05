@@ -42,6 +42,12 @@ UninstallDisplayIcon={app}\ClinAssist.exe
 InfoBeforeFile=before_install.txt
 LicenseFile=terms.txt
 UninstallDisplayName=Offline Clinical Consultation Assistant
+; If the program is open, Setup and the uninstaller ask the user to close it first. The program
+; holds this named marker while it runs (RUNNING_MARKER in src/clinassist/ui/main.py). Windows'
+; automatic "close the applications" step is off: on the reference PC it hung after the program
+; had already closed.
+AppMutex=ClinAssistRunning
+CloseApplications=no
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Shortcuts:"

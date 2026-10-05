@@ -53,6 +53,31 @@ NO_AI_ASSESSMENT = (
     "Its possible diagnoses are on the Diagnostics tab."
 )
 
+
+def ai_impression(draft: Draft) -> str:
+    """The text for the "Model's assessment" box.
+
+    If the clinician said a diagnosis aloud, the model's assessment repeats it. If not, the
+    note's assessment stays empty (the model must not put a diagnosis nobody made into the note,
+    ADR-002), and the box shows the model's own impression from its suggestions instead, so the
+    clinician can see what the AI thinks without it entering the note unless they copy it."""
+    stated = draft.ai_assessment.strip()
+    if stated and stated.lower().rstrip(".") != "not stated":
+        return stated
+    if not draft.suggestions:
+        return ""
+    top, others = draft.suggestions[0], draft.suggestions[1:]
+    lines = [
+        "AI impression (the clinician did not state a diagnosis):",
+        f"Most likely: {top.diagnosis}. {top.rationale}".rstrip(),
+    ]
+    if others:
+        lines.append("Also consider: " + "; ".join(s.diagnosis for s in others) + ".")
+    if top.management.strip():
+        lines.append(f"Suggested management: {top.management}".rstrip())
+    return "\n".join(lines)
+
+
 # Advisory flag codes in plain words, shown under the note.
 FLAG_TEXT = {
     "empty_section": "Section left empty by the model",
@@ -111,10 +136,13 @@ class ConsultationWorkspace(QWidget):
         self.level_bar.setFormat("Level")
         self.start_button = QPushButton("Start recording")
         self.stop_button = QPushButton("Stop recording")
+        # For a consultation without recording: the clinician types the transcript instead.
+        self.type_button = QPushButton("Type the transcript instead")
         self.discard_button = QPushButton("Discard consultation")
         self.new_button = QPushButton("New consultation")
         self.start_button.clicked.connect(self.start_recording)
         self.stop_button.clicked.connect(self.stop_recording)
+        self.type_button.clicked.connect(self.type_transcript)
         self.discard_button.clicked.connect(self.discard)
         self.new_button.clicked.connect(self.new_consultation)
         audio = QGroupBox("1. Session and audio")
@@ -123,6 +151,7 @@ class ConsultationWorkspace(QWidget):
             a.addWidget(w)
         a.addWidget(self.start_button)
         a.addWidget(self.stop_button)
+        a.addWidget(self.type_button)
         a.addWidget(self.status_label)
         a.addWidget(self.duration_label)
         a.addWidget(self.level_bar)
@@ -132,7 +161,8 @@ class ConsultationWorkspace(QWidget):
 
         # Panel 2: transcript
         self.transcript_box = _text_box(
-            "The transcript appears here after recording. Correct any mistakes, and add "
+            "The transcript appears here after recording, or type it here after choosing 'Type "
+            "the transcript instead'. Correct any mistakes, and add "
             "'Doctor:' and 'Patient:' where it helps, before approving."
         )
         self.asr_label = QLabel()
@@ -270,6 +300,20 @@ class ConsultationWorkspace(QWidget):
         # Stopping also transcribes, which can take a minute or two: run it in the background.
         self._run("Turning speech into text...", self.controller.stop_recording, self._on_text)
 
+    def type_transcript(self) -> None:
+        """Start without recording. The typed text is approved and screened like spoken text."""
+        if not self._step():
+            return
+        try:
+            self.controller.start_typed_transcript()
+        except Exception as exc:
+            self._show_error(exc)
+            return
+        self._clear_all()
+        self.asr_label.setText("Typed by the clinician (no recording)")
+        self.refresh()
+        self.transcript_box.setFocus()
+
     def check_medicines(self) -> None:
         """Show words that look like a misheard medicine, with the likely intended name."""
         suspects = suspect_medicines(self.transcript_box.toPlainText())
@@ -375,6 +419,7 @@ class ConsultationWorkspace(QWidget):
         self.session_label.setText("Session: " + (self.controller.session_id or "-")[:8].upper())
         self.status_label.setText("Status: " + (self._busy or _STATUS[state]))
         self.start_button.setEnabled(not busy and state is State.IDLE)
+        self.type_button.setEnabled(not busy and state is State.IDLE)
         self.stop_button.setEnabled(not busy and state is State.RECORDING)
         self.discard_button.setEnabled(not busy and not idle_or_done)
         self.new_button.setEnabled(not busy and state is State.FINALIZED)
@@ -418,12 +463,10 @@ class ConsultationWorkspace(QWidget):
         self.objective_box.setPlainText(draft.objective)
         self.plan_box.setPlainText(draft.plan)
         self.assessment_box.clear()  # always blank: the clinician writes it (FR-14)
-        stated = draft.ai_assessment.strip()
-        if not stated or stated.lower().rstrip(".") == "not stated":
-            self.ai_assessment_box.clear()
+        impression = ai_impression(draft)
+        self.ai_assessment_box.setPlainText(impression)
+        if not impression:
             self.ai_assessment_box.setPlaceholderText(NO_AI_ASSESSMENT)
-        else:
-            self.ai_assessment_box.setPlainText(stated)
         self.flags_list.clear()
         for flag in draft.flags:
             kind, _, detail = flag.partition(":")

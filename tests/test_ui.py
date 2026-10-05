@@ -409,7 +409,7 @@ def test_no_fix_button_when_the_rules_are_already_set(qapp):
     dialog.close()
 
 
-def test_suggestions_fill_the_diagnostics_tab_and_not_stated_is_explained(qapp, services, ollama):
+def test_suggestions_fill_the_diagnostics_tab_and_the_ai_impression(qapp, services, ollama):
     """AMD-32: the AI's possible diagnoses are on their own tab; the note keeps "not stated"."""
     reply = {
         "subjective": "Fever for 3 days.",
@@ -426,11 +426,26 @@ def test_suggestions_fill_the_diagnostics_tab_and_not_stated_is_explained(qapp, 
     record_and_draft(ws)
     assert ws.suggestions_list.count() == 2
     assert ws.tabs.tabText(1) == "Diagnostics (2)"
-    assert ws.ai_assessment_box.toPlainText() == ""
-    assert "Diagnostics tab" in ws.ai_assessment_box.placeholderText()
-    assert not ws.copy_ai_button.isEnabled()  # nothing to copy
+    # No diagnosis was said aloud, so the box shows the AI's own impression, not "not stated".
+    shown = ws.ai_assessment_box.toPlainText()
+    assert shown.startswith("AI impression") and "Most likely: Malaria" in shown
+    assert "Also consider: Viral illness" in shown
+    assert ws.assessment_box.toPlainText() == ""  # FR-14: the clinician's box stays blank
+    assert ws.copy_ai_button.isEnabled()
     ws.new_consultation()
     assert ws.tabs.tabText(1) == "Diagnostics"
+
+
+def test_ai_impression_repeats_a_stated_diagnosis_and_explains_an_empty_one():
+    from clinassist.domain import AiSuggestion, Draft
+    from clinassist.ui.workspace import ai_impression
+
+    assert ai_impression(Draft("s", "o", "p", ai_assessment="Malaria, as discussed.")) == (
+        "Malaria, as discussed."
+    )
+    assert ai_impression(Draft("s", "o", "p", ai_assessment="Not stated.")) == ""
+    one = Draft("s", "o", "p", ai_assessment="", suggestions=(AiSuggestion("UTI", "", "", 1),))
+    assert ai_impression(one).splitlines()[1:] == ["Most likely: UTI."]
 
 
 def test_the_note_scrolls_instead_of_squeezing_boxes_away(qapp, services):
@@ -457,3 +472,106 @@ def test_misheard_medicine_names_are_flagged_before_approval(qapp, tmp_path, oll
     assert "Glendamycin" in ws.medicine_label.text() and "clindamycin?" in ws.medicine_label.text()
     ws.transcript_box.setPlainText(heard.replace("Glendamycin", "clindamycin"))
     wait_until(lambda: ws.medicine_label.text() == "", seconds=3)
+
+
+def test_a_consultation_can_be_typed_without_recording(qapp, tmp_path, ollama):
+    """The clinician types the transcript; approval, drafting and saving work as for speech."""
+
+    class CountingMic(FakeMic):
+        starts = 0
+
+        def start(self) -> None:
+            self.starts += 1
+
+    mic = CountingMic()
+    vault, _ = Vault.create(tmp_path / "v", "a long synthetic passphrase 42", kdf=TEST_KDF)
+    config = AppConfig(data_dir=str(tmp_path), ollama_host=ollama.url)
+    services = build(config, vault, recorder=mic, transcriber=FakeWhisper())
+    ws = workspace(services)
+    assert ws.type_button.isEnabled()
+    ws.type_button.click()
+    assert ws.controller.state is State.TRANSCRIBED and mic.starts == 0
+    assert not ws.transcript_box.isReadOnly() and not ws.type_button.isEnabled()
+    assert not ws.start_button.isEnabled()  # one way in per consultation
+    typed = "Doctor: What brings you in? Patient: A sore throat for three days."
+    ws.transcript_box.setPlainText(typed)
+    ws.approve_button.click()
+    wait_until(lambda: ws.controller.state is State.DRAFTED and not ws._busy)
+    ws.assessment_box.setPlainText("Viral pharyngitis.")
+    tick_all(ws)
+    ws.finalize_button.click()
+    assert services.store.load(services.store.session_ids()[0]).transcript == typed
+
+
+# ----- backup and restore (FR-10c) -----
+def _backup_view(services, session, **asks):
+    restored = []
+    view = AdminView(
+        services.auditor,
+        services.auth,
+        admin_session=lambda: session,
+        backups=services.backups,
+        on_restored=lambda: restored.append(True),
+        **asks,
+    )
+    return view, restored
+
+
+def test_admin_backs_up_and_restores_from_the_screen(qapp, services, tmp_path):
+    session = _admin(services)
+    target = str(tmp_path / "usb" / "backup.clinbak")
+    (tmp_path / "usb").mkdir()
+    view, restored = _backup_view(
+        services,
+        session,
+        ask_save_path=lambda suggested: target,
+        ask_open_path=lambda: target,
+        ask_secret=lambda: "a long synthetic passphrase 42",
+        confirm=lambda question: "0 saved consultation" in question,
+    )
+    view.backup_button.click()
+    assert "Backup saved" in view.backup_message.text()
+    view.restore_button.click()
+    assert restored == [True]  # the program is told to close
+    assert list(tmp_path.glob("vault-before-restore-*"))  # the old vault was moved aside
+
+
+def test_restore_stops_when_the_admin_says_no(qapp, services, tmp_path):
+    session = _admin(services)
+    target = str(tmp_path / "b.clinbak")
+    view, restored = _backup_view(
+        services,
+        session,
+        ask_save_path=lambda s: target,
+        ask_open_path=lambda: target,
+        ask_secret=lambda: "a long synthetic passphrase 42",
+        confirm=lambda q: False,
+    )
+    view.backup_button.click()
+    view.restore_button.click()
+    assert restored == [] and not list(tmp_path.glob("vault-before-restore-*"))
+
+
+def test_a_wrong_backup_secret_is_explained(qapp, services, tmp_path):
+    session = _admin(services)
+    target = str(tmp_path / "b.clinbak")
+    view, restored = _backup_view(
+        services,
+        session,
+        ask_save_path=lambda s: target,
+        ask_open_path=lambda: target,
+        ask_secret=lambda: "not the right passphrase",
+        confirm=lambda q: True,
+    )
+    view.backup_button.click()
+    view.restore_button.click()
+    assert "Nothing was changed" in view.backup_message.text() and restored == []
+
+
+def test_only_an_admin_can_back_up(qapp, services, tmp_path):
+    session = _admin(services)
+    session.role = "clinician"  # as if a clinician reached the screen
+    view, _ = _backup_view(services, session, ask_save_path=lambda s: str(tmp_path / "b"))
+    view.backup_button.click()
+    assert view.backup_message.text() == MESSAGES["forbidden"]
+    assert not list(tmp_path.glob("*.clinbak"))

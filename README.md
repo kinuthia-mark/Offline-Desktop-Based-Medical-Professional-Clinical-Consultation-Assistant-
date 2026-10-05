@@ -106,7 +106,8 @@ Nothing typed is lost.
 ![The consultation screen with a synthetic consultation](docs/screenshots/workspace.png)
 
 Left to right: the recording controls, the transcript the clinician corrects and approves, and the
-drafted note. The clinician's own assessment is separate from the model's text, which is labelled
+drafted note. A clinician who does not want to record can choose "Type the transcript instead" and
+type it; the typed text goes through the same approval and checks as a spoken one (AMD-39). The clinician's own assessment is separate from the model's text, which is labelled
 as AI-generated. "Finalize and save" stays disabled until the assessment is written and all three
 history boxes are ticked; here one is still unticked.
 
@@ -195,6 +196,7 @@ is recorded.
 | Encrypted vault, recovery code, session store, optional encrypted audio | FR-07, NFR-05 | built; Windows CI green |
 | Accounts, roles, lockout, idle timeout | FR-08, FR-10a | built and tested |
 | Tamper-evident audit log | FR-09, FR-10d | built and tested |
+| Backup and restore of the encrypted vault, from the admin screen | FR-10c | built and tested (ADR-014) |
 | Input check (prompt injection, personal data) and checks on the model's reply | FR-05, AMD-11 | built and tested |
 | Microphone recorder | FR-01 | built and tested, including on the real microphone |
 | Speech-to-text (Faster-Whisper small, offline) | FR-02 | built and measured with synthetic speech |
@@ -480,6 +482,7 @@ src/clinassist/
     schema.py          the database tables and their upgrade steps
     auth.py            accounts, roles, lockout after 5 wrong passwords, 10-minute idle timeout
     audit.py           the audit log, where each entry seals the one before it
+    backup.py          backup to one encrypted file, and a restore that checks everything first
 tests/               one test file per module, plus fakes for Ollama and the hardware
 spikes/              measurement scripts; results go to docs/spikes/
 scripts/             small tools for trying parts by hand
@@ -526,7 +529,7 @@ code, then the tests and measurements that check that requirement, before moving
 | [`docs/traceability.md`](docs/traceability.md) | every requirement, the branch that builds it, the test that checks it, and its status |
 | [`docs/AMENDMENTS.md`](docs/AMENDMENTS.md) | every change from the approved proposal, with the reason |
 | [`docs/proposal/CROSSCHECK.md`](docs/proposal/CROSSCHECK.md) | how the code maps onto the proposal's use cases, diagrams, schema and wireframe |
-| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012), suggestions and medicine names (013) |
+| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012), suggestions and medicine names (013), backup and restore (014) |
 | [`docs/spikes/`](docs/spikes/) | raw measurement results from the reference PC |
 | [`docs/PRIOR_ART.md`](docs/PRIOR_ART.md) | what was reused from the earlier MedgemmaV2 prototype and what was left out |
 

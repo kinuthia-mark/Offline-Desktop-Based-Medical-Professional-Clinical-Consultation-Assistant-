@@ -81,6 +81,38 @@ class _PlannedRecorder:
         return self._recorder.stop()
 
 
+class Backups:
+    """Backup and restore for the admin screen (FR-10c, security/backup.py). It lives here so
+    the screens never import the security package themselves."""
+
+    def __init__(self, vault, auditor) -> None:
+        self._vault, self._auditor = vault, auditor
+
+    def default_name(self) -> str:
+        from clinassist.security.backup import default_name
+
+        return default_name()
+
+    def make(self, path: str, user_id: str):
+        from clinassist.security.backup import make_backup
+
+        return make_backup(self._vault, path, user_id, self._auditor)
+
+    def check(self, path: str, secret: str):
+        from clinassist.security.backup import check_backup
+
+        return check_backup(path, secret)
+
+    def restore(self, path: str, secret: str, user_id: str):
+        from clinassist.security.backup import restore_backup
+
+        return restore_backup(path, self._vault.directory, secret, user_id, self._auditor)
+
+    def close_vault(self) -> None:
+        """After a restore the open vault no longer matches the files; forget its key."""
+        self._vault.lock()
+
+
 class ProgressRelay:
     """Passes the generator's progress (a growing count of pieces received) to whoever is
     listening, usually the interface's progress bar."""
@@ -107,6 +139,7 @@ class Services:
     store: SessionStore
     auditor: Auditor
     auth: object  # AuthService; typed loosely to keep this module free of the security imports
+    backups: Backups | None = None  # backup and restore, for the admin screen (FR-10c)
 
     def new_controller(self) -> ConsultationController:
         """A fresh controller for each consultation."""
@@ -161,6 +194,7 @@ def build(config: AppConfig, vault, *, recorder=None, transcriber=None, generato
         store=VaultSessionStore(vault),
         auditor=auditor,
         auth=AuthService(vault, auditor),
+        backups=Backups(vault, auditor),
     )
 
 

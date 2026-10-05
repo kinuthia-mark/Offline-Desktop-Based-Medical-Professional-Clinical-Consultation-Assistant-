@@ -422,3 +422,31 @@ def test_failed_transcription_does_not_leave_the_session_stuck():
     assert "transcription_failed" in rig.auditor.names
     c.approve_transcript("Typed by the clinician.", "dr-a")
     assert c.state is State.APPROVED
+
+
+# ----- typed transcript (no recording) -----
+def test_typed_transcript_skips_the_microphone_but_not_the_approval_gate():
+    """Typing replaces recording only. The model still runs only on approved, screened text."""
+    rig = Rig()
+    c = rig.controller
+    c.start_typed_transcript()
+    assert c.state is State.TRANSCRIBED and c.transcript == "" and c.session_id
+    assert rig.recorder.starts == 0  # the microphone was never opened
+    with pytest.raises(WorkflowError):
+        c.generate_draft()  # FR-11: not before approval
+    with pytest.raises(WorkflowError):
+        c.approve_transcript("   ", "dr1")  # nothing typed yet
+    c.approve_transcript(f"Doctor: typed {SECRET}", "dr1")
+    c.generate_draft()
+    assert rig.guard.seen == [f"Doctor: typed {SECRET}"]  # screened like spoken text
+    c.finalize(NOTE, "dr1", FULL)
+    assert rig.store.saved[0].transcript == f"Doctor: typed {SECRET}"
+    assert rig.auditor.names[0] == "typed_transcript_started"
+    assert SECRET not in repr(rig.auditor.events)
+
+
+def test_typed_transcript_only_starts_a_new_consultation():
+    rig = Rig()
+    rig.controller.start_recording()
+    with pytest.raises(WorkflowError):
+        rig.controller.start_typed_transcript()
