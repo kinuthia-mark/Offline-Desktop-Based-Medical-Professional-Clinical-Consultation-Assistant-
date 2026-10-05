@@ -575,3 +575,56 @@ def test_only_an_admin_can_back_up(qapp, services, tmp_path):
     view.backup_button.click()
     assert view.backup_message.text() == MESSAGES["forbidden"]
     assert not list(tmp_path.glob("*.clinbak"))
+
+
+# ----- the Database tab (admin, read-only) -----
+def test_database_tab_shows_encryption_tables_and_rules(qapp, services):
+    from clinassist.ui.database import DatabaseView
+
+    session = _admin(services)
+    view = DatabaseView(services.database, services.auth, admin_session=lambda: session)
+    view.reload()
+    assert "Encrypted" in view.encryption_label.text()
+    assert "53 51 4c 69 74 65" in view.header_label.text()  # what a plain file would start with
+    names = [view.table_list.item(r, 0).text() for r in range(view.table_list.rowCount())]
+    assert {"sessions", "notes", "suggestions", "users", "audit_logs"} <= set(names)
+    view.table_list.setCurrentCell(names.index("sessions"), 0)
+    # The rule that refuses a note without the history checklist is visible to the examiner.
+    assert "CHECK (allergies_confirmed = 1)" in view.structure.toPlainText()
+
+
+def test_database_rows_hide_password_hashes_and_are_audited(qapp, services):
+    from clinassist.ui.database import DatabaseView
+
+    session = _admin(services)
+    view = DatabaseView(services.database, services.auth, admin_session=lambda: session)
+    view.reload()
+    names = [view.table_list.item(r, 0).text() for r in range(view.table_list.rowCount())]
+    view.table_list.setCurrentCell(names.index("users"), 0)
+    view.rows_button.click()
+    headers = [view.rows.horizontalHeaderItem(c).text() for c in range(view.rows.columnCount())]
+    hash_col = headers.index("password_hash")
+    assert view.rows.rowCount() == 1
+    assert view.rows.item(0, hash_col).text() == "(hidden)"
+    assert "$argon2id$" not in repr(
+        [view.rows.item(0, c).text() for c in range(view.rows.columnCount())]
+    )
+    assert services.auditor.events(1)[0][2] == "database_rows_viewed"
+
+
+def test_database_tab_is_only_for_admins(qapp, services):
+    from clinassist.ui.database import DatabaseView
+
+    session = _admin(services)
+    session.role = "clinician"
+    view = DatabaseView(services.database, services.auth, admin_session=lambda: session)
+    view.reload()
+    assert view.message.text() == MESSAGES["forbidden"] and view.table_list.rowCount() == 0
+    window = MainWindow(services, session, login_again=lambda n: None)
+    assert not window.tabs.isTabVisible(window.database_index)
+    window.close()
+
+
+def test_database_inspector_refuses_unknown_tables(services):
+    with pytest.raises(ValueError):
+        services.database.rows('sessions"; DROP TABLE users; --', "admin1")
