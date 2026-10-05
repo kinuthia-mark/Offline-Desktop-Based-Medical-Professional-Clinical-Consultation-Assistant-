@@ -442,3 +442,18 @@ def test_the_note_scrolls_instead_of_squeezing_boxes_away(qapp, services):
         box.minimumHeight() >= 60
         for box in (ws.subjective_box, ws.objective_box, ws.assessment_box, ws.plan_box)
     )
+
+
+def test_misheard_medicine_names_are_flagged_before_approval(qapp, tmp_path, ollama):
+    """AMD-38: "Glendamycin" (said: clindamycin) is pointed out at transcript review."""
+    vault, _ = Vault.create(tmp_path / "v", "a long synthetic passphrase 42", kdf=TEST_KDF)
+    config = AppConfig(data_dir=str(tmp_path), ollama_host=ollama.url)
+    heard = "Doctor: I will give you Glendamycin 300 mg four times a day."
+    services = build(config, vault, recorder=FakeMic(), transcriber=FakeWhisper(heard))
+    ws = workspace(services)
+    ws.start_button.click()
+    ws.stop_button.click()
+    wait_until(lambda: ws.controller.state is State.TRANSCRIBED and not ws._busy)
+    assert "Glendamycin" in ws.medicine_label.text() and "clindamycin?" in ws.medicine_label.text()
+    ws.transcript_box.setPlainText(heard.replace("Glendamycin", "clindamycin"))
+    wait_until(lambda: ws.medicine_label.text() == "", seconds=3)
