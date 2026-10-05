@@ -628,3 +628,58 @@ def test_database_tab_is_only_for_admins(qapp, services):
 def test_database_inspector_refuses_unknown_tables(services):
     with pytest.raises(ValueError):
         services.database.rows('sessions"; DROP TABLE users; --', "admin1")
+
+
+# ----- password reset and change (FR-10a) -----
+def test_admin_resets_a_password_and_the_user_must_replace_it(qapp, services):
+    from clinassist.ui.main import replace_reset_password
+
+    admin = _admin(services)
+    services.auth.create_user(admin, "dr.a", "doctor synthetic password 2", "Dr A", "clinician")
+    view = AdminView(
+        services.auditor,
+        services.auth,
+        admin_session=lambda: admin,
+        ask_temporary_password=lambda: "temporary synthetic pass 3",
+    )
+    view.reload()
+    names = [view.users.item(r, 0).text() for r in range(view.users.rowCount())]
+    view.users.selectRow(names.index("dr.a"))
+    view.reset_button.click()
+    assert "Password reset" in view.account_message.text()
+
+    session = services.auth.login("dr.a", "temporary synthetic pass 3")
+
+    def fill_and_accept(dialog):
+        dialog.current.setText("temporary synthetic pass 3")
+        dialog.new.setText("my own new synthetic pass 4")
+        dialog.repeat.setText("my own new synthetic pass 4")
+        dialog.submit()
+        return dialog.result()
+
+    assert replace_reset_password(services.auth, session, fill_and_accept) is session
+    assert not session.must_change_password
+    assert services.auth.login("dr.a", "my own new synthetic pass 4")
+
+
+def test_declining_to_replace_a_reset_password_logs_out(qapp, services):
+    from clinassist.ui.main import replace_reset_password
+
+    admin = _admin(services)
+    doc = services.auth.create_user(admin, "dr.b", "doctor synthetic password 2", "B", "clinician")
+    services.auth.reset_password(admin, doc, "temporary synthetic pass 3")
+    session = services.auth.login("dr.b", "temporary synthetic pass 3")
+    assert replace_reset_password(services.auth, session, lambda dialog: 0) is None
+    assert session.ended
+
+
+def test_change_password_dialog_checks_the_repeat(qapp):
+    from clinassist.ui.dialogs import ChangePasswordDialog
+
+    calls = []
+    dialog = ChangePasswordDialog(lambda old, new: calls.append(new))
+    dialog.current.setText("old one")
+    dialog.new.setText("first new password 1")
+    dialog.repeat.setText("first new password 2")
+    dialog.submit()
+    assert calls == [] and dialog.message.text() == MESSAGES["passwords_do_not_match"]

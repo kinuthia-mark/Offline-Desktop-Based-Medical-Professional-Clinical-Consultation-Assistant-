@@ -74,6 +74,12 @@ MIGRATIONS: tuple[str, ...] = (
         entry_hash  TEXT NOT NULL UNIQUE CHECK (length(entry_hash) = 64)
     );
     """,
+    # v3: after an administrator resets a password, the user must choose a new one at their
+    # next login, so the administrator never knows the password in use (FR-10a).
+    """
+    ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0
+        CHECK (must_change_password IN (0, 1));
+    """,
 )
 
 LATEST = len(MIGRATIONS)

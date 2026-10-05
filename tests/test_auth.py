@@ -235,7 +235,7 @@ def test_v1_vault_upgrades_to_v2_keeping_sessions(tmp_path, monkeypatch):
     monkeypatch.setattr(schema, "LATEST", len(schema.MIGRATIONS))
     reopened = Vault.unlock(tmp_path / "v", "a long synthetic passphrase 42")
     with reopened.connect() as conn:
-        assert schema.current_version(conn) == 2
+        assert schema.current_version(conn) == schema.LATEST
     assert not AuthService(reopened, hasher=FAST).has_users()
 
 
@@ -255,3 +255,66 @@ def test_clinician_cannot_list_accounts(rig):
     auth, *_ = rig
     with pytest.raises(AuthError, match="^forbidden$"):
         auth.list_users(auth.login("dr.wanjiru", DOC_PW))
+
+
+# ----- password reset by an administrator (FR-10a) -----
+TEMP_PW = "temporary synthetic pass 3"
+NEW_PW = "my own new synthetic pass 4"
+
+
+def test_reset_password_forces_a_change_at_next_login(rig):
+    auth, admin, doc_id, clock, audit, _ = rig
+    auth.reset_password(admin, doc_id, TEMP_PW)
+    with pytest.raises(AuthError):
+        auth.login("dr.wanjiru", DOC_PW)  # the forgotten password no longer works
+    session = auth.login("dr.wanjiru", TEMP_PW)
+    assert session.must_change_password
+    # Nothing else is allowed until the temporary password is replaced.
+    with pytest.raises(AuthError) as info:
+        auth.require(session)
+    assert info.value.code == "password_change_required"
+    auth.change_password(session, TEMP_PW, NEW_PW)
+    auth.require(session)  # now allowed
+    assert not auth.login("dr.wanjiru", NEW_PW).must_change_password
+    assert "password_reset" in _events(audit) and "password_changed" in _events(audit)
+
+
+def test_reset_password_clears_a_lockout(rig):
+    auth, admin, doc_id, *_ = rig
+    for _ in range(5):
+        with pytest.raises(AuthError):
+            auth.login("dr.wanjiru", "wrong synthetic password")
+    auth.reset_password(admin, doc_id, TEMP_PW)
+    assert auth.login("dr.wanjiru", TEMP_PW).must_change_password
+
+
+def test_only_an_admin_resets_and_not_their_own(rig):
+    auth, admin, doc_id, *_ = rig
+    doctor = auth.login("dr.wanjiru", DOC_PW)
+    with pytest.raises(AuthError) as info:
+        auth.reset_password(doctor, admin.user_id, TEMP_PW)
+    assert info.value.code == "forbidden"
+    with pytest.raises(AuthError) as info:
+        auth.reset_password(admin, admin.user_id, TEMP_PW)
+    assert info.value.code == "cannot_reset_own_password"
+    with pytest.raises(AuthError) as info:
+        auth.reset_password(admin, "no-such-user", TEMP_PW)
+    assert info.value.code == "user_not_found"
+
+
+@pytest.mark.parametrize("temporary", ["short", "dr.wanjiru"])
+def test_temporary_password_follows_the_policy(rig, temporary):
+    auth, admin, doc_id, *_ = rig
+    with pytest.raises(AuthError) as info:
+        auth.reset_password(admin, doc_id, temporary)
+    assert info.value.code == "weak_password"
+
+
+def test_the_new_password_must_differ_from_the_temporary_one(rig):
+    auth, admin, doc_id, *_ = rig
+    auth.reset_password(admin, doc_id, TEMP_PW)
+    session = auth.login("dr.wanjiru", TEMP_PW)
+    with pytest.raises(AuthError) as info:
+        auth.change_password(session, TEMP_PW, TEMP_PW)
+    assert info.value.code == "password_unchanged"
+    assert session.must_change_password
