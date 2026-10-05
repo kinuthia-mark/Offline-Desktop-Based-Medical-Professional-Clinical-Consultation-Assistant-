@@ -90,6 +90,12 @@ def positive_mentions(text: str, terms: list[str], unless: list[str] = ()) -> li
             negated = any(w in _NEGATION or w in _CONDITIONAL for w in before) or any(
                 w in ("none", "nil", "negative", "absent", "not") for w in after
             )
+            # A clause that ends by negating ("chest pain, palpitations or shortness of breath
+            # are not present") negates everything listed before it. Known limit: this and the
+            # "not" check above lean towards missing a contradiction rather than inventing one
+            # ("chest pain since yesterday, palpitations absent" would hide the chest pain).
+            tail = joined.split()[-4:]
+            negated = negated or any(w in ("not", "absent", "denied", "negative") for w in tail)
             excused = any(_has(joined, u) for u in unless)
             if not negated and not excused:
                 found.append(clause.strip())

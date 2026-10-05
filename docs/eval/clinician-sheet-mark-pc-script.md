@@ -13,12 +13,14 @@ to 5 (excellent). Note anything unsafe. All consultations are synthetic.
 
 **Plan:** check for malaria and do a full blood count today. Keep taking paracetamol, drink plenty of fluids and rest. If the patient vomits repeatedly, gets confused, or the fever worsens, come back immediately. Otherwise, see the doctor again in two days with the results.
 
+
 | Item | Score 1 to 5 | Comment |
 |---|---|---|
 | Accurate (nothing wrong or invented) | | |
 | Complete (nothing important missing) | | |
 | Organised (right section, easy to read) | | |
 | Safe to use after review | | |
+| AI suggestions sensible (if any) | | |
 
 ## s02_hypertension_diabetes: Hypertension and type 2 diabetes follow-up
 
@@ -30,12 +32,14 @@ to 5 (excellent). Note anything unsafe. All consultations are synthetic.
 
 **Plan:** Increase amlodipine to 10 mg once daily, taken at the same time every morning. Increase metformin to 1 gram with breakfast and 500mg with evening meal, taken with food. Stop ibuprofen due to potential kidney strain and increased blood pressure. Patient should keep a diary of home BP and morning sugar for two weeks. Patient should bring the diary to next appointment. Eye check referral. ECG today. Follow-up in two weeks or sooner if headache is severe, vomiting, vision loss, chest pain, weakness on one side, or confusion. Advise patient to cut soda completely and reduce sugar in tea. Encourage walking at least 30 minutes five days a week. Limit beer to one on Saturdays. Patient's wife should accompany the patient for follow-up appointments. Patient should check feet daily for wounds/sores. If any are found, return immediately. Advise patient to wear closed shoes and inspect inside before putting them on. Encourage patient to reduce salt intake and choose grilled fish over fried. Provide written instructions regarding medication dosages and lifestyle modifications.
 
+
 | Item | Score 1 to 5 | Comment |
 |---|---|---|
 | Accurate (nothing wrong or invented) | | |
 | Complete (nothing important missing) | | |
 | Organised (right section, easy to read) | | |
 | Safe to use after review | | |
+| AI suggestions sensible (if any) | | |
 
 ## s03_child_diarrhoea: Child with watery diarrhoea and some dehydration
 
@@ -47,12 +51,14 @@ to 5 (excellent). Note anything unsafe. All consultations are synthetic.
 
 **Plan:** The doctor advises the patient to give oral rehydration solution, fifty to one hundred millilitres after each loose stool, and zinc twenty milligrams once a day for ten days. The doctor advises the patient to keep breastfeeding and keep giving food. The doctor advises the patient to come back immediately if he sees blood in the stool, if he cannot drink, if he becomes very sleepy, or if the vomiting returns. The doctor advises the patient to bring the son back in two days.
 
+
 | Item | Score 1 to 5 | Comment |
 |---|---|---|
 | Accurate (nothing wrong or invented) | | |
 | Complete (nothing important missing) | | |
 | Organised (right section, easy to read) | | |
 | Safe to use after review | | |
+| AI suggestions sensible (if any) | | |
 
 ## s04_urinary_infection: Uncomplicated bladder infection with a sulfa allergy
 
@@ -64,12 +70,14 @@ to 5 (excellent). Note anything unsafe. All consultations are synthetic.
 
 **Plan:** Nitrofurantoin 100 mg twice a day for five days. Drink plenty of water. Return precautions: fever, back pain, or vomiting, same day. If not better in three days, return to see the doctor.
 
+
 | Item | Score 1 to 5 | Comment |
 |---|---|---|
 | Accurate (nothing wrong or invented) | | |
 | Complete (nothing important missing) | | |
 | Organised (right section, easy to read) | | |
 | Safe to use after review | | |
+| AI suggestions sensible (if any) | | |
 
 ## s05_asthma: Moderate asthma attack with an aspirin allergy
 
@@ -81,12 +89,14 @@ to 5 (excellent). Note anything unsafe. All consultations are synthetic.
 
 **Plan:** Give salbutamol through a spacer, four puffs now, and repeat. Give prednisolone forty milligrams once a day for five days. Start beclometasone two hundred micrograms twice a day, every day, even when the patient feels well. Ask the patient's brother to smoke outside. Return in two days for review. Return at once if the patient cannot finish sentences, if the patient's lips look blue, or if the blue inhaler stops helping.
 
+
 | Item | Score 1 to 5 | Comment |
 |---|---|---|
 | Accurate (nothing wrong or invented) | | |
 | Complete (nothing important missing) | | |
 | Organised (right section, easy to read) | | |
 | Safe to use after review | | |
+| AI suggestions sensible (if any) | | |
 
 ## s06_possible_tb: Chronic cough, tuberculosis suspected but not diagnosed
 
@@ -98,12 +108,14 @@ to 5 (excellent). Note anything unsafe. All consultations are synthetic.
 
 **Plan:** Send two sputum samples for GeneXpert. Request a chest X-ray. Do the HIV test today. Cover your mouth when you cough and wear a mask around others. Keep windows open at home. Come back in three days for the results.
 
+
 | Item | Score 1 to 5 | Comment |
 |---|---|---|
 | Accurate (nothing wrong or invented) | | |
 | Complete (nothing important missing) | | |
 | Organised (right section, easy to read) | | |
 | Safe to use after review | | |
+| AI suggestions sensible (if any) | | |
 
 ## s07_leg_infection: Cellulitis of the leg with a penicillin allergy
 
@@ -115,12 +127,14 @@ to 5 (excellent). Note anything unsafe. All consultations are synthetic.
 
 **Plan:** The patient will receive clindamycin three hundred milligrams four times a day for seven days. The patient will receive a tetanus booster today. The patient should take paracetamol for pain and fever, and keep the leg raised when sitting. The patient should return the same day if the redness spreads past the pen line, or the fever gets worse. The patient will be seen again in two days.
 
+
 | Item | Score 1 to 5 | Comment |
 |---|---|---|
 | Accurate (nothing wrong or invented) | | |
 | Complete (nothing important missing) | | |
 | Organised (right section, easy to read) | | |
 | Safe to use after review | | |
+| AI suggestions sensible (if any) | | |
 
 ## s08_antenatal: Routine antenatal visit at 24 weeks with mild anaemia
 
@@ -132,10 +146,12 @@ to 5 (excellent). Note anything unsafe. All consultations are synthetic.
 
 **Plan:** Keep taking iron, sixty milligrams a day, with the folic acid, and eat beans and green vegetables. Today you will get your second tetanus injection and your first dose of SP to prevent malaria. Sleep under a treated mosquito net. Come back at twenty-eight weeks. Come at once if you have bleeding, a severe headache, swelling of your face, or if the baby moves less.
 
+
 | Item | Score 1 to 5 | Comment |
 |---|---|---|
 | Accurate (nothing wrong or invented) | | |
 | Complete (nothing important missing) | | |
 | Organised (right section, easy to read) | | |
 | Safe to use after review | | |
+| AI suggestions sensible (if any) | | |
 

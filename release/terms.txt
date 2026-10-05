@@ -1,0 +1,56 @@
+TERMS OF USE
+Offline Clinical Consultation Assistant
+
+Please read these terms. You must accept them to install the program.
+
+
+1. PURPOSE AND RESPONSIBILITY
+
+1.1 This program is a research prototype. It is not a medical device and has not been approved
+    for clinical use by any health regulatory authority, including the Pharmacy and Poisons
+    Board of Kenya.
+
+1.2 Everything the program produces (transcripts, draft notes and possible diagnoses) is a
+    draft for a qualified clinician to check. The clinician remains fully responsible for the
+    record and for every clinical decision.
+
+1.3 Before any use in the diagnosis or treatment of patients, the organisation using the
+    program must obtain any authorisation required by the health regulatory authority where
+    it is used.
+
+
+2. THE LANGUAGE MODEL (MEDGEMMA)
+
+2.1 The program includes MedGemma, which is part of Google's Health AI Developer Foundations
+    (HAI-DEF). HAI-DEF is provided under and subject to the Health AI Developer Foundations
+    Terms of Use found at https://developers.google.com/health-ai-developer-foundations/terms
+
+2.2 A full copy of those terms is installed with the program, in the "licences" folder, together
+    with the required notice file (NOTICE.txt).
+
+2.3 By installing this program you agree to the following use restrictions, reproduced from
+    Section 3.2 of the Health AI Developer Foundations Terms of Use:
+
+    You must not use any of the HAI-DEF Services:
+
+    1. for the restricted uses described in the Health AI Developer Foundations Prohibited Use
+       Policy at https://developers.google.com/health-ai-developer-foundations/prohibited-use-policy
+       ("Prohibited Use Policy"), which is hereby incorporated by reference into this Agreement;
+    2. for any use that could cause a Health Regulatory Authority to deem Google to be a
+       "manufacturer" of a medical device; or
+    3. in violation of applicable laws and regulations.
+
+
+3. PATIENT DATA
+
+3.1 Records are stored encrypted on this computer only. The organisation using the program is
+    responsible for its obligations under the Kenya Data Protection Act 2019, including patient
+    consent, access control, retention and keeping the printed recovery code safe.
+
+3.2 The program does not send any information over the internet.
+
+
+4. NO WARRANTY
+
+The program is provided as it is, without warranty of any kind. The author is not liable for any
+loss or harm arising from its use.

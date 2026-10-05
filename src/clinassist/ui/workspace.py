@@ -29,6 +29,7 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
     QProgressBar,
     QPushButton,
+    QScrollArea,
     QSplitter,
     QTabWidget,
     QVBoxLayout,
@@ -37,10 +38,20 @@ from PySide6.QtWidgets import (
 
 from clinassist.controller import State
 from clinassist.domain import Draft, HistoryChecklist, SoapNote
+from clinassist.medcheck import suspect_medicines
 from clinassist.ui.messages import message_for
 from clinassist.ui.workers import error_code, run_in_background
 
 AI_LABEL = "AI-generated. Not part of your note unless you copy it."
+# Colours that stay readable on both light and dark Windows themes.
+AI_COLOUR = "#c98a00"  # amber: AI-generated content
+ERROR_COLOUR = "#e0484d"  # red: something needs attention
+# Shown when the model leaves the diagnosis to the clinician, which the prompt asks it to do
+# unless the clinician said one aloud (ADR-002).
+NO_AI_ASSESSMENT = (
+    "The model does not write a diagnosis into the note unless one was said aloud. "
+    "Its possible diagnoses are on the Diagnostics tab."
+)
 
 # Advisory flag codes in plain words, shown under the note.
 FLAG_TEXT = {
@@ -125,6 +136,15 @@ class ConsultationWorkspace(QWidget):
             "'Doctor:' and 'Patient:' where it helps, before approving."
         )
         self.asr_label = QLabel()
+        # Medicine names that may have been misheard (AMD-38), refreshed as the clinician edits.
+        self.medicine_label = QLabel()
+        self.medicine_label.setWordWrap(True)
+        self.medicine_label.setStyleSheet(f"color: {AI_COLOUR}; font-weight: bold;")
+        self._medicine_timer = QTimer(self)
+        self._medicine_timer.setSingleShot(True)
+        self._medicine_timer.setInterval(400)
+        self._medicine_timer.timeout.connect(self.check_medicines)
+        self.transcript_box.textChanged.connect(self._medicine_timer.start)
         self.approve_button = QPushButton("Approve transcript and draft the note")
         self.manual_button = QPushButton("Write the note by hand")
         self.reopen_button = QPushButton("Edit the transcript again")
@@ -135,6 +155,7 @@ class ConsultationWorkspace(QWidget):
         t = QVBoxLayout(transcript)
         t.addWidget(self.transcript_box, 1)
         t.addWidget(self.asr_label)
+        t.addWidget(self.medicine_label)
         t.addWidget(self.approve_button)
         row = QHBoxLayout()
         row.addWidget(self.manual_button)
@@ -147,7 +168,7 @@ class ConsultationWorkspace(QWidget):
         self.progress_label = QLabel()
         self.error_label = QLabel()
         self.error_label.setWordWrap(True)
-        self.error_label.setStyleSheet("color: #a40000;")
+        self.error_label.setStyleSheet(f"color: {ERROR_COLOUR};")
         self.retry_button = QPushButton("Try the model again")
         self.retry_button.clicked.connect(self.approve_and_draft)
         self.subjective_box = _text_box("Subjective")
@@ -169,29 +190,39 @@ class ConsultationWorkspace(QWidget):
         self.finalize_button = QPushButton("Finalize and save")
         self.finalize_button.clicked.connect(self.finalize)
 
-        soap = QWidget()
-        s = QVBoxLayout(soap)
+        # The note's boxes sit in a scrolling area with a minimum height each, so a small or
+        # resized window scrolls instead of squeezing a box until it disappears.
+        soap_inner = QWidget()
+        s = QVBoxLayout(soap_inner)
         for label, box in (
             ("Subjective", self.subjective_box),
             ("Objective", self.objective_box),
             ("Assessment (yours)", self.assessment_box),
             ("Plan", self.plan_box),
         ):
+            box.setMinimumHeight(80)
             s.addWidget(QLabel(label))
             s.addWidget(box, 1)
         ai = QGroupBox("Model's assessment")
         ai_layout = QVBoxLayout(ai)
         ai_label = QLabel(AI_LABEL)
-        ai_label.setStyleSheet("color: #5a3e00;")
+        ai_label.setStyleSheet(f"color: {AI_COLOUR}; font-weight: bold;")
+        self.ai_assessment_box.setMinimumHeight(60)
         ai_layout.addWidget(ai_label)
         ai_layout.addWidget(self.ai_assessment_box)
         ai_layout.addWidget(self.copy_ai_button)
         s.addWidget(ai)
+        soap = QScrollArea()
+        soap.setWidgetResizable(True)
+        soap.setWidget(soap_inner)
 
         self.suggestions_list = QListWidget()
         diagnostics = QWidget()
         d = QVBoxLayout(diagnostics)
-        d.addWidget(QLabel(AI_LABEL + " Tick the ones you agree with."))
+        diagnostics_label = QLabel(AI_LABEL + " Tick the ones you agree with.")
+        diagnostics_label.setStyleSheet(f"color: {AI_COLOUR}; font-weight: bold;")
+        diagnostics_label.setWordWrap(True)
+        d.addWidget(diagnostics_label)
         d.addWidget(self.suggestions_list)
 
         self.tabs = QTabWidget()
@@ -239,8 +270,18 @@ class ConsultationWorkspace(QWidget):
         # Stopping also transcribes, which can take a minute or two: run it in the background.
         self._run("Turning speech into text...", self.controller.stop_recording, self._on_text)
 
+    def check_medicines(self) -> None:
+        """Show words that look like a misheard medicine, with the likely intended name."""
+        suspects = suspect_medicines(self.transcript_box.toPlainText())
+        if suspects:
+            listed = ", ".join(f'"{s.word}" ({s.meant}?)' for s in suspects)
+            self.medicine_label.setText(f"Check these medicine names before approving: {listed}")
+        else:
+            self.medicine_label.clear()
+
     def _on_text(self, text: str) -> None:
         self.transcript_box.setPlainText(text)
+        self.check_medicines()
         info = self._services.plan.last_info
         if info is not None:
             self.asr_label.setText(
@@ -377,7 +418,12 @@ class ConsultationWorkspace(QWidget):
         self.objective_box.setPlainText(draft.objective)
         self.plan_box.setPlainText(draft.plan)
         self.assessment_box.clear()  # always blank: the clinician writes it (FR-14)
-        self.ai_assessment_box.setPlainText(draft.ai_assessment)
+        stated = draft.ai_assessment.strip()
+        if not stated or stated.lower().rstrip(".") == "not stated":
+            self.ai_assessment_box.clear()
+            self.ai_assessment_box.setPlaceholderText(NO_AI_ASSESSMENT)
+        else:
+            self.ai_assessment_box.setPlainText(stated)
         self.flags_list.clear()
         for flag in draft.flags:
             kind, _, detail = flag.partition(":")
@@ -393,6 +439,8 @@ class ConsultationWorkspace(QWidget):
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             item.setCheckState(Qt.CheckState.Unchecked)
             self.suggestions_list.addItem(item)
+        count = len(draft.suggestions)
+        self.tabs.setTabText(1, f"Diagnostics ({count})" if count else "Diagnostics")
         self.refresh()
 
     def _copy_ai_assessment(self) -> None:
@@ -466,6 +514,8 @@ class ConsultationWorkspace(QWidget):
             box.clear()
         self.flags_list.clear()
         self.suggestions_list.clear()
+        self.tabs.setTabText(1, "Diagnostics")
+        self.ai_assessment_box.setPlaceholderText("")
         for box in (self.allergies_check, self.medications_check, self.negatives_check):
             box.setChecked(False)
 
@@ -473,6 +523,7 @@ class ConsultationWorkspace(QWidget):
         self._clear_note()
         self.transcript_box.clear()
         self.asr_label.clear()
+        self.medicine_label.clear()
         self._last_error = ""
         self.error_label.clear()
         self.level_bar.setValue(0)

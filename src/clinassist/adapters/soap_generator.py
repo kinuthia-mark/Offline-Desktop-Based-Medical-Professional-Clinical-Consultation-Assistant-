@@ -45,10 +45,21 @@ SYSTEM_PROMPT = (
     "Reply with JSON only, with exactly these keys, each a string: "
     '{"subjective": "", "objective": "", "assessment": "", "plan": ""}'
 )
+# Kept short on purpose. A longer version listing what not to suggest (allergies, prevention,
+# conditions a test ruled out) was tried and was worse: the model listed symptoms such as "Fever;
+# Headache" instead of conditions, and drafting took 55% longer (ADR-013). Non-diagnoses are
+# removed in code instead (`_NOT_A_DIAGNOSIS`).
 SUGGESTIONS_PROMPT = (
     '\nAlso add a key "suggestions": up to 3 objects ordered most likely first, each '
     '{"diagnosis": "", "rationale": "", "management": ""}. These are suggestions for the '
     "clinician and never go in assessment."
+)
+# Words that mark a suggestion as something other than a condition: the model sometimes lists the
+# patient's allergy, an exposure or a preventive measure as a "diagnosis" (ADR-013).
+_NOT_A_DIAGNOSIS = re.compile(
+    r"\b(allerg\w*|sensitivity|intolerance|prevention|preventive|prophylaxis|exposure|"
+    r"vaccin\w*|immuni[sz]ation|risk)\b",
+    re.I,
 )
 # Finds <transcript> or </transcript> typed inside the transcript itself, which could otherwise
 # be used to "close" the data section early and slip in instructions.
@@ -82,7 +93,7 @@ class GeneratorSettings:
     read_timeout: float = 300.0  # longest silent wait; the model reads the transcript first
     keep_alive: str = "2m"
     loop_check_every: int = 16  # chunks between repetition checks
-    include_suggestions: bool = False  # extra tokens cost latency, so off until evaluated
+    include_suggestions: bool = False  # the app turns this on from config.ai_suggestions (ADR-013)
 
 
 def build_messages(
@@ -121,9 +132,12 @@ def parse_draft(content: str, transcript: str, include_suggestions: bool = False
             for i in items
         ):
             raise GenerationFailed("invalid_output", content)
+        # Drop allergies, exposures and preventive measures listed as diagnoses, then rank what
+        # is left from 1.
+        conditions = [i for i in items if not _NOT_A_DIAGNOSIS.search(i["diagnosis"])]
         suggestions = tuple(
             AiSuggestion(i["diagnosis"], i["rationale"], i["management"], rank)
-            for rank, i in enumerate(items, start=1)
+            for rank, i in enumerate(conditions, start=1)
         )
 
     # Step 4: build the draft and attach the advisory flags (groundcheck.py) for the clinician.

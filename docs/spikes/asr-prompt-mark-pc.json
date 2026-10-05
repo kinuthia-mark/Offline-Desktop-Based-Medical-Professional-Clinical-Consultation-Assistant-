@@ -1,0 +1,135 @@
+{
+  "python": "3.11.9",
+  "prompt": "Clinical consultation in a Kenyan clinic. Medicines that may be mentioned: paracetamol, ibuprofen, diclofenac, aspirin, tramadol, morphine, artemether, lumefantrine, artesunate, quinine, sulfadoxine, pyrimethamine, amoxicillin, co-amoxiclav, flucloxacillin, benzylpenicillin, ampicillin, ceftriaxone, cefalexin, azithromycin, erythromycin, doxycycline, ciprofloxacin, metronidazole, nitrofurantoin, co-trimoxazole, clindamycin, gentamicin, rifampicin, isoniazid, pyrazinamide, ethambutol, dolutegravir, tenofovir, lamivudine, efavirenz, amlodipine, nifedipine, hydrochlorothiazide, furosemide, enalapril, losartan, atenolol, atorvastatin, simvastatin, metformin, glibenclamide, gliclazide, insulin, salbutamol, beclometasone, budesonide, prednisolone, hydrocortisone, chlorphenamine, cetirizine, loratadine, omeprazole, ranitidine, oral rehydration salts, zinc, albendazole, mebendazole, loperamide, ferrous sulphate, folic acid, oxytocin, misoprostol, magnesium sulphate, tetanus toxoid, vitamin A, clotrimazole, fluconazole, nystatin, miconazole.",
+  "results": {
+    "no_hint": {
+      "mean_wer": 0.025,
+      "medicines_found": 16,
+      "medicines_said": 23,
+      "total_seconds": 250.3,
+      "per_consultation": [
+        {
+          "id": "s01_fever",
+          "wer": 0.016,
+          "medicines_found": 2,
+          "medicines_said": 2,
+          "seconds": 18.05
+        },
+        {
+          "id": "s02_hypertension_diabetes",
+          "wer": 0.0072,
+          "medicines_found": 7,
+          "medicines_said": 9,
+          "seconds": 110.99
+        },
+        {
+          "id": "s03_child_diarrhoea",
+          "wer": 0.0417,
+          "medicines_found": 1,
+          "medicines_said": 1,
+          "seconds": 20.55
+        },
+        {
+          "id": "s04_urinary_infection",
+          "wer": 0.0417,
+          "medicines_found": 0,
+          "medicines_said": 2,
+          "seconds": 21.01
+        },
+        {
+          "id": "s05_asthma",
+          "wer": 0.0179,
+          "medicines_found": 4,
+          "medicines_said": 5,
+          "seconds": 21.13
+        },
+        {
+          "id": "s06_possible_tb",
+          "wer": 0.0258,
+          "medicines_found": 0,
+          "medicines_said": 0,
+          "seconds": 20.31
+        },
+        {
+          "id": "s07_leg_infection",
+          "wer": 0.0298,
+          "medicines_found": 2,
+          "medicines_said": 4,
+          "seconds": 21.19
+        },
+        {
+          "id": "s08_antenatal",
+          "wer": 0.02,
+          "medicines_found": 0,
+          "medicines_said": 0,
+          "seconds": 17.05
+        }
+      ]
+    },
+    "medicine_hint": {
+      "mean_wer": 0.026,
+      "medicines_found": 17,
+      "medicines_said": 23,
+      "total_seconds": 267.1,
+      "per_consultation": [
+        {
+          "id": "s01_fever",
+          "wer": 0.016,
+          "medicines_found": 2,
+          "medicines_said": 2,
+          "seconds": 19.49
+        },
+        {
+          "id": "s02_hypertension_diabetes",
+          "wer": 0.0065,
+          "medicines_found": 8,
+          "medicines_said": 9,
+          "seconds": 110.71
+        },
+        {
+          "id": "s03_child_diarrhoea",
+          "wer": 0.0417,
+          "medicines_found": 1,
+          "medicines_said": 1,
+          "seconds": 22.98
+        },
+        {
+          "id": "s04_urinary_infection",
+          "wer": 0.0417,
+          "medicines_found": 0,
+          "medicines_said": 2,
+          "seconds": 23.81
+        },
+        {
+          "id": "s05_asthma",
+          "wer": 0.0268,
+          "medicines_found": 4,
+          "medicines_said": 5,
+          "seconds": 23.83
+        },
+        {
+          "id": "s06_possible_tb",
+          "wer": 0.0258,
+          "medicines_found": 0,
+          "medicines_said": 0,
+          "seconds": 22.63
+        },
+        {
+          "id": "s07_leg_infection",
+          "wer": 0.0298,
+          "medicines_found": 2,
+          "medicines_said": 4,
+          "seconds": 23.66
+        },
+        {
+          "id": "s08_antenatal",
+          "wer": 0.02,
+          "medicines_found": 0,
+          "medicines_said": 0,
+          "seconds": 19.98
+        }
+      ]
+    }
+  },
+  "caution": "all evaluation medicines are on the hint list; unlisted medicines not tested"
+}
