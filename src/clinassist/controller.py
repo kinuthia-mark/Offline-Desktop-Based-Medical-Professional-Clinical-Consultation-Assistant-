@@ -3,6 +3,8 @@
 It enforces the clinician-in-the-loop rules as a state machine:
 
     IDLE -> RECORDING -> TRANSCRIBED -> APPROVED -> DRAFTED -> FINALIZED
+      |                     ^
+      +---------------------+   (typed transcript: no recording)
                               ^            |  ^        |
                               |            v  |        |
                               +------ GENERATION_FAILED +   (retry, or write the note manually)
@@ -125,6 +127,19 @@ class ConsultationController:
         self._state = State.TRANSCRIBED
         self._audit("transcribed")
         return self._transcript
+
+    def start_typed_transcript(self) -> None:
+        """Start a consultation without the microphone: the clinician types the transcript.
+
+        Useful when recording is not wanted (the patient declines, the room is noisy) or the
+        microphone is not working. It goes straight to the transcript step with an empty text,
+        so every rule after that is the same as for speech: the typed text must be approved
+        (FR-11) and is screened by the input guard before the model sees it."""
+        self._require(State.IDLE)
+        self._session_id = self._id_factory()
+        self._transcript = ""
+        self._state = State.TRANSCRIBED
+        self._audit("typed_transcript_started")
 
     def approve_transcript(self, edited_text: str, clinician_id: str) -> None:
         """Gate 1 (FR-11): only approved text can ever reach the model."""
