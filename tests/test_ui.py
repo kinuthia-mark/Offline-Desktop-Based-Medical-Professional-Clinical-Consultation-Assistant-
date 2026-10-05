@@ -501,3 +501,77 @@ def test_a_consultation_can_be_typed_without_recording(qapp, tmp_path, ollama):
     tick_all(ws)
     ws.finalize_button.click()
     assert services.store.load(services.store.session_ids()[0]).transcript == typed
+
+
+# ----- backup and restore (FR-10c) -----
+def _backup_view(services, session, **asks):
+    restored = []
+    view = AdminView(
+        services.auditor,
+        services.auth,
+        admin_session=lambda: session,
+        backups=services.backups,
+        on_restored=lambda: restored.append(True),
+        **asks,
+    )
+    return view, restored
+
+
+def test_admin_backs_up_and_restores_from_the_screen(qapp, services, tmp_path):
+    session = _admin(services)
+    target = str(tmp_path / "usb" / "backup.clinbak")
+    (tmp_path / "usb").mkdir()
+    view, restored = _backup_view(
+        services,
+        session,
+        ask_save_path=lambda suggested: target,
+        ask_open_path=lambda: target,
+        ask_secret=lambda: "a long synthetic passphrase 42",
+        confirm=lambda question: "0 saved consultation" in question,
+    )
+    view.backup_button.click()
+    assert "Backup saved" in view.backup_message.text()
+    view.restore_button.click()
+    assert restored == [True]  # the program is told to close
+    assert list(tmp_path.glob("vault-before-restore-*"))  # the old vault was moved aside
+
+
+def test_restore_stops_when_the_admin_says_no(qapp, services, tmp_path):
+    session = _admin(services)
+    target = str(tmp_path / "b.clinbak")
+    view, restored = _backup_view(
+        services,
+        session,
+        ask_save_path=lambda s: target,
+        ask_open_path=lambda: target,
+        ask_secret=lambda: "a long synthetic passphrase 42",
+        confirm=lambda q: False,
+    )
+    view.backup_button.click()
+    view.restore_button.click()
+    assert restored == [] and not list(tmp_path.glob("vault-before-restore-*"))
+
+
+def test_a_wrong_backup_secret_is_explained(qapp, services, tmp_path):
+    session = _admin(services)
+    target = str(tmp_path / "b.clinbak")
+    view, restored = _backup_view(
+        services,
+        session,
+        ask_save_path=lambda s: target,
+        ask_open_path=lambda: target,
+        ask_secret=lambda: "not the right passphrase",
+        confirm=lambda q: True,
+    )
+    view.backup_button.click()
+    view.restore_button.click()
+    assert "Nothing was changed" in view.backup_message.text() and restored == []
+
+
+def test_only_an_admin_can_back_up(qapp, services, tmp_path):
+    session = _admin(services)
+    session.role = "clinician"  # as if a clinician reached the screen
+    view, _ = _backup_view(services, session, ask_save_path=lambda s: str(tmp_path / "b"))
+    view.backup_button.click()
+    assert view.backup_message.text() == MESSAGES["forbidden"]
+    assert not list(tmp_path.glob("*.clinbak"))

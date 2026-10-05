@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMainWindow,
+    QMessageBox,
     QPushButton,
     QTabWidget,
     QVBoxLayout,
@@ -98,7 +99,13 @@ class MainWindow(QMainWindow):
         self.tabs = QTabWidget()
         self.tabs.addTab(self.workspace, "Consultation")
         self.tabs.addTab(self.records, "Session records")
-        self.admin = AdminView(services.auditor, auth, admin_session=lambda: self.session)
+        self.admin = AdminView(
+            services.auditor,
+            auth,
+            admin_session=lambda: self.session,
+            backups=services.backups,
+            on_restored=self._restored,
+        )
         self.admin_index = self.tabs.addTab(self.admin, "Audit and accounts")
         self.tabs.currentChanged.connect(self._tab_opened)
 
@@ -160,6 +167,18 @@ class MainWindow(QMainWindow):
             self.records.reload()
         elif self.tabs.widget(index) is self.admin and self.session.role == "admin":
             self.admin.reload()
+
+    def _restored(self) -> None:
+        """After a restore the open vault no longer matches the files on disk, so the program
+        closes. Starting it again opens the restored vault."""
+        QMessageBox.information(
+            self,
+            "Backup restored",
+            "The backup was restored. The program will now close. Start it again and unlock "
+            "with the passphrase the vault had when the backup was made, or the recovery code.",
+        )
+        self._services.backups.close_vault()
+        QApplication.instance().quit()
 
     def closeEvent(self, event) -> None:  # noqa: N802 - Qt's name
         QApplication.instance().removeEventFilter(self._activity)

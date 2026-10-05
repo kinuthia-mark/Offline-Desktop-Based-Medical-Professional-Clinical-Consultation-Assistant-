@@ -135,6 +135,18 @@ class Vault:
         return cls._opened(directory, master, keyring)
 
     @classmethod
+    def open_with_recovery_code(cls, directory: Path | str, recovery_code: str) -> Vault:
+        """Open with the recovery code without changing the passphrase. Used to check a backup
+        whose passphrase has since been changed; the recovery code never changes."""
+        directory = Path(directory)
+        keyring = _read_keyring(directory)
+        code = crypto.normalize_recovery_code(recovery_code)
+        master = _open_slot(keyring, "recovery", code, _RECOVERY_LABEL)
+        if master is None:
+            raise VaultError("incorrect_recovery_code")
+        return cls._opened(directory, master, keyring)
+
+    @classmethod
     def recover(cls, directory: Path | str, recovery_code: str, new_passphrase: str) -> Vault:
         """Set a new passphrase using the printed recovery code. The old passphrase stops
         working; the recovery code stays valid."""
