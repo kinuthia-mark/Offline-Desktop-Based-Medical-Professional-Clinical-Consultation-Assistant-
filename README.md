@@ -303,7 +303,19 @@ MedGemma, then scored:
 | Notes needing the second attempt | 1 of 8 | 1 of 8 |
 
 The biggest weakness: when Whisper mishears a medicine ("Glendamycin" for clindamycin, "sulfur" for
-sulfa), the note repeats the mistake. The clinician's transcript check is what catches it.
+sulfa), the note repeats the mistake. The clinician's transcript check is what catches it, and
+the program now helps: a word that looks like a misheard medicine is flagged above the transcript
+(`"Glendamycin" (clindamycin?)`). Giving Whisper a list of medicines to expect did not help (16 to
+17 of 23 names heard correctly), so the check was built instead
+([ADR-013](docs/ADR/013-suggestions-and-medicine-names.md)).
+
+**Diagnosis suggestions** ([ADR-013](docs/ADR/013-suggestions-and-medicine-names.md)). Up to three
+suggestions with a reason and a management idea appear in the Diagnostics tab, marked as AI
+suggestions. They are on by default. With them on, the note itself scored the same (91.1% of facts,
+91.4% of critical facts) and drafting took about 23 seconds longer (median 76 s). A longer prompt
+telling the model what not to suggest made things worse, so allergies and preventive measures listed
+as a "diagnosis" are removed in code instead. Whether the suggestions are clinically sensible is
+for the clinician scoring sheet to show.
 
 **What the notes got wrong** (7 notes read by hand against their transcripts). Plan items were
 accurate. But every note left out allergies or pertinent negatives; 3 of 4 short notes stated a
@@ -330,6 +342,8 @@ is still to come.
 - **The audit log needs an outside copy to be fully trustworthy.** Editing or removing entries in
   the middle is detected. Removing the newest entries is only detectable if the latest chain value
   was written down somewhere else.
+- **The medicine check is a hint.** It misses a mishearing that is a real English word ("sulfur"
+  for sulfa) and only knows the 75 medicines on its list.
 - **Ollama listens on a local port.** It accepts connections from the same PC only, but it is a
   second program that has to be trusted.
 
@@ -441,6 +455,8 @@ src/clinassist/
   config.py          the settings file, with the reason for each default
   startup.py         checks this PC is ready: models, Ollama, memory, microphone, data folder
   ui/                the desktop screens: consultation workspace, records, audit and accounts, dialogs
+  vocabulary.py      common medicine names in Kenyan primary care, and accepted other spellings
+  medcheck.py        flags transcript words that look like a misheard medicine name
   evaluation.py      scores a note against a consultation's key facts, denied symptoms and traps
   bundle.py          builds and checks the offline model bundle shipped beside the installer
   selftest.py        uses every heavy part once, to prove an installed copy works
@@ -510,7 +526,7 @@ code, then the tests and measurements that check that requirement, before moving
 | [`docs/traceability.md`](docs/traceability.md) | every requirement, the branch that builds it, the test that checks it, and its status |
 | [`docs/AMENDMENTS.md`](docs/AMENDMENTS.md) | every change from the approved proposal, with the reason |
 | [`docs/proposal/CROSSCHECK.md`](docs/proposal/CROSSCHECK.md) | how the code maps onto the proposal's use cases, diagrams, schema and wireframe |
-| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012) |
+| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012), suggestions and medicine names (013) |
 | [`docs/spikes/`](docs/spikes/) | raw measurement results from the reference PC |
 | [`docs/PRIOR_ART.md`](docs/PRIOR_ART.md) | what was reused from the earlier MedgemmaV2 prototype and what was left out |
 
