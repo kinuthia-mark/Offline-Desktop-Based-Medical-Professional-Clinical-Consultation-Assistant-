@@ -20,6 +20,7 @@ datas = (
     + collect_data_files("faster_whisper")  # the voice-activity model used to skip silence
     + collect_data_files("_sounddevice_data")  # PortAudio, the microphone library
     + [(str(ROOT / "scripts" / "airgap_firewall.ps1"), "scripts")]
+    + [(str(ROOT / "release" / "art" / "clinassist.png"), "art")]  # the window icon
 )
 binaries = collect_dynamic_libs("sqlcipher3") + collect_dynamic_libs("ctranslate2")
 
@@ -46,6 +47,7 @@ app = EXE(  # noqa: F821
     exclude_binaries=True,
     name="ClinAssist",
     console=False,
+    icon=str(ROOT / "release" / "art" / "clinassist.ico"),
 )
 check = EXE(  # noqa: F821
     pyz,
@@ -54,6 +56,7 @@ check = EXE(  # noqa: F821
     exclude_binaries=True,
     name="ClinAssist-check",
     console=True,
+    icon=str(ROOT / "release" / "art" / "clinassist.ico"),
 )
 COLLECT(  # noqa: F821
     app,

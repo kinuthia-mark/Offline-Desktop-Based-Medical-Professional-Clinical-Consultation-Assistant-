@@ -32,8 +32,15 @@ OutputBaseFilename=ClinAssist-Setup
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
-; The model's licence terms must be accepted before installing.
-LicenseFile={#BuildDir}\bundle\licences\medgemma.txt
+; Branding drawn by release/make_artwork.py, at normal and double screen scaling.
+WizardImageFile=art\wizard-100.bmp,art\wizard-200.bmp
+WizardSmallImageFile=art\small-100.bmp,art\small-200.bmp
+SetupIconFile=art\clinassist.ico
+UninstallDisplayIcon={app}\ClinAssist.exe
+; What will be installed and what the program is (and is not), then the terms to accept. The
+; terms include the use restrictions the MedGemma licence requires redistributors to pass on.
+InfoBeforeFile=before_install.txt
+LicenseFile=terms.txt
 UninstallDisplayName=Offline Clinical Consultation Assistant
 
 [Tasks]
@@ -53,7 +60,11 @@ Source: "{src}\bundle\models\*"; DestDir: "{app}\models"; Flags: external recurs
 ; files are named by their SHA-256, so one that already exists is identical and is left alone
 ; (it may also be open by a running Ollama).
 Source: "{src}\bundle\ollama-models\*"; DestDir: "{%USERPROFILE}\.ollama\models"; Flags: external recursesubdirs onlyifdoesntexist uninsneveruninstall
-Source: "{src}\bundle\licences\*"; DestDir: "{app}\licences"; Flags: external recursesubdirs
+; The full MedGemma (HAI-DEF) terms from the bundle, the notice file those terms require with
+; every copy, and the terms accepted during installation.
+Source: "{src}\bundle\licences\medgemma.txt"; DestDir: "{app}\licences"; DestName: "HAI-DEF-terms-of-use.txt"; Flags: external
+Source: "NOTICE.txt"; DestDir: "{app}\licences"; Flags: ignoreversion
+Source: "terms.txt"; DestDir: "{app}\licences"; DestName: "ClinAssist-terms-of-use.txt"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\Clinical Consultation Assistant"; Filename: "{app}\ClinAssist.exe"

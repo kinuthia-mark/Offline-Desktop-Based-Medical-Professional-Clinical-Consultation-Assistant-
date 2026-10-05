@@ -1,0 +1,38 @@
+OFFLINE CLINICAL CONSULTATION ASSISTANT
+
+This program helps a clinician document a consultation. It records the conversation, turns the
+speech into text, and drafts a clinical note (Subjective, Objective, Assessment, Plan) together
+with a short list of possible diagnoses. The clinician reviews and corrects everything, writes
+their own assessment, and confirms the patient's history before a record is saved.
+
+Everything runs on this computer. No part of a consultation is sent over the internet.
+
+
+WHAT WILL BE INSTALLED
+
+  - The application, in Program Files.
+  - The speech recognition model (Whisper small) and the language model (MedGemma 4B), copied
+    from the "bundle" folder next to this installer. Every file is checked before anything is
+    installed.
+  - The local model service (Ollama), if it is not already on this computer.
+  - Windows Firewall rules that stop the application and the model service from sending
+    anything off this computer. They are removed if the program is uninstalled.
+
+
+REQUIREMENTS
+
+  - Windows 10 or 11, 64-bit
+  - 8 GB of memory (close other programs during consultations for the best speed)
+  - About 5 GB of free disk space
+  - A microphone
+
+
+PLEASE NOTE
+
+This is a research prototype developed as a final-year project at Strathmore University. It is
+not a medical device and has not been approved for clinical use by any health regulatory
+authority. Everything it drafts must be checked by a qualified clinician, who remains fully
+responsible for the record and for every clinical decision.
+
+Patient records are stored encrypted on this computer and are kept if the program is
+uninstalled.
