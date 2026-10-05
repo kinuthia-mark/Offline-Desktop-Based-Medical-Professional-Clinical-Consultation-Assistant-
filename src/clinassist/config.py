@@ -47,6 +47,9 @@ class AppConfig:
     whisper_model: str = "small"
     # MedGemma 4B, Q4_K_M, run by Ollama on this PC only (ADR-002).
     llm_model: str = "medgemma:4b"
+    # The ranked list of possible diagnoses with management (the proposal's core output, AMD-32),
+    # shown apart from the note and labelled AI-generated. Adds about 20 s per note (ADR-013).
+    ai_suggestions: bool = True
     ollama_host: str = DEFAULT_HOST
     # None: the Windows default microphone.
     microphone: int | None = None

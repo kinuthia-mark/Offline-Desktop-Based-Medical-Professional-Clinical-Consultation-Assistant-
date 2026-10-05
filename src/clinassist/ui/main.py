@@ -19,6 +19,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from PySide6.QtCore import QEvent, QObject, QTimer
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QApplication,
     QHBoxLayout,
@@ -75,7 +76,8 @@ class MainWindow(QMainWindow):
         # FR-18: the network label says only what the start-up check found (ADR-010).
         status, label = network
         self.network_label = QLabel(label)
-        colour = {"ok": "#1e6b1e", "warn": "#8a5a00", "fail": "#a40000"}.get(status, "#444")
+        # Readable on light and dark Windows themes.
+        colour = {"ok": "#2e9e44", "warn": "#c98a00", "fail": "#e0484d"}.get(status, "#888")
         self.network_label.setStyleSheet(f"color: {colour}; font-weight: bold;")
         logout = QPushButton("Log out")
         logout.clicked.connect(self.log_out)
@@ -164,6 +166,14 @@ class MainWindow(QMainWindow):
         super().closeEvent(event)
 
 
+def window_icon_path() -> Path:
+    """The program's icon: bundled beside the program once installed, in release/art from source."""
+    base = getattr(sys, "_MEIPASS", None)
+    if base:
+        return Path(base) / "art" / "clinassist.png"
+    return Path(__file__).resolve().parents[3] / "release" / "art" / "clinassist.png"
+
+
 def main() -> int:
     from clinassist.airgap import LABELS, install_network_guard, request_firewall_rules
 
@@ -175,6 +185,9 @@ def main() -> int:
 
     app = QApplication(sys.argv)
     app.setApplicationName(APP_TITLE)
+    icon = window_icon_path()
+    if icon.is_file():
+        app.setWindowIcon(QIcon(str(icon)))
     data_dir = Path(AppConfig().data_dir)
     config = AppConfig.load(data_dir / "settings.json")
 

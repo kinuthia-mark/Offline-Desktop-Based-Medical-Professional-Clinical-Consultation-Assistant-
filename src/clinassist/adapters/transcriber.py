@@ -84,6 +84,7 @@ class WhisperTranscriber:
         cpu_threads: int = 0,  # 0 lets the library choose (one per physical core)
         beam_size: int = 5,
         vad_filter: bool = True,  # skip long silences, which also stops Whisper inventing text
+        prompt: str | None = None,  # words to expect, such as medicine names (vocabulary.py)
         model_factory=_real_model,
     ) -> None:
         self._dir = Path(model_dir)
@@ -92,6 +93,7 @@ class WhisperTranscriber:
         self._threads = cpu_threads
         self._beam_size = beam_size
         self._vad = vad_filter
+        self._prompt = prompt
         self._factory = model_factory
         self._model = None
         self.last_info: TranscriptionInfo | None = None
@@ -131,6 +133,7 @@ class WhisperTranscriber:
                 beam_size=self._beam_size,
                 vad_filter=self._vad,
                 condition_on_previous_text=False,  # stops one mistake repeating down the text
+                initial_prompt=self._prompt,
             )
             # The library produces segments lazily; reading them is where the work happens.
             pieces = [(s.text.strip(), s.end - s.start, s.avg_logprob) for s in segments]
