@@ -113,6 +113,85 @@ class Backups:
         self._vault.lock()
 
 
+class DatabaseInspector:
+    """A read-only view of the vault database for the admin "Database" tab, so the structure and
+    the encryption can be shown (for example to an examiner) without any outside database tool.
+
+    It never writes to the database. Password hashes are never shown. Viewing a table's rows is
+    written to the audit log, because the rows include clinical text."""
+
+    PLAIN_SQLITE_HEADER = b"SQLite format 3\x00"  # how every unencrypted SQLite file begins
+    HIDDEN_COLUMNS = frozenset({"password_hash"})
+    MAX_ROWS = 50
+    MAX_CHARS = 80  # long text is cut short in the row view
+
+    def __init__(self, vault, auditor) -> None:
+        self._vault, self._auditor = vault, auditor
+
+    def summary(self) -> dict:
+        """Facts about the file on disk, read straight from it."""
+        from clinassist.security.schema import current_version
+        from clinassist.security.vault import DATABASE
+
+        path = self._vault.directory / DATABASE
+        with open(path, "rb") as fh:
+            first = fh.read(16)
+        with self._vault.connect() as conn:
+            version = current_version(conn)
+            cipher = conn.execute("PRAGMA cipher_version").fetchone()
+        return {
+            "path": str(path),
+            "size_bytes": path.stat().st_size,
+            "first_bytes_hex": first.hex(" "),
+            "plain_header_hex": self.PLAIN_SQLITE_HEADER.hex(" "),
+            "readable_without_key": first == self.PLAIN_SQLITE_HEADER,
+            "schema_version": version,
+            "cipher_version": cipher[0] if cipher else "",
+        }
+
+    def tables(self) -> list[dict]:
+        """Every table: name, row count, columns and the statement that created it."""
+        with self._vault.connect() as conn:
+            found = conn.execute(
+                "SELECT name, sql FROM sqlite_master WHERE type = 'table'"
+                " AND name NOT LIKE 'sqlite_%' ORDER BY name"
+            ).fetchall()
+            result = []
+            for name, sql in found:
+                # The name comes from sqlite_master itself, never from the screen, so it is safe
+                # to quote into the statement.
+                count = conn.execute(f'SELECT COUNT(*) FROM "{name}"').fetchone()[0]
+                columns = [(row[1], row[2]) for row in conn.execute(f'PRAGMA table_info("{name}")')]
+                result.append({"name": name, "rows": count, "columns": columns, "sql": sql})
+        return result
+
+    def rows(self, table: str, user_id: str) -> tuple[list[str], list[tuple]]:
+        """The first rows of `table`, newest first where the table has an order, text cut short
+        and password hashes hidden. Only a table that exists can be asked for."""
+        known = {t["name"]: t for t in self.tables()}
+        if table not in known:
+            raise ValueError("unknown_table")
+        self._auditor.record("database_rows_viewed", "", user_id)
+        columns = [c[0] for c in known[table]["columns"]]
+        with self._vault.connect() as conn:
+            raw = conn.execute(
+                f'SELECT * FROM "{table}" ORDER BY rowid DESC LIMIT {self.MAX_ROWS}'
+            ).fetchall()
+        shown = [
+            tuple(
+                "(hidden)" if col in self.HIDDEN_COLUMNS else self._short(value)
+                for col, value in zip(columns, row, strict=True)
+            )
+            for row in raw
+        ]
+        return columns, shown
+
+    def _short(self, value) -> str:
+        text = "" if value is None else str(value)
+        text = " ".join(text.split())  # one line per cell
+        return text if len(text) <= self.MAX_CHARS else text[: self.MAX_CHARS - 1] + "\u2026"
+
+
 class ProgressRelay:
     """Passes the generator's progress (a growing count of pieces received) to whoever is
     listening, usually the interface's progress bar."""
@@ -140,6 +219,7 @@ class Services:
     auditor: Auditor
     auth: object  # AuthService; typed loosely to keep this module free of the security imports
     backups: Backups | None = None  # backup and restore, for the admin screen (FR-10c)
+    database: DatabaseInspector | None = None  # read-only view for the Database tab
 
     def new_controller(self) -> ConsultationController:
         """A fresh controller for each consultation."""
@@ -195,6 +275,7 @@ def build(config: AppConfig, vault, *, recorder=None, transcriber=None, generato
         auditor=auditor,
         auth=AuthService(vault, auditor),
         backups=Backups(vault, auditor),
+        database=DatabaseInspector(vault, auditor),
     )
 
 
