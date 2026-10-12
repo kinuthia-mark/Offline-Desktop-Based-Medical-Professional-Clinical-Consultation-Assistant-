@@ -97,7 +97,15 @@ through .NET, which every Windows has, and checks the 3.6 GB bundle in about 5 s
   same PC would need the model copied for them too.
 - The installer is not code-signed, so Windows SmartScreen will warn that the publisher is unknown.
   Signing needs a certificate.
-- Ollama's own installer is 1.58 GB and is added to the bundle only when needed (`-OllamaSetup`).
+- Ollama's own installer is 1.58 GB and is added to the bundle with `-OllamaSetup`. Only the
+  version every measurement used (0.35.1) is accepted: `bundle.OLLAMA_SETUP_SHA256` holds the
+  SHA-256 Ollama publishes for that release, and any other file is refused. It is then listed in
+  `manifest.json`, so the installer checks it before running it. A first version copied it into
+  the bundle after the manifest was written, so the one program the installer runs was the one
+  file it did not check; found while preparing the bundled build. A leftover copy from an
+  earlier build is removed when the bundle is made without it. After installing, the installer
+  starts Ollama once so the program finds it on first use.
+- Newer Ollama releases are not bundled until they have been measured again (ADR-002).
 - The clean-machine test uses stand-in model files; the real models are tested by the build's
   self-test and by installing on the reference PC.
 
