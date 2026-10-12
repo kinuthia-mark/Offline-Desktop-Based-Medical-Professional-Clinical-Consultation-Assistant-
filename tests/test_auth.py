@@ -318,3 +318,44 @@ def test_the_new_password_must_differ_from_the_temporary_one(rig):
         auth.change_password(session, TEMP_PW, TEMP_PW)
     assert info.value.code == "password_unchanged"
     assert session.must_change_password
+
+
+# ----- forgotten password with nobody to reset it: the vault's recovery code -----
+@pytest.fixture
+def lone_admin(tmp_path):
+    vault, code = Vault.create(tmp_path / "v", "a long synthetic passphrase 42", kdf=TEST_KDF)
+    audit = HashChainAuditor(vault)
+    auth = AuthService(vault, audit, hasher=FAST)
+    auth.create_first_admin("admin", ADMIN_PW, "Synthetic Admin")
+    return auth, code, audit
+
+
+def test_the_recovery_code_resets_a_forgotten_login_password(lone_admin):
+    auth, code, audit = lone_admin
+    for _ in range(5):  # locked out as well
+        with pytest.raises(AuthError):
+            auth.login("admin", "wrong synthetic password")
+    auth.recover_password("admin", code.lower().replace("-", " "), NEW_PW)
+    session = auth.login("admin", NEW_PW)
+    assert not session.must_change_password
+    assert "password_recovered" in _events(audit)
+    assert audit.verify().ok
+
+
+def test_a_wrong_recovery_code_changes_nothing_and_is_audited(lone_admin):
+    auth, _, audit = lone_admin
+    with pytest.raises(AuthError) as info:
+        auth.recover_password("admin", "AAAA-BBBB-CCCC-DDDD-EEEE-FFFF-GGGG-HHHH", NEW_PW)
+    assert info.value.code == "incorrect_recovery_code"
+    assert auth.login("admin", ADMIN_PW)  # old password still works
+    assert "password_recovery_failed" in _events(audit)
+
+
+def test_recovery_needs_a_known_user_and_a_good_password(lone_admin):
+    auth, code, _ = lone_admin
+    with pytest.raises(AuthError) as info:
+        auth.recover_password("nobody", code, NEW_PW)
+    assert info.value.code == "user_not_found"
+    with pytest.raises(AuthError) as info:
+        auth.recover_password("admin", code, "short")
+    assert info.value.code == "weak_password"

@@ -163,6 +163,33 @@ class AuthService:
             )
         self._auditor.record("password_reset", NO_SESSION, admin.user_id)
 
+    def recover_password(self, username: str, recovery_code: str, new: str) -> None:
+        """ "Forgot password" on the login screen, for when no other administrator can reset it
+        (for example the only administrator forgot theirs). Needs the vault's recovery code,
+        printed when the vault was created. Whoever holds that code can already open the whole
+        vault, so it may also set a login password. Clears any lockout; no forced change
+        afterwards, since the user chose this password themselves."""
+        if not self._vault.recovery_code_matches(recovery_code):
+            self._auditor.record("password_recovery_failed", NO_SESSION, None)
+            raise AuthError("incorrect_recovery_code")
+        with self._vault.connect() as conn:
+            row = conn.execute(
+                "SELECT user_id, username FROM users WHERE username = ?", (username.strip(),)
+            ).fetchone()
+        if row is None:
+            raise AuthError("user_not_found")
+        user_id, name = row
+        self._check_policy(new)
+        if new.strip().lower() == name.lower():
+            raise AuthError("weak_password")
+        with self._vault.connect() as conn, conn:
+            conn.execute(
+                "UPDATE users SET password_hash = ?, must_change_password = 0,"
+                " failed_attempts = 0, locked_until = NULL WHERE user_id = ?",
+                (self._hasher.hash(new), user_id),
+            )
+        self._auditor.record("password_recovered", NO_SESSION, user_id)
+
     def change_password(self, session: UserSession, old: str, new: str) -> None:
         self.require(session, changing_password=True)  # the one action allowed after a reset
         with self._vault.connect() as conn:
