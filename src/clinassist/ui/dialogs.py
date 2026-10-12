@@ -222,10 +222,17 @@ class FirstAdminDialog(QDialog):
 class LoginDialog(QDialog):
     """`login(username, password)` returns the session or raises with a code."""
 
-    def __init__(self, login: Callable[[str, str], object], notice: str = "") -> None:
+    def __init__(
+        self,
+        login: Callable[[str, str], object],
+        notice: str = "",
+        recover: Callable[[str, str, str], None] | None = None,
+    ) -> None:
+        """`recover(username, recovery_code, new_password)` enables "Forgot password?"."""
         super().__init__()
         self.setWindowTitle("Log in")
         self._login = login
+        self._recover = recover
         self.session = None
         self.username = QLineEdit()
         self.password = _password_field()
@@ -238,7 +245,18 @@ class LoginDialog(QDialog):
         form.addRow("Username", self.username)
         form.addRow("Password", self.password)
         form.addRow(button)
+        self.forgot_button = QPushButton("Forgot password?")
+        self.forgot_button.clicked.connect(self.forgot)
+        self.forgot_button.setVisible(recover is not None)
+        form.addRow(self.forgot_button)
         form.addRow(self.message)
+
+    def forgot(self, run=lambda dialog: dialog.exec()) -> None:
+        dialog = RecoverPasswordDialog(self._recover, self.username.text())
+        if run(dialog) == RecoverPasswordDialog.DialogCode.Accepted:
+            self.username.setText(dialog.username.text())
+            self.password.clear()
+            self.message.setText("Password set. Log in with the new password.")
 
     def submit(self) -> None:
         try:
@@ -280,6 +298,45 @@ class ChangePasswordDialog(QDialog):
             return
         try:
             self._change(self.current.text(), self.new.text())
+        except Exception as exc:
+            self.message.setText(message_for(error_code(exc)))
+            return
+        self.accept()
+
+
+class RecoverPasswordDialog(QDialog):
+    """Forgotten login password, with nobody else to reset it: the vault's recovery code (shown
+    once when the vault was created) lets the user set a new password, fully offline."""
+
+    def __init__(self, recover: Callable[[str, str, str], None], username: str = "") -> None:
+        super().__init__()
+        self.setWindowTitle("Forgot password")
+        self._recover = recover
+        self.username = QLineEdit(username)
+        self.recovery = QLineEdit()
+        self.new = _password_field()
+        self.repeat = _password_field()
+        self.message = QLabel(
+            "Ask an administrator to reset your password. If that is not possible, enter the "
+            "recovery code that was shown when this program was first set up."
+        )
+        self.message.setWordWrap(True)
+        button = QPushButton("Set new password")
+        button.clicked.connect(self.submit)
+        form = QFormLayout(self)
+        form.addRow(self.message)
+        form.addRow("Username", self.username)
+        form.addRow("Recovery code", self.recovery)
+        form.addRow("New password", self.new)
+        form.addRow("New password again", self.repeat)
+        form.addRow(button)
+
+    def submit(self) -> None:
+        if self.new.text() != self.repeat.text():
+            self.message.setText(message_for("passwords_do_not_match"))
+            return
+        try:
+            self._recover(self.username.text(), self.recovery.text(), self.new.text())
         except Exception as exc:
             self.message.setText(message_for(error_code(exc)))
             return

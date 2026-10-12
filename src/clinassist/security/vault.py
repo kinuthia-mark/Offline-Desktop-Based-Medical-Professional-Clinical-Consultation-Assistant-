@@ -210,6 +210,13 @@ class Vault:
     def kdf(self) -> KdfParams:
         return KdfParams.from_dict(self._keyring["kdf"])
 
+    def recovery_code_matches(self, recovery_code: str) -> bool:
+        """True if `recovery_code` is this vault's recovery code. Used to let the holder of the
+        code reset a forgotten login password: they could already open the whole vault with it,
+        so this gives them nothing new. Costs one Argon2id derivation, like a login."""
+        code = crypto.normalize_recovery_code(recovery_code)
+        return _open_slot(self._keyring, "recovery", code, _RECOVERY_LABEL) is not None
+
     def change_passphrase(self, old: str, new: str) -> None:
         """Requires the current passphrase even though the vault is unlocked, so an unattended
         unlocked session cannot be used to take the vault over."""
