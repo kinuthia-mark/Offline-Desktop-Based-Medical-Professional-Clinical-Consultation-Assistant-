@@ -210,7 +210,7 @@ is recorded.
 | Evaluation: 8 scripted consultations with key facts and traps, scored end to end | FR-05, NFR-03, NFR-06 | built and run; clinician scoring pending |
 | Windows installer and offline model bundle, with a self-test | release, AMD-15 | built; test on a second PC pending |
 
-More than 350 tests run on every push, on Windows with Python 3.11 and 3.12, together with
+640 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
 
 ---
