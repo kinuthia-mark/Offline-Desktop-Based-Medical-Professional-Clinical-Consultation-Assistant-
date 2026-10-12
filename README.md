@@ -198,7 +198,8 @@ is recorded.
 | Export one finalized note as a PDF to print or attach to a referral; audited ([sample](docs/screenshots/export-sample.png), synthetic) | FR-17, AMD-36 | built and tested |
 | Tamper-evident audit log | FR-09, FR-10d | built and tested |
 | Backup and restore of the encrypted vault, from the admin screen | FR-10c | built and tested (ADR-014) |
-| Database tab for administrators: encryption shown on the real file, tables, rules and rows (read-only) | AMD-40 | built and tested |
+| Database tab for administrators: encryption shown on the real file, tables, rules and rows (read-only; clinical text never shown) | AMD-40 | built and tested |
+| Separate roles: clinicians land on the consultation screen; administrators land on an overview and never see patient notes | AMD-41 | built and tested |
 | Input check (prompt injection, personal data) and checks on the model's reply | FR-05, AMD-11 | built and tested |
 | Microphone recorder | FR-01 | built and tested, including on the real microphone |
 | Speech-to-text (Faster-Whisper small, offline) | FR-02 | built and measured with synthetic speech |
@@ -459,7 +460,8 @@ src/clinassist/
   config.py          the settings file, with the reason for each default
   startup.py         checks this PC is ready: models, Ollama, memory, microphone, data folder
   ui/                the desktop screens: consultation workspace, records, audit and accounts,
-                     the read-only Database tab, PDF export of a note, dialogs
+                     the read-only Database tab, PDF export of a note, the admin
+                     overview, dialogs
   vocabulary.py      common medicine names in Kenyan primary care, and accepted other spellings
   medcheck.py        flags transcript words that look like a misheard medicine name
   evaluation.py      scores a note against a consultation's key facts, denied symptoms and traps

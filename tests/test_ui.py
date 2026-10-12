@@ -273,6 +273,15 @@ def _admin(services):
     return services.auth.login("admin", "admin synthetic password 1")
 
 
+def _clinician(services, username: str = "dr.one"):
+    """A clinician account, made by the administrator, logged in."""
+    if not services.auth.has_users():
+        _admin(services)
+    admin = services.auth.login("admin", "admin synthetic password 1")
+    services.auth.create_user(admin, username, "doctor synthetic password 2", username, "clinician")
+    return services.auth.login(username, "doctor synthetic password 2")
+
+
 def test_admin_screen_checks_the_log_and_manages_accounts(qapp, services):
     session = _admin(services)
     view = AdminView(services.auditor, services.auth, admin_session=lambda: session)
@@ -315,10 +324,9 @@ def test_login_dialog_shows_the_message_and_clears_the_password(qapp, services):
 
 
 def test_a_different_user_after_timeout_never_sees_the_open_consultation(qapp, services):
-    admin = _admin(services)
-    services.auth.create_user(admin, "dr.two", "doctor synthetic password 2", "Dr Two", "clinician")
-    other = services.auth.login("dr.two", "doctor synthetic password 2")
-    window = MainWindow(services, admin, login_again=lambda notice: other)
+    first = _clinician(services, "dr.one")
+    other = _clinician(services, "dr.two")
+    window = MainWindow(services, first, login_again=lambda notice: other)
     window.workspace.start_button.click()
     assert window.workspace.controller.state is State.RECORDING
     window.lock_screen("")
@@ -687,7 +695,7 @@ def test_change_password_dialog_checks_the_repeat(qapp):
 
 # ----- PDF export from the records screen (FR-17) -----
 def test_export_a_saved_note_as_pdf_from_the_records_screen(qapp, services, tmp_path):
-    session = _admin(services)
+    session = _clinician(services)
     ws = workspace(services)
     record_and_draft(ws)
     ws.assessment_box.setPlainText("Viral upper respiratory tract infection.")
@@ -707,7 +715,7 @@ def test_export_a_saved_note_as_pdf_from_the_records_screen(qapp, services, tmp_
 
 
 def test_export_needs_a_selected_consultation(qapp, services):
-    session = _admin(services)
+    session = _clinician(services)
     window = MainWindow(services, session, login_again=lambda n: None)
     window.records.reload()
     window.records.export_button.click()
@@ -736,3 +744,80 @@ def test_forgot_password_from_the_login_screen(qapp, tmp_path, ollama):
     login.forgot(run=fill)
     assert "Password set" in login.message.text()
     assert services.auth.login("admin", "my own new synthetic pass 4")
+
+
+# ----- a landing page and tabs per role (AMD-41) -----
+def _visible(window) -> list[str]:
+    tabs = window.tabs
+    return [tabs.tabText(i) for i in range(tabs.count()) if tabs.isTabVisible(i)]
+
+
+def test_admin_lands_on_the_overview_and_sees_no_patient_work(qapp, services):
+    admin = _admin(services)
+    window = MainWindow(services, admin, login_again=lambda n: None)
+    assert window.tabs.currentWidget() is window.overview
+    assert _visible(window) == ["Overview", "Audit and accounts", "Database"]
+    assert "1 administrator" in window.overview.accounts_label.text()
+    assert "Intact" in window.overview.audit_label.text()
+    assert "No backup" in window.overview.backup_label.text()
+    window.close()
+
+
+def test_clinician_lands_on_the_consultation_and_sees_no_admin_work(qapp, services):
+    doctor = _clinician(services)
+    window = MainWindow(services, doctor, login_again=lambda n: None)
+    assert window.tabs.currentWidget() is window.workspace
+    assert _visible(window) == ["Consultation", "Session records"]
+    window.close()
+
+
+def test_an_admin_session_is_refused_patient_work_even_if_it_reaches_it(qapp, services):
+    """Hiding the tabs is not the only protection: the actions check the role too."""
+    admin = _admin(services)
+    window = MainWindow(services, admin, login_again=lambda n: None)
+    window.workspace.start_button.click()
+    assert window.workspace.controller.state is State.IDLE
+    window.records.reload()
+    assert window.records.message.text() == MESSAGES["forbidden"]
+    with pytest.raises(Exception, match="forbidden"):
+        window.export_note("any", "x.pdf", False)
+    window.close()
+
+
+def test_switching_user_switches_the_landing_page(qapp, services):
+    doctor = _clinician(services)
+    admin = services.auth.login("admin", "admin synthetic password 1")
+    window = MainWindow(services, doctor, login_again=lambda n: admin)
+    window.lock_screen("")
+    assert window.tabs.currentWidget() is window.overview
+    assert _visible(window) == ["Overview", "Audit and accounts", "Database"]
+    window.close()
+
+
+def test_overview_shows_the_last_backup(qapp, services, tmp_path):
+    admin = _admin(services)
+    services.backups.make(str(tmp_path / "b.clinbak"), admin.user_id)
+    window = MainWindow(services, admin, login_again=lambda n: None)
+    assert "Last backup" in window.overview.backup_label.text()
+    window.close()
+
+
+def test_database_tab_never_shows_clinical_text(qapp, services):
+    doctor = _clinician(services)
+    ws = workspace(services)
+    ws._user_id = lambda: doctor.user_id
+    record_and_draft(ws)
+    ws.assessment_box.setPlainText("Viral upper respiratory tract infection.")
+    tick_all(ws)
+    ws.finalize_button.click()
+    columns, rows = services.database.rows("sessions", "admin1")
+    shown = dict(zip(columns, rows[0], strict=True))
+    assert shown["transcript"] == "(clinical text: not shown)"
+    assert shown["allergies_confirmed"] == "1"  # the rules' columns are still visible
+    columns, rows = services.database.rows("notes", "admin1")
+    assert all(
+        value == "(clinical text: not shown)"
+        for row in rows
+        for col, value in zip(columns, row, strict=True)
+        if col in ("subjective", "objective", "assessment", "plan")
+    )
