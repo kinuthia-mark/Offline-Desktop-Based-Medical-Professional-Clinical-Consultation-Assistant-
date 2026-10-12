@@ -81,6 +81,10 @@ MESSAGES: dict[str, str] = {
     "setup_already_done": "An administrator account already exists.",
     "cannot_deactivate_self": "You cannot turn off your own account.",
     "user_not_found": "That account no longer exists.",
+    "cannot_reset_own_password": "To change your own password, use Change password at the top.",
+    "password_change_required": "Choose a new password first. Your password was reset.",
+    "password_unchanged": "Choose a password different from the current one.",
+    "passwords_do_not_match": "The two new passwords are not the same.",
     "invalid_role": "Choose clinician or admin.",
     # network guard
     "outbound_connection_blocked": "A connection outside this PC was blocked (offline rule).",
