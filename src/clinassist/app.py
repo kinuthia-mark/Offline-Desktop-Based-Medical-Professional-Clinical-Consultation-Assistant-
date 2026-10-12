@@ -117,11 +117,17 @@ class DatabaseInspector:
     """A read-only view of the vault database for the admin "Database" tab, so the structure and
     the encryption can be shown (for example to an examiner) without any outside database tool.
 
-    It never writes to the database. Password hashes are never shown. Viewing a table's rows is
-    written to the audit log, because the rows include clinical text."""
+    It never writes to the database. Password hashes are never shown, and neither is clinical
+    text: the tab is for administrators, who run the system but have no need to read patient
+    notes (data minimisation, AMD-41). Viewing a table's rows is still written to the audit log."""
 
     PLAIN_SQLITE_HEADER = b"SQLite format 3\x00"  # how every unencrypted SQLite file begins
     HIDDEN_COLUMNS = frozenset({"password_hash"})
+    # Columns holding what was said or written about a patient.
+    CLINICAL_COLUMNS = frozenset(
+        {"transcript", "subjective", "objective", "assessment", "plan", "diagnosis", "rationale",
+         "management"}
+    )  # fmt: skip
     MAX_ROWS = 50
     MAX_CHARS = 80  # long text is cut short in the row view
 
@@ -179,7 +185,11 @@ class DatabaseInspector:
             ).fetchall()
         shown = [
             tuple(
-                "(hidden)" if col in self.HIDDEN_COLUMNS else self._short(value)
+                "(hidden)"
+                if col in self.HIDDEN_COLUMNS
+                else "(clinical text: not shown)"
+                if col in self.CLINICAL_COLUMNS
+                else self._short(value)
                 for col, value in zip(columns, row, strict=True)
             )
             for row in raw
