@@ -161,3 +161,36 @@ def test_self_test_passes_in_this_environment():
     )  # fmt: skip
     assert run.returncode == 0, run.stdout
     assert "Self-test passed." in run.stdout and "FAIL" not in run.stdout
+
+
+# ----- the bundled Ollama installer (ADR-012) -----
+def test_only_the_pinned_ollama_installer_is_bundled_and_it_is_checked(
+    tmp_path, fake_store, monkeypatch
+):
+    import hashlib
+
+    from clinassist import bundle
+
+    setup = tmp_path / "OllamaSetup.exe"
+    setup.write_bytes(b"pretend installer")
+    with pytest.raises(bundle.BundleError) as info:
+        build_bundle(tmp_path / "b1", source=fake_store, ollama_setup=setup)
+    assert info.value.code == "ollama_setup_not_the_tested_version"
+
+    monkeypatch.setattr(
+        bundle, "OLLAMA_SETUP_SHA256", hashlib.sha256(setup.read_bytes()).hexdigest()
+    )
+    manifest = build_bundle(tmp_path / "b2", source=fake_store, ollama_setup=setup)
+    assert "ollama/OllamaSetup.exe" in manifest["files"]
+    assert manifest["ollama_version"] == bundle.OLLAMA_SETUP_VERSION
+    # Listed in the manifest, so a changed installer is caught before it is run.
+    (tmp_path / "b2" / "ollama" / "OllamaSetup.exe").write_bytes(b"pretend installeX")
+    assert verify_bundle(tmp_path / "b2") == ["wrong_checksum:ollama/OllamaSetup.exe"]
+
+
+def test_a_leftover_ollama_installer_is_removed_when_not_requested(tmp_path, fake_store):
+    leftover = tmp_path / "bundle" / "ollama" / "OllamaSetup.exe"
+    leftover.parent.mkdir(parents=True)
+    leftover.write_bytes(b"from an earlier build")
+    manifest = build_bundle(tmp_path / "bundle", source=fake_store)
+    assert not leftover.exists() and "ollama_version" not in manifest
