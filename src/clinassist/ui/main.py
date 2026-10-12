@@ -45,6 +45,7 @@ from clinassist.ui.dialogs import (
     UnlockDialog,
 )
 from clinassist.ui.messages import message_for
+from clinassist.ui.overview import OverviewView
 from clinassist.ui.records import RecordsView
 from clinassist.ui.workspace import ConsultationWorkspace
 
@@ -97,15 +98,29 @@ class MainWindow(QMainWindow):
         header.addWidget(self.password_button)
         header.addWidget(logout)
 
+        # Each role gets its own tabs and its own landing page (AMD-41). Clinicians see patient
+        # work only; administrators see the system only, never patient notes (data
+        # minimisation). The consultation and records actions also check the role themselves,
+        # so hiding a tab is not the only protection.
+        self.overview = OverviewView(
+            auth,
+            services.auditor,
+            services.store,
+            admin_session=lambda: self.session,
+            checks_summary=checks_summary,
+            network=network,
+            go_to=self._go_to,
+        )
         self.workspace = ConsultationWorkspace(
-            services, user_id=lambda: self.session.user_id, before_action=self.require
+            services, user_id=lambda: self.session.user_id, before_action=self.require_clinician
         )
         self.records = RecordsView(
-            services.store, before_action=self.require, export=self.export_note
+            services.store, before_action=self.require_clinician, export=self.export_note
         )
         self.tabs = QTabWidget()
-        self.tabs.addTab(self.workspace, "Consultation")
-        self.tabs.addTab(self.records, "Session records")
+        self.overview_index = self.tabs.addTab(self.overview, "Overview")
+        self.workspace_index = self.tabs.addTab(self.workspace, "Consultation")
+        self.records_index = self.tabs.addTab(self.records, "Session records")
         self.admin = AdminView(
             services.auditor,
             auth,
@@ -137,6 +152,10 @@ class MainWindow(QMainWindow):
     def require(self) -> None:
         """Called before every action; raises session_expired after the idle timeout."""
         self._services.auth.require(self.session)
+
+    def require_clinician(self) -> None:
+        """Before every consultation and records action: also refuses a non-clinician."""
+        self._services.auth.require(self.session, "clinician")
 
     def _touch(self) -> None:
         if not self.session.expired(datetime.now(UTC)):
@@ -173,7 +192,7 @@ class MainWindow(QMainWindow):
         from clinassist.ui.export import ExportDetails, note_html, write_pdf
 
         auth, store = self._services.auth, self._services.store
-        self.require()
+        self.require_clinician()
         record = store.load(session_id)
         details = ExportDetails(
             saved_at=store.saved_at(session_id),
@@ -192,13 +211,28 @@ class MainWindow(QMainWindow):
         ChangePasswordDialog(lambda old, new: auth.change_password(self.session, old, new)).exec()
 
     def _show_user(self) -> None:
+        """Show the tabs of the logged-in role and open its landing page."""
         self.user_label.setText(f"{self.session.display_name} ({self.session.role})")
         is_admin = self.session.role == "admin"
-        self.tabs.setTabVisible(self.admin_index, is_admin)
-        self.tabs.setTabVisible(self.database_index, is_admin)
+        for index in (self.overview_index, self.admin_index, self.database_index):
+            self.tabs.setTabVisible(index, is_admin)
+        for index in (self.workspace_index, self.records_index):
+            self.tabs.setTabVisible(index, not is_admin)
+        landing = self.overview_index if is_admin else self.workspace_index
+        if self.tabs.currentIndex() == landing:
+            self._tab_opened(landing)  # already open: still refresh it for this user
+        else:
+            self.tabs.setCurrentIndex(landing)
+
+    def _go_to(self, name: str) -> None:
+        self.tabs.setCurrentIndex(
+            {"accounts": self.admin_index, "database": self.database_index}[name]
+        )
 
     def _tab_opened(self, index: int) -> None:
-        if self.tabs.widget(index) is self.records:
+        if self.tabs.widget(index) is self.overview and self.session.role == "admin":
+            self.overview.reload()
+        elif self.tabs.widget(index) is self.records and self.session.role == "clinician":
             self.records.reload()
         elif self.tabs.widget(index) is self.admin and self.session.role == "admin":
             self.admin.reload()
