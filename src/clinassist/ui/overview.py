@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
 )
 
 from clinassist.ui.messages import message_for
+from clinassist.ui.theme import mark
 from clinassist.ui.workers import error_code
 
 OK, WARN, FAIL = "#2e9e44", "#c98a00", "#e0484d"  # readable on light and dark themes
@@ -64,6 +65,7 @@ class OverviewView(QWidget):
         accounts_button = QPushButton("Manage accounts and the audit log")
         accounts_button.clicked.connect(lambda: go_to("accounts"))
         backup_button = QPushButton("Make a backup")
+        mark(backup_button, "primary")  # the administrator's main daily task
         backup_button.clicked.connect(lambda: go_to("accounts"))
         database_button = QPushButton("Look inside the database")
         database_button.clicked.connect(lambda: go_to("database"))
