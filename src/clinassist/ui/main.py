@@ -126,6 +126,7 @@ class MainWindow(QMainWindow):
             auth,
             admin_session=lambda: self.session,
             backups=services.backups,
+            models=services.models,
             on_restored=self._restored,
         )
         self.admin_index = self.tabs.addTab(self.admin, "Audit and accounts")
