@@ -109,7 +109,12 @@ Left to right: the recording controls, the transcript the clinician corrects and
 drafted note. A clinician who does not want to record can choose "Type the transcript instead" and
 type it; the typed text goes through the same approval and checks as a spoken one (AMD-39). The clinician's own assessment is separate from the model's text, which is labelled
 as AI-generated. "Finalize and save" stays disabled until the assessment is written and all three
-history boxes are ticked; here one is still unticked.
+history boxes are ticked; here none are ticked yet. The main step on each panel is shown in the
+brand colour, and the program follows the Windows light or dark setting.
+
+Administrators land on their own overview instead (AMD-41), and never see patient notes:
+
+![The administrator overview](docs/screenshots/admin-overview.png)
 
 ---
 

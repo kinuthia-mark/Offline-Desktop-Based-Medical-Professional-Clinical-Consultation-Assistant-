@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 )
 
 from clinassist.ui.messages import check_message, message_for
+from clinassist.ui.theme import mark
 from clinassist.ui.workers import error_code
 
 _ICON = {"ok": "OK", "warn": "Warning", "fail": "Problem"}
@@ -161,6 +162,7 @@ class UnlockDialog(QDialog):
         self.message = QLabel()
         self.message.setWordWrap(True)
         unlock_button = QPushButton("Unlock")
+        mark(unlock_button, "primary")
         recover_button = QPushButton("Use recovery code and set a new passphrase")
         unlock_button.clicked.connect(self.submit)
         recover_button.clicked.connect(self.submit_recovery)
@@ -239,6 +241,7 @@ class LoginDialog(QDialog):
         self.message = QLabel(notice)
         self.message.setWordWrap(True)
         button = QPushButton("Log in")
+        mark(button, "primary")
         button.clicked.connect(self.submit)
         self.password.returnPressed.connect(self.submit)
         form = QFormLayout(self)
