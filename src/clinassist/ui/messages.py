@@ -67,6 +67,17 @@ MESSAGES: dict[str, str] = {
         "Nothing was changed."
     ),
     "restore_failed": "The backup could not be put in place. The current vault was kept.",
+    # model update
+    "not_a_model_bundle": "That folder is not a model bundle (it has no manifest.json).",
+    "update_bundle_damaged": "That model bundle is damaged or incomplete. Nothing was changed.",
+    "update_model_differs": (
+        "That bundle holds a different language model from the one this program uses. A "
+        "different model needs to be evaluated first, so it was not installed."
+    ),
+    "update_copy_failed": (
+        "Copying the model failed (the drive may be full or was removed). The model in use was "
+        "not changed."
+    ),
     # database tab
     "unknown_table": "That table is not in the database.",
     # accounts

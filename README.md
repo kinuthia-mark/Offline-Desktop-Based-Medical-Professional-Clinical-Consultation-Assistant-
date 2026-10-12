@@ -109,7 +109,12 @@ Left to right: the recording controls, the transcript the clinician corrects and
 drafted note. A clinician who does not want to record can choose "Type the transcript instead" and
 type it; the typed text goes through the same approval and checks as a spoken one (AMD-39). The clinician's own assessment is separate from the model's text, which is labelled
 as AI-generated. "Finalize and save" stays disabled until the assessment is written and all three
-history boxes are ticked; here one is still unticked.
+history boxes are ticked; here none are ticked yet. The main step on each panel is shown in the
+brand colour, and the program follows the Windows light or dark setting.
+
+Administrators land on their own overview instead (AMD-41), and never see patient notes:
+
+![The administrator overview](docs/screenshots/admin-overview.png)
 
 ---
 
@@ -198,6 +203,7 @@ is recorded.
 | Export one finalized note as a PDF to print or attach to a referral; audited ([sample](docs/screenshots/export-sample.png), synthetic) | FR-17, AMD-36 | built and tested |
 | Tamper-evident audit log | FR-09, FR-10d | built and tested |
 | Backup and restore of the encrypted vault, from the admin screen | FR-10c | built and tested (ADR-014) |
+| Offline update of the language model from a checked model bundle, from the admin screen | FR-10b | built and tested (ADR-015) |
 | Database tab for administrators: encryption shown on the real file, tables, rules and rows (read-only; clinical text never shown) | AMD-40 | built and tested |
 | Separate roles: clinicians land on the consultation screen; administrators land on an overview and never see patient notes | AMD-41 | built and tested |
 | Input check (prompt injection, personal data) and checks on the model's reply | FR-05, AMD-11 | built and tested |
@@ -209,7 +215,7 @@ is recorded.
 | Evaluation: 8 scripted consultations with key facts and traps, scored end to end | FR-05, NFR-03, NFR-06 | built and run; clinician scoring pending |
 | Windows installer and offline model bundle, with a self-test | release, AMD-15 | built; test on a second PC pending |
 
-More than 350 tests run on every push, on Windows with Python 3.11 and 3.12, together with
+640 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
 
 ---
@@ -466,6 +472,7 @@ src/clinassist/
   medcheck.py        flags transcript words that look like a misheard medicine name
   evaluation.py      scores a note against a consultation's key facts, denied symptoms and traps
   bundle.py          builds and checks the offline model bundle shipped beside the installer
+  model_update.py    installs a newer copy of the language model from a checked bundle
   selftest.py        uses every heavy part once, to prove an installed copy works
   domain.py          the data the app works with (draft, note, checklist, session record) and its errors
   ports.py           the small interfaces each outside part must provide
@@ -534,7 +541,7 @@ code, then the tests and measurements that check that requirement, before moving
 | [`docs/traceability.md`](docs/traceability.md) | every requirement, the branch that builds it, the test that checks it, and its status |
 | [`docs/AMENDMENTS.md`](docs/AMENDMENTS.md) | every change from the approved proposal, with the reason |
 | [`docs/proposal/CROSSCHECK.md`](docs/proposal/CROSSCHECK.md) | how the code maps onto the proposal's use cases, diagrams, schema and wireframe |
-| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012), suggestions and medicine names (013), backup and restore (014) |
+| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012), suggestions and medicine names (013), backup and restore (014), offline model update (015) |
 | [`docs/spikes/`](docs/spikes/) | raw measurement results from the reference PC |
 | [`docs/PRIOR_ART.md`](docs/PRIOR_ART.md) | what was reused from the earlier MedgemmaV2 prototype and what was left out |
 
