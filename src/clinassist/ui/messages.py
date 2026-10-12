@@ -103,6 +103,10 @@ MESSAGES: dict[str, str] = {
     "settings_unreadable": "The settings file could not be read. Fix or delete settings.json.",
     "unknown_whisper_model": "The settings name a speech model that is not supported.",
     "ollama_model_not_found": "The language model is not installed in Ollama on this PC.",
+    "ollama_setup_not_the_tested_version": (
+        "That Ollama installer is not the tested version (or it was changed). Use the pinned "
+        "official release."
+    ),
     # storage
     "duplicate_session": "This consultation has already been saved.",
     "rejected_by_schema": "The record was refused as incomplete. Check the checklist and note.",

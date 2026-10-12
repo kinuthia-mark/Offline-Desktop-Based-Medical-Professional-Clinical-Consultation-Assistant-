@@ -28,12 +28,12 @@ Step "2. Application folder"
 Check "PyInstaller"
 
 Step "3. Offline bundle"
-& $python -c "from clinassist.bundle import build_bundle; m = build_bundle(r'$build\bundle'); print(len(m['files']), 'files')"
+# With -OllamaSetup, Ollama's installer goes into the bundle too. build_bundle refuses any file
+# that is not the pinned, tested release, and lists it in manifest.json so it is checked again
+# before the installer runs it.
+$setupArg = if ($OllamaSetup) { "r'$((Resolve-Path $OllamaSetup).Path)'" } else { "None" }
+& $python -c "from clinassist.bundle import build_bundle; m = build_bundle(r'$build\bundle', ollama_setup=$setupArg); print(len(m['files']), 'files', m.get('ollama_version', 'without Ollama'))"
 Check "Bundle"
-if ($OllamaSetup) {
-    New-Item -ItemType Directory -Force "$build\bundle\ollama" | Out-Null
-    Copy-Item $OllamaSetup "$build\bundle\ollama\OllamaSetup.exe"
-}
 
 Step "4. Checks with the built program"
 & "$build\dist\ClinAssist\ClinAssist-check.exe" --verify-bundle "$build\bundle"; Check "Bundle check"
