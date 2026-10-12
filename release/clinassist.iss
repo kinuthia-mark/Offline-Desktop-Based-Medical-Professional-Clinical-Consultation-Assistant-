@@ -79,6 +79,9 @@ Name: "{autodesktop}\Clinical Consultation Assistant"; Filename: "{app}\ClinAssi
 [Run]
 ; Install Ollama silently if the bundle includes it and it is not already on the PC.
 Filename: "{src}\bundle\ollama\OllamaSetup.exe"; Parameters: "/VERYSILENT /NORESTART"; StatusMsg: "Installing the local model service (Ollama)..."; Check: NeedsOllama; Flags: waituntilterminated
+; Start Ollama now rather than at the next sign-in, so the program finds it on first use. Ollama
+; runs only one copy, so this does nothing if it is already running.
+Filename: "{localappdata}\Programs\Ollama\ollama app.exe"; StatusMsg: "Starting the local model service..."; Flags: nowait runasoriginaluser skipifdoesntexist
 ; Block outbound traffic for the application and Ollama (ADR-010). Loopback still works.
 Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\scripts\airgap_firewall.ps1"" -Apply -Program ""{app}\ClinAssist.exe"""; StatusMsg: "Turning on offline protection..."; Flags: runhidden waituntilterminated
 Filename: "{app}\ClinAssist.exe"; Description: "Start the application"; Flags: postinstall nowait skipifsilent

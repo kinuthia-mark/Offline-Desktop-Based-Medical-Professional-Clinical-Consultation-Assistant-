@@ -8,6 +8,7 @@ A clinic PC has no internet, so everything the app needs is copied from the bund
       ollama-models/manifests/...        Ollama's description of medgemma:4b
       ollama-models/blobs/sha256-...     the language model's files, each named by its SHA-256
       licences/medgemma.txt              the model's licence terms, shown during installation
+      ollama/OllamaSetup.exe             optional: Ollama's own installer, for PCs without it
 
 `build_bundle` makes it on a development PC; `verify_bundle` checks every file before anything
 is installed, so a damaged copy or a swapped file stops the installation instead of producing a
@@ -25,6 +26,14 @@ from clinassist.model_files import WHISPER_MODELS, sha256_of
 
 OLLAMA_REGISTRY = Path("manifests") / "registry.ollama.ai" / "library"
 LICENCE_MEDIA_TYPE = "application/vnd.ollama.image.license"
+# The Ollama installer put in the bundle for PCs that do not have Ollama. It is the version every
+# measurement and evaluation used (ADR-002, ADR-011), pinned by the SHA-256 Ollama publishes for
+# its official release, so a different version or an altered file is refused when the bundle is
+# made. It is then listed in manifest.json like every other file, so the installer checks it
+# before running it.
+OLLAMA_SETUP_VERSION = "0.35.1"
+OLLAMA_SETUP_SHA256 = "2544c6dc60c57866f5cfbd32b8f7c5ffa5e1f7f0579ca59da5ff20bdc53ad3d2"
+OLLAMA_SETUP_PATH = "ollama/OllamaSetup.exe"
 
 
 class BundleError(RuntimeError):
@@ -53,8 +62,15 @@ def blob_path(models_dir: Path, digest: str) -> Path:
     return models_dir / "blobs" / digest.replace(":", "-")
 
 
-def build_bundle(dest: Path, whisper: str = "small", llm: str = "medgemma:4b", source=None) -> dict:
-    """Copy the models into `dest` and write manifest.json. Returns the manifest."""
+def build_bundle(
+    dest: Path,
+    whisper: str = "small",
+    llm: str = "medgemma:4b",
+    source=None,
+    ollama_setup: Path | str | None = None,
+) -> dict:
+    """Copy the models (and, if given, the pinned Ollama installer) into `dest` and write
+    manifest.json. Returns the manifest."""
     dest = Path(dest)
     root = Path(source) if source else Path(__file__).resolve().parents[2]
     files: dict[str, Path] = {}
@@ -72,6 +88,15 @@ def build_bundle(dest: Path, whisper: str = "small", llm: str = "medgemma:4b", s
         files[f"ollama-models/blobs/{blob.name}"] = blob
         if layer["mediaType"] == LICENCE_MEDIA_TYPE:
             files["licences/medgemma.txt"] = blob
+    if ollama_setup:
+        ollama_setup = Path(ollama_setup)
+        if not ollama_setup.is_file() or sha256_of(ollama_setup) != OLLAMA_SETUP_SHA256:
+            raise BundleError("ollama_setup_not_the_tested_version")
+        files[OLLAMA_SETUP_PATH] = ollama_setup
+    else:
+        # A leftover installer from an earlier build would not be in this manifest, yet the
+        # installer would still find and run it. Remove it.
+        (dest / OLLAMA_SETUP_PATH).unlink(missing_ok=True)
 
     entries = {}
     for rel, src in sorted(files.items()):
@@ -81,6 +106,8 @@ def build_bundle(dest: Path, whisper: str = "small", llm: str = "medgemma:4b", s
             shutil.copy2(src, target)
         entries[rel] = {"bytes": target.stat().st_size, "sha256": sha256_of(target)}
     result = {"format": 1, "whisper": whisper, "llm": llm, "files": entries}
+    if ollama_setup:
+        result["ollama_version"] = OLLAMA_SETUP_VERSION
     (dest / "manifest.json").write_text(json.dumps(result, indent=1) + "\n", encoding="utf-8")
     return result
 
