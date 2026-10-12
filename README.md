@@ -194,7 +194,7 @@ is recorded.
 | Controller with the clinician gates | FR-11 to FR-15 | built and tested |
 | Note generator (Ollama client, output cap, loop detection, retry, JSON check, advisory flags) | FR-04, FR-05, FR-13 | built and tested on real model output |
 | Encrypted vault, recovery code, session store, optional encrypted audio | FR-07, NFR-05 | built; Windows CI green |
-| Accounts, roles, lockout, idle timeout, password change, admin password reset (new password required at next login) | FR-08, FR-10a | built and tested |
+| Accounts, roles, lockout, idle timeout, password change, admin password reset (new password required at next login), "Forgot password?" with the vault's recovery code when no other admin can help | FR-08, FR-10a | built and tested |
 | Export one finalized note as a PDF to print or attach to a referral; audited ([sample](docs/screenshots/export-sample.png), synthetic) | FR-17, AMD-36 | built and tested |
 | Tamper-evident audit log | FR-09, FR-10d | built and tested |
 | Backup and restore of the encrypted vault, from the admin screen | FR-10c | built and tested (ADR-014) |

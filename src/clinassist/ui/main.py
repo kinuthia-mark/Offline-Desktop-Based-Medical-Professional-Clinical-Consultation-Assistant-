@@ -333,7 +333,7 @@ def main() -> int:
             return 1
 
     def login(notice: str = ""):
-        dialog = LoginDialog(services.auth.login, notice)
+        dialog = LoginDialog(services.auth.login, notice, recover=services.auth.recover_password)
         if dialog.exec() != LoginDialog.DialogCode.Accepted:
             return None
         return replace_reset_password(services.auth, dialog.session)

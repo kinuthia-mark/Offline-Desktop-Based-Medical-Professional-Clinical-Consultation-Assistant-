@@ -713,3 +713,26 @@ def test_export_needs_a_selected_consultation(qapp, services):
     window.records.export_button.click()
     assert "Select a saved consultation" in window.records.message.text()
     window.close()
+
+
+def test_forgot_password_from_the_login_screen(qapp, tmp_path, ollama):
+    from clinassist.ui.dialogs import LoginDialog
+
+    vault, code = Vault.create(tmp_path / "v", "a long synthetic passphrase 42", kdf=TEST_KDF)
+    config = AppConfig(data_dir=str(tmp_path), ollama_host=ollama.url)
+    services = build(config, vault, recorder=FakeMic(), transcriber=FakeWhisper())
+    services.auth.create_first_admin("admin", "admin synthetic password 1", "Synthetic Admin")
+    login = LoginDialog(services.auth.login, recover=services.auth.recover_password)
+    assert login.forgot_button.isVisibleTo(login)
+
+    def fill(dialog):
+        dialog.username.setText("admin")
+        dialog.recovery.setText(code)
+        dialog.new.setText("my own new synthetic pass 4")
+        dialog.repeat.setText("my own new synthetic pass 4")
+        dialog.submit()
+        return dialog.result()
+
+    login.forgot(run=fill)
+    assert "Password set" in login.message.text()
+    assert services.auth.login("admin", "my own new synthetic pass 4")
