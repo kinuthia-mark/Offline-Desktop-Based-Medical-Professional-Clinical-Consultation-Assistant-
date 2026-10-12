@@ -683,3 +683,33 @@ def test_change_password_dialog_checks_the_repeat(qapp):
     dialog.repeat.setText("first new password 2")
     dialog.submit()
     assert calls == [] and dialog.message.text() == MESSAGES["passwords_do_not_match"]
+
+
+# ----- PDF export from the records screen (FR-17) -----
+def test_export_a_saved_note_as_pdf_from_the_records_screen(qapp, services, tmp_path):
+    session = _admin(services)
+    ws = workspace(services)
+    record_and_draft(ws)
+    ws.assessment_box.setPlainText("Viral upper respiratory tract infection.")
+    tick_all(ws)
+    ws.finalize_button.click()
+    window = MainWindow(services, session, login_again=lambda n: None)
+    target = tmp_path / "out" / "note.pdf"
+    target.parent.mkdir()
+    window.records._ask_pdf_path = lambda suggested: str(target)
+    window.records.reload()
+    window.records.session_list.setCurrentRow(0)
+    window.records.export_button.click()
+    assert target.read_bytes().startswith(b"%PDF")
+    assert "Saved" in window.records.message.text()
+    assert services.auditor.events(1)[0][2] == "note_exported"
+    window.close()
+
+
+def test_export_needs_a_selected_consultation(qapp, services):
+    session = _admin(services)
+    window = MainWindow(services, session, login_again=lambda n: None)
+    window.records.reload()
+    window.records.export_button.click()
+    assert "Select a saved consultation" in window.records.message.text()
+    window.close()

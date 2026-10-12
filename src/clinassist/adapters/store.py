@@ -160,6 +160,16 @@ class VaultSessionStore:
             generation_attempts=row[8],
         )
 
+    def saved_at(self, session_id: str) -> str:
+        """When the consultation was saved (UTC, ISO format), for exports."""
+        with self._vault.connect() as conn:
+            row = conn.execute(
+                "SELECT created_at FROM sessions WHERE session_id = ?", (session_id,)
+            ).fetchone()
+        if row is None:
+            raise StoreError("session_not_found")
+        return row[0]
+
     def session_ids(self) -> list[str]:
         with self._vault.connect() as conn:
             return [r[0] for r in conn.execute("SELECT session_id FROM sessions ORDER BY rowid")]
