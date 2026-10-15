@@ -821,3 +821,101 @@ def test_database_tab_never_shows_clinical_text(qapp, services):
         for col, value in zip(columns, row, strict=True)
         if col in ("subjective", "objective", "assessment", "plan")
     )
+
+
+# ----- offline AI model update from the admin screen (FR-10b) -----
+class _FakeModels:
+    model = "medgemma:4b"
+
+    def __init__(self, already=False, error=None):
+        from clinassist.model_update import UpdateCheck
+
+        self.applied = []
+        self.error = error
+        self.result = UpdateCheck("medgemma:4b", 5, 3_200_000_000, 1, already)
+
+    def check(self, folder):
+        if self.error:
+            from clinassist.model_update import UpdateError
+
+            raise UpdateError(self.error)
+        return self.result
+
+    def apply(self, folder, user_id):
+        self.applied.append(folder)
+        return self.result
+
+
+def _update_view(services, session, models, confirm=lambda q: True):
+    return AdminView(
+        services.auditor,
+        services.auth,
+        admin_session=lambda: session,
+        models=models,
+        ask_folder=lambda: "E:/bundle",
+        confirm=confirm,
+    )
+
+
+def test_admin_updates_the_model_after_seeing_what_will_change(qapp, services):
+    admin = _admin(services)
+    models = _FakeModels()
+    questions = []
+    view = _update_view(services, admin, models, confirm=lambda q: questions.append(q) or True)
+    view.update_button.click()
+    assert "3.2 GB" in questions[0] and "1 new" in questions[0]
+    assert models.applied == ["E:/bundle"] and "Model updated" in view.update_message.text()
+
+
+def test_model_update_stops_when_declined_or_already_installed(qapp, services):
+    admin = _admin(services)
+    models = _FakeModels()
+    _update_view(services, admin, models, confirm=lambda q: False).update_button.click()
+    same = _FakeModels(already=True)
+    view = _update_view(services, admin, same)
+    view.update_button.click()
+    assert models.applied == [] and same.applied == []
+    assert "nothing to update" in view.update_message.text()
+
+
+def test_a_refused_bundle_is_explained(qapp, services):
+    admin = _admin(services)
+    view = _update_view(services, admin, _FakeModels(error="update_model_differs"))
+    view.update_button.click()
+    assert view.update_message.text() == MESSAGES["update_model_differs"]
+
+
+def test_only_an_admin_can_update_the_model(qapp, services):
+    session = _admin(services)
+    session.role = "clinician"
+    models = _FakeModels()
+    view = _update_view(services, session, models)
+    view.update_button.click()
+    assert models.applied == [] and view.update_message.text() == MESSAGES["forbidden"]
+
+
+# ----- the look (ui/theme.py) -----
+def test_theme_has_a_light_and_a_dark_version_with_the_brand_colour():
+    from clinassist.ui.theme import DARK, LIGHT, stylesheet
+
+    for colours in (LIGHT, DARK):
+        sheet = stylesheet(colours)
+        assert colours["primary"] in sheet and 'QPushButton[kind="primary"]' in sheet
+        assert "#appHeader" in sheet
+
+
+def test_the_main_step_on_each_screen_is_marked(qapp, services):
+    ws = workspace(services)
+    for button in (ws.start_button, ws.approve_button, ws.finalize_button):
+        assert button.property("kind") == "primary"
+    assert ws.discard_button.property("kind") == "danger"
+
+
+def test_applying_the_theme_styles_the_whole_program(qapp):
+    from clinassist.ui.theme import apply_theme
+
+    apply_theme(qapp)
+    try:
+        assert "QGroupBox" in qapp.styleSheet()
+    finally:
+        qapp.setStyleSheet("")  # leave the other tests unstyled, as before

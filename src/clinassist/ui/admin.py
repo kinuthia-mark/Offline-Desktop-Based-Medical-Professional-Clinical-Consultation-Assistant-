@@ -45,6 +45,8 @@ class AdminView(QWidget):
         ask_secret: Callable[[], str] | None = None,
         confirm: Callable[[str], bool] | None = None,
         ask_temporary_password: Callable[[], str] | None = None,
+        models=None,
+        ask_folder: Callable[[], str] | None = None,
     ) -> None:
         """`backups` (app.Backups) enables backup and restore. `on_restored` is called after a
         restore, when the program must close. The `ask_*` and `confirm` callables show the file
@@ -57,6 +59,8 @@ class AdminView(QWidget):
         self._ask_secret = ask_secret or self._dialog_secret
         self._confirm = confirm or self._dialog_confirm
         self._ask_temporary = ask_temporary_password or self._dialog_temporary_password
+        self._models = models  # app.ModelUpdates: offline language-model update (FR-10b)
+        self._ask_folder = ask_folder or self._dialog_folder
 
         # Audit log
         self.table = QTableWidget(0, 5)
@@ -141,6 +145,25 @@ class AdminView(QWidget):
         right = QVBoxLayout()
         right.addWidget(accounts, 3)
         right.addWidget(backups, 1)
+
+        # Offline update of the language model (FR-10b)
+        self.update_button = QPushButton("Update the AI model from a folder...")
+        self.update_button.clicked.connect(self.update_model)
+        self.update_message = QLabel()
+        self.update_message.setWordWrap(True)
+        updates = QGroupBox("AI model update")
+        u = QVBoxLayout(updates)
+        about = QLabel(
+            "Install a new copy of the language model from a model bundle, for example on a USB "
+            "drive. Every file is checked before anything is copied. Only the model this "
+            "program was evaluated with is accepted."
+        )
+        about.setWordWrap(True)
+        u.addWidget(about)
+        u.addWidget(self.update_button)
+        u.addWidget(self.update_message)
+        updates.setVisible(models is not None)
+        right.addWidget(updates, 1)
         layout = QHBoxLayout(self)
         layout.addWidget(audit, 3)
         layout.addLayout(right, 2)
@@ -319,5 +342,40 @@ class AdminView(QWidget):
         return text if ok else ""
 
     def _dialog_confirm(self, question: str) -> bool:
-        answer = QMessageBox.question(self, "Restore a backup", question)
+        answer = QMessageBox.question(self, "Please confirm", question)
         return answer == QMessageBox.StandardButton.Yes
+
+    # ----- offline model update (FR-10b) -----
+    def update_model(self) -> None:
+        try:
+            self._auth.require(self._admin(), "admin")
+            folder = self._ask_folder()
+            if not folder:
+                return
+            # Check first and say what the bundle holds, before asking to install anything.
+            check = self._models.check(folder)
+            if check.already_installed:
+                self.update_message.setText(
+                    f"Every file checked. This is the {check.llm} model already installed: "
+                    "nothing to update."
+                )
+                return
+            size_gb = check.total_bytes / 1e9
+            question = (
+                f"Every file in the bundle checked out. It holds {check.llm} ({check.files} "
+                f"files, {size_gb:.1f} GB, {check.new_files} new to this PC). Install it? The "
+                "next note will use the new model."
+            )
+            if not self._confirm(question):
+                return
+            self._models.apply(folder, self._admin().user_id)
+        except Exception as exc:
+            self.update_message.setText(message_for(error_code(exc)))
+            return
+        self.update_message.setText(
+            "Model updated and checked. The next note will use it. To go back, apply the "
+            "previous bundle again."
+        )
+
+    def _dialog_folder(self) -> str:
+        return QFileDialog.getExistingDirectory(self, "Choose the model bundle folder")

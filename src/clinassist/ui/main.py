@@ -22,6 +22,7 @@ from PySide6.QtCore import QEvent, QObject, QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QApplication,
+    QFrame,
     QHBoxLayout,
     QLabel,
     QMainWindow,
@@ -47,6 +48,7 @@ from clinassist.ui.dialogs import (
 from clinassist.ui.messages import message_for
 from clinassist.ui.overview import OverviewView
 from clinassist.ui.records import RecordsView
+from clinassist.ui.theme import apply_theme
 from clinassist.ui.workspace import ConsultationWorkspace
 
 APP_TITLE = "Offline Clinical Consultation Assistant"
@@ -87,10 +89,21 @@ class MainWindow(QMainWindow):
         logout.clicked.connect(self.log_out)
         self.password_button = QPushButton("Change password")
         self.password_button.clicked.connect(self.change_password)
-        header = QHBoxLayout()
+        # The header bar: icon and title on the left; network status, user and account buttons
+        # on the right. Styled by ui/theme.py through its object names.
+        header_bar = QFrame()
+        header_bar.setObjectName("appHeader")
+        header = QHBoxLayout(header_bar)
+        header.setContentsMargins(14, 8, 14, 8)
+        icon_path = window_icon_path()
+        if icon_path.is_file():
+            logo = QLabel()
+            logo.setPixmap(QIcon(str(icon_path)).pixmap(28, 28))
+            header.addWidget(logo)
         title = QLabel(APP_TITLE)
-        title.setStyleSheet("font-weight: bold;")
+        title.setObjectName("appTitle")
         header.addWidget(title)
+        self.user_label.setObjectName("appUser")
         header.addStretch(1)
         header.addWidget(self.network_label)
         header.addWidget(self.status_label)
@@ -126,6 +139,7 @@ class MainWindow(QMainWindow):
             auth,
             admin_session=lambda: self.session,
             backups=services.backups,
+            models=services.models,
             on_restored=self._restored,
         )
         self.admin_index = self.tabs.addTab(self.admin, "Audit and accounts")
@@ -135,8 +149,12 @@ class MainWindow(QMainWindow):
 
         body = QWidget()
         layout = QVBoxLayout(body)
-        layout.addLayout(header)
-        layout.addWidget(self.tabs, 1)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(header_bar)
+        content = QVBoxLayout()
+        content.setContentsMargins(12, 8, 12, 12)
+        content.addWidget(self.tabs, 1)
+        layout.addLayout(content, 1)
         self.setCentralWidget(body)
         self._show_user()
 
@@ -314,6 +332,7 @@ def main() -> int:
 
     app = QApplication(sys.argv)
     app.setApplicationName(APP_TITLE)
+    apply_theme(app)
     icon = window_icon_path()
     if icon.is_file():
         app.setWindowIcon(QIcon(str(icon)))
