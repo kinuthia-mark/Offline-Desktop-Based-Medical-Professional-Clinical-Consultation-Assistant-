@@ -1,0 +1,110 @@
+{
+ "day1_consultation04": {
+  "current": {
+   "ok": false,
+   "reason": "repetition_detected",
+   "seconds": 115.3
+  },
+  "window256": {
+   "ok": true,
+   "suggestions": 2,
+   "seconds": 91.6
+  }
+ },
+ "day1_consultation07": {
+  "current": {
+   "ok": false,
+   "reason": "repetition_detected",
+   "seconds": 102.6
+  },
+  "window256": {
+   "ok": true,
+   "suggestions": 3,
+   "seconds": 152.8
+  }
+ },
+ "day1_consultation12": {
+  "current": {
+   "ok": false,
+   "reason": "repetition_detected",
+   "seconds": 55.5
+  },
+  "window256": {
+   "ok": true,
+   "suggestions": 1,
+   "seconds": 72.0
+  }
+ },
+ "day1_consultation13": {
+  "current": {
+   "ok": true,
+   "suggestions": 3,
+   "seconds": 118.6
+  },
+  "window256": {
+   "ok": true,
+   "suggestions": 3,
+   "seconds": 116.5
+  }
+ },
+ "day2_consultation05": {
+  "current": {
+   "ok": false,
+   "reason": "repetition_detected",
+   "seconds": 92.9
+  },
+  "window256": {
+   "ok": false,
+   "reason": "repetition_detected",
+   "seconds": 120.7
+  }
+ },
+ "day3_consultation09": {
+  "current": {
+   "ok": true,
+   "suggestions": 3,
+   "seconds": 125.3
+  },
+  "window256": {
+   "ok": true,
+   "suggestions": 1,
+   "seconds": 89.0
+  }
+ },
+ "day4_consultation06": {
+  "current": {
+   "ok": true,
+   "suggestions": 1,
+   "seconds": 90.1
+  },
+  "window256": {
+   "ok": true,
+   "suggestions": 1,
+   "seconds": 83.9
+  }
+ },
+ "day4_consultation08": {
+  "current": {
+   "ok": true,
+   "suggestions": 3,
+   "seconds": 107.4
+  },
+  "window256": {
+   "ok": true,
+   "suggestions": 3,
+   "seconds": 109.9
+  }
+ },
+ "day5_consultation08": {
+  "current": {
+   "ok": true,
+   "suggestions": 1,
+   "seconds": 88.2
+  },
+  "window256": {
+   "ok": true,
+   "suggestions": 2,
+   "seconds": 124.7
+  }
+ }
+}
