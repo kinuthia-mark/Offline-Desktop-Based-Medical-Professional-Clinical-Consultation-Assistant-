@@ -43,6 +43,10 @@ class SequentialModels:
         self._preload.start()
 
     @property
+    def model_name(self) -> str:
+        return getattr(self._transcriber, "model_name", "")
+
+    @property
     def last_info(self):
         """Facts about the last transcription (language, confidence hint), for the screen."""
         return getattr(self._transcriber, "last_info", None)

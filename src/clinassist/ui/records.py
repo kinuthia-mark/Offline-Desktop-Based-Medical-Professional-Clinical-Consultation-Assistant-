@@ -26,6 +26,22 @@ from clinassist.ui.messages import message_for
 from clinassist.ui.workers import error_code
 
 
+def models_used(record) -> str:
+    """Which models produced the record, in words: "speech: faster-whisper-small (en, 91%
+    confidence); note: medgemma:4b". Typed transcripts and notes written by hand say so."""
+    if record.asr_model:
+        speech = record.asr_model
+        details = [record.transcript_language] if record.transcript_language else []
+        if record.asr_confidence is not None:
+            details.append(f"{record.asr_confidence:.0%} confidence")
+        if details:
+            speech += f" ({', '.join(details)})"
+    else:
+        speech = "none (typed transcript)"
+    note = record.model_version or "none (written by hand)"
+    return f"speech: {speech}; note: {note}"
+
+
 def describe(record) -> str:
     """The saved consultation as plain text, clinician's note first."""
     note, draft = record.final_note, record.draft
@@ -33,6 +49,7 @@ def describe(record) -> str:
         f"Finalized by: {record.finalized_by}",
         f"Assessment written: {record.assessment_origin.replace('_', ' ')}",
         f"Model attempts: {record.generation_attempts}   Draft source: {draft.source}",
+        f"Models used: {models_used(record)}",
         "",
         "CLINICIAN'S NOTE",
         f"Subjective: {note.subjective}",

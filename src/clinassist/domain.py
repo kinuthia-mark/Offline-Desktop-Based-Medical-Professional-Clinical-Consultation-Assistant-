@@ -118,3 +118,11 @@ class SessionRecord:
     assessment_origin: str  # clinician_manual | clinician_edited | ai_text_accepted_verbatim
     checklist: HistoryChecklist
     generation_attempts: int
+    # Which models produced the record, so a later reader can tell which version wrote which
+    # note even after an update (FR-10b). Empty when not used: a typed transcript has no speech
+    # model, and a note written by hand has no language model.
+    asr_model: str = ""
+    model_version: str = ""
+    # The speech model's language and its confidence hint (0 to 1), as shown at review.
+    transcript_language: str = ""
+    asr_confidence: float | None = None

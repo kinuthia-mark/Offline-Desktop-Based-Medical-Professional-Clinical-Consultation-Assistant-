@@ -262,6 +262,12 @@ class ConsultationWorkspace(QWidget):
 
         output = QGroupBox("3. Clinical output")
         o = QVBoxLayout(output)
+        # The wireframe's model label: which language model drafts the note, and that it runs
+        # on this computer.
+        model = getattr(getattr(self._services, "config", None), "llm_model", "") or "unknown"
+        self.model_label = QLabel(f"Model: {model} (quantized, runs on this computer)")
+        self.model_label.setStyleSheet("color: gray;")
+        o.addWidget(self.model_label)
         o.addWidget(self.progress_bar)
         o.addWidget(self.progress_label)
         o.addWidget(self.error_label)

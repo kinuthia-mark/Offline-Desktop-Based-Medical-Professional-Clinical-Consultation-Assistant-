@@ -185,6 +185,11 @@ class SoapGenerator:
         self._client = client or OllamaClient(self.settings.host, self.settings.read_timeout)
         self._progress = progress
 
+    @property
+    def model_name(self) -> str:
+        """Which language model drafts the notes, for the stored record."""
+        return self.settings.model
+
     def options_for(self, attempt: int, words: int = 0) -> dict:
         """Without the penalty, long consultations looped in 9 of 9 runs, so long input starts
         with it. Short input starts without it, since the penalty may cost word spacing."""
