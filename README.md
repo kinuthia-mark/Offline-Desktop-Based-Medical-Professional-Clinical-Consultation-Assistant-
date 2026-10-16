@@ -203,7 +203,7 @@ is recorded.
 |---|---|---|
 | Controller with the clinician gates | FR-11 to FR-15 | built and tested |
 | Note generator (Ollama client, output cap, loop detection, retry, JSON check, advisory flags) | FR-04, FR-05, FR-13 | built and tested on real model output |
-| Encrypted vault, recovery code, session store, optional encrypted audio | FR-07, NFR-05 | built and tested |
+| Encrypted vault, recovery code, session store (each record notes which speech and language model produced it, with the transcript's language and confidence), optional encrypted audio | FR-07, NFR-05 | built and tested |
 | Accounts, roles, lockout, idle timeout, password change, admin password reset (new password required at next login), "Forgot password?" with the vault's recovery code when no other admin can help | FR-08, FR-10a | built and tested |
 | Export one finalized note as a PDF to print or attach to a referral; audited ([sample](docs/screenshots/export-sample.png), synthetic) | FR-17, AMD-36 | built and tested |
 | Tamper-evident audit log | FR-09, FR-10d | built and tested |
@@ -220,7 +220,7 @@ is recorded.
 | Evaluation: 8 scripted consultations with key facts and traps, scored end to end | FR-05, NFR-03, NFR-06 | built and run; clinician scoring pending |
 | Windows installer and offline model bundle (Ollama included, pinned and checked), with a self-test | release, AMD-15 | built and installed on the reference PC; a second PC is still to do |
 
-643 tests run on every push, on Windows with Python 3.11 and 3.12, together with
+650 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
 
 **Still to do:** clinicians scoring a set of notes with the scoring sheet in `docs/eval/`,

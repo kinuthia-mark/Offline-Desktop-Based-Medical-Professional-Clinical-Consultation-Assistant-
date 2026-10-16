@@ -43,8 +43,9 @@ class VaultSessionStore:
                         "INSERT INTO sessions (session_id, created_at, transcript,"
                         " transcript_approved_by, finalized_by, draft_source, assessment_origin,"
                         " allergies_confirmed, medications_confirmed, negatives_confirmed,"
-                        " generation_attempts, guardrail_flags)"
-                        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        " generation_attempts, guardrail_flags, asr_model, model_version,"
+                        " transcript_language, asr_confidence)"
+                        " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         (
                             record.session_id,
                             self._clock().isoformat(timespec="seconds"),
@@ -58,6 +59,10 @@ class VaultSessionStore:
                             int(ticks.pertinent_negatives),
                             record.generation_attempts,
                             json.dumps(list(draft.flags)),
+                            record.asr_model or None,
+                            record.model_version or None,
+                            record.transcript_language or None,
+                            record.asr_confidence,
                         ),
                     )
                     conn.executemany(
@@ -113,7 +118,8 @@ class VaultSessionStore:
             row = conn.execute(
                 "SELECT transcript, transcript_approved_by, finalized_by, draft_source,"
                 " assessment_origin, allergies_confirmed, medications_confirmed,"
-                " negatives_confirmed, generation_attempts, guardrail_flags"
+                " negatives_confirmed, generation_attempts, guardrail_flags, asr_model,"
+                " model_version, transcript_language, asr_confidence"
                 " FROM sessions WHERE session_id = ?",
                 (session_id,),
             ).fetchone()
@@ -158,6 +164,10 @@ class VaultSessionStore:
             assessment_origin=row[4],
             checklist=HistoryChecklist(bool(row[5]), bool(row[6]), bool(row[7])),
             generation_attempts=row[8],
+            asr_model=row[10] or "",
+            model_version=row[11] or "",
+            transcript_language=row[12] or "",
+            asr_confidence=row[13],
         )
 
     def saved_at(self, session_id: str) -> str:

@@ -125,6 +125,14 @@ class ConsultationController:
             self._audit("transcription_failed")
             raise
         self._state = State.TRANSCRIBED
+        # Note which speech model heard it, and its language and confidence, if the transcriber
+        # reports them; they are stored with the record.
+        info = getattr(self._transcriber, "last_info", None)
+        self._asr = (
+            getattr(self._transcriber, "model_name", ""),
+            getattr(info, "language", "") or "",
+            getattr(info, "confidence", None),
+        )
         self._audit("transcribed")
         return self._transcript
 
@@ -239,6 +247,12 @@ class ConsultationController:
             assessment_origin=origin,
             checklist=checklist,
             generation_attempts=self._attempts,
+            asr_model=self._asr[0],
+            model_version=(
+                getattr(self._generator, "model_name", "") if self._draft.source == "model" else ""
+            ),
+            transcript_language=self._asr[1],
+            asr_confidence=self._asr[2],
         )
         # Save first, then change the state. If saving fails, the exception leaves the state at
         # DRAFTED, so the clinician's note is still on screen and nothing is lost.
@@ -269,6 +283,9 @@ class ConsultationController:
         self._approved_by = ""
         self._draft: Draft | None = None
         self._attempts = 0
+        # Speech model, language and confidence of this consultation's transcript; empty when
+        # the transcript was typed.
+        self._asr: tuple[str, str, float | None] = ("", "", None)
 
     def _require(self, *allowed: State) -> None:
         # The guard on every action: refuse anything that is not allowed in the current stage.
