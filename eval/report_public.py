@@ -14,6 +14,8 @@ import statistics
 import sys
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
+
 
 def _mean(values) -> float:
     values = [v for v in values if v is not None]
@@ -119,8 +121,10 @@ def primock57_report(data: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
-def afrispeech_report(data: dict) -> str:
+def afrispeech_report(data: dict, texts: dict | None = None) -> str:
     items = list(data["items"].values())
+    texts = texts or {}
+    keyed = list(data["items"].items())
 
     def wer(group, key: str = "errors") -> str:
         words = sum(i["reference_words"] for i in group)
@@ -157,7 +161,7 @@ def afrispeech_report(data: dict) -> str:
         f"| **{both(items)}** | {both([i for i in items if i['domain'] == 'clinical'])} "
         f"| {both([i for i in items if i['domain'] == 'general'])} |"
     )
-    worst = sorted(items, key=lambda i: -i["wer"])[:10]
+    worst = [k for k, _ in sorted(keyed, key=lambda kv: -kv[1]["wer"])[:10]]
     lines += [
         "",
         "## The ten hardest clips",
@@ -165,13 +169,18 @@ def afrispeech_report(data: dict) -> str:
         "| Accent | Domain | WER | Said | Heard |",
         "|---|---|---|---|---|",
     ]
-    for i in worst:
-        said, heard = (" ".join(i[k].replace("|", "/").split()) for k in ("reference", "heard"))
+    for key in worst:
+        i, t = data["items"][key], texts.get(key, {})
+        said, heard = (
+            " ".join(t.get(k, "?").replace("|", "/").split()) for k in ("reference", "heard")
+        )
         lines.append(f"| {i['accent']} | {i['domain']} | {i['wer']} | {said} | {heard} |")
     lines += [
         "",
         "Accent groups are as labelled by the dataset; some groups have few speakers, so their "
-        "numbers say little on their own.",
+        "numbers say little on their own. The example sentences above are quoted from "
+        "AfriSpeech-200 under CC BY-NC-SA 4.0; the full set of sentences is not in this "
+        "repository.",
         "",
         "Some reference transcripts in the dataset have their own errors: words run together "
         '("phagocytosisisawayof"), typing slips ("forwardd", "thesyringe") and text that '
@@ -220,7 +229,16 @@ def main(paths: list[str]) -> int:
         if p.name.startswith("primock57"):
             text = primock57_report(data)
         elif p.name.startswith("afrispeech"):
-            text = afrispeech_report(data)
+            # The sentences are kept beside the dataset, not in the repository (CC BY-NC-SA).
+            sidecar = (
+                ROOT / "datasets" / "afrispeech-ke" / p.name.replace("afrispeech-ke-", "texts-")
+            )
+            texts = (
+                json.loads(sidecar.read_text(encoding="utf-8"))["items"]
+                if sidecar.is_file()
+                else {}
+            )
+            text = afrispeech_report(data, texts)
         else:
             text = aci_report(data)
         out = p.with_suffix(".md")

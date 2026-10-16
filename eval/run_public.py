@@ -205,6 +205,10 @@ def run_afrispeech(label: str, accents, limit: int | None, whisper_size: str = "
     path = OUT / f"afrispeech-ke-{label}{suffix}.json"
     data = _load(path)
     data.update(dataset=ATTRIBUTION["afrispeech"], whisper=whisper_size, **_machine())
+    # The sentences themselves stay beside the dataset, in the git-ignored folder: AfriSpeech is
+    # CC BY-NC-SA 4.0, so the committed results hold scores only (ADR-016).
+    texts_path = root / f"texts-{label}{suffix}.json"
+    texts = _load(texts_path)
     config = AppConfig(models_dir=str(ROOT / "models"), whisper_model=whisper_size)
     whisper = WhisperTranscriber(config.whisper_dir())  # same settings as the application
     whisper.load()  # once for all clips; the application unloads after each consultation
@@ -248,16 +252,17 @@ def run_afrispeech(label: str, accents, limit: int | None, whisper_size: str = "
                     "domain": clip.domain,
                     "seconds_audio": round(clip.duration, 1),
                     "seconds_taken": round(time.perf_counter() - t, 1),
-                    "reference": clip.transcript,
-                    "heard": heard,
                     "wer": wer.wer,
                     "errors": wer.substitutions + wer.deletions + wer.insertions,
                     "reference_words": wer.reference_words,
                 }
+                texts["items"][key] = {"reference": clip.transcript, "heard": heard}
                 if len(data["items"]) % 25 == 0:
                     print(f"{len(data['items'])} clips", flush=True)
                     _save(path, data)
+                    _save(texts_path, texts)
             _save(path, data)
+            _save(texts_path, texts)
     finally:
         whisper.unload()
     return path
