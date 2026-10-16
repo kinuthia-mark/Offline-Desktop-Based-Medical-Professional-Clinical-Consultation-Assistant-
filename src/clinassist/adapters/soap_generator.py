@@ -94,6 +94,11 @@ class GeneratorSettings:
     seed: int | None = 42  # fixed, so the same input gives the same output when testing
     num_predict: int = 1100  # hard cap on generated tokens
     retry_repeat_penalty: float = 1.1  # used from the second attempt (ADR-002)
+    # How far back the penalty looks on the second attempt. Ollama's default is 64 tokens (about
+    # 50 words), so a sentence repeated from a paragraph earlier was not penalised. On the 9
+    # PriMock57 consultations that failed, 256 gave a note in 8, against 5 with the default, at
+    # the same speed (ADR-016).
+    retry_repeat_last_n: int = 256
     long_input_words: int = 500  # from this many words the first attempt already uses the penalty
     max_seconds: float = 420.0  # overall deadline for one attempt
     read_timeout: float = 300.0  # longest silent wait; the model reads the transcript first
@@ -193,6 +198,8 @@ class SoapGenerator:
             options["seed"] = s.seed
         if attempt >= 2 or words >= s.long_input_words:
             options["repeat_penalty"] = s.retry_repeat_penalty
+        if attempt >= 2:
+            options["repeat_last_n"] = s.retry_repeat_last_n
         return options
 
     def generate(self, text: str, attempt: int) -> Draft:

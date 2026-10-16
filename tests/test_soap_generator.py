@@ -334,3 +334,12 @@ def test_other_section_shapes_are_still_refused(plan):
     reply = {"subjective": "s", "objective": "o", "assessment": "a", "plan": plan}
     with pytest.raises(GenerationFailed):
         parse_draft(json.dumps(reply), "s")
+
+
+def test_the_second_attempt_looks_further_back_for_repetition():
+    from clinassist.adapters.soap_generator import SoapGenerator
+
+    gen = SoapGenerator()
+    assert "repeat_last_n" not in gen.options_for(1, words=1500)
+    second = gen.options_for(2, words=1500)
+    assert second["repeat_last_n"] == 256 and second["repeat_penalty"] == 1.1
