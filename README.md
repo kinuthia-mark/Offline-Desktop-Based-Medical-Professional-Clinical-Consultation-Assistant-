@@ -76,6 +76,7 @@ The application is a step-by-step process. The software will not let a step happ
 stateDiagram-v2
     [*] --> Idle
     Idle --> Recording: start recording
+    Idle --> Transcribed: type the transcript instead
     Recording --> Transcribed: stop (speech is turned into text)
     Transcribed --> Approved: doctor edits and approves the text
     Approved --> Drafted: model drafts the note
@@ -107,9 +108,14 @@ Nothing typed is lost.
 
 Left to right: the recording controls, the transcript the clinician corrects and approves, and the
 drafted note. A clinician who does not want to record can choose "Type the transcript instead" and
-type it; the typed text goes through the same approval and checks as a spoken one (AMD-39). The clinician's own assessment is separate from the model's text, which is labelled
-as AI-generated. "Finalize and save" stays disabled until the assessment is written and all three
-history boxes are ticked; here one is still unticked.
+type it; the typed text goes through the same approval and checks as a spoken one (AMD-39). The
+clinician's own assessment is separate from the model's text, which is labelled as AI-generated. "Finalize and save" stays disabled until the assessment is written and all three
+history boxes are ticked; here none are ticked yet. The main step on each panel is shown in the
+brand colour, and the program follows the Windows light or dark setting.
+
+Administrators land on their own overview instead (AMD-41), and never see patient notes:
+
+![The administrator overview](docs/screenshots/admin-overview.png)
 
 ---
 
@@ -185,6 +191,10 @@ These apply to every file, and the tests check them.
 
 ## 6. What is built so far
 
+**Status: 25 of 29 requirements verified; all 29 are built.** The other four need something
+other than code: a target set from the measurements (NFR-03, NFR-04), measurements with real
+voices (NFR-06), and the System Design and Test Cases documents (NFR-08).
+
 Status is kept up to date in [`docs/traceability.md`](docs/traceability.md). A requirement counts
 as **verified** only when its tests pass on Windows in GitHub Actions and any measurement it needs
 is recorded.
@@ -193,24 +203,29 @@ is recorded.
 |---|---|---|
 | Controller with the clinician gates | FR-11 to FR-15 | built and tested |
 | Note generator (Ollama client, output cap, loop detection, retry, JSON check, advisory flags) | FR-04, FR-05, FR-13 | built and tested on real model output |
-| Encrypted vault, recovery code, session store, optional encrypted audio | FR-07, NFR-05 | built; Windows CI green |
+| Encrypted vault, recovery code, session store (each record notes which speech and language model produced it, with the transcript's language and confidence), optional encrypted audio | FR-07, NFR-05 | built and tested |
 | Accounts, roles, lockout, idle timeout, password change, admin password reset (new password required at next login), "Forgot password?" with the vault's recovery code when no other admin can help | FR-08, FR-10a | built and tested |
 | Export one finalized note as a PDF to print or attach to a referral; audited ([sample](docs/screenshots/export-sample.png), synthetic) | FR-17, AMD-36 | built and tested |
 | Tamper-evident audit log | FR-09, FR-10d | built and tested |
 | Backup and restore of the encrypted vault, from the admin screen | FR-10c | built and tested (ADR-014) |
+| Offline update of the language model from a checked model bundle, from the admin screen | FR-10b | built and tested (ADR-015) |
 | Database tab for administrators: encryption shown on the real file, tables, rules and rows (read-only; clinical text never shown) | AMD-40 | built and tested |
 | Separate roles: clinicians land on the consultation screen; administrators land on an overview and never see patient notes | AMD-41 | built and tested |
 | Input check (prompt injection, personal data) and checks on the model's reply | FR-05, AMD-11 | built and tested |
 | Microphone recorder | FR-01 | built and tested, including on the real microphone |
 | Speech-to-text (Faster-Whisper small, offline) | FR-02 | built and measured with synthetic speech |
-| Desktop interface (PySide6): consultation screen, records, audit and accounts | FR-03, FR-06, FR-16 | built and tested |
+| Desktop interface (PySide6): consultation screen, records, audit and accounts, one look in light and dark | FR-03, FR-06, FR-16, AMD-42 | built and tested |
 | Wiring of all parts, memory plan, startup checks | NFR-04, NFR-07 | built and run end to end |
-| Air-gap enforcement: in-app network guard, firewall rules, checks shown on screen | NFR-01, NFR-02, FR-18 | built; firewall rules to be applied on the reference PC |
+| Air-gap enforcement: in-app network guard, firewall rules, checks shown on screen | NFR-01, NFR-02, FR-18 | built and tested; the installer applies the firewall rules, confirmed on the reference PC and in the clean-machine installer test |
 | Evaluation: 8 scripted consultations with key facts and traps, scored end to end | FR-05, NFR-03, NFR-06 | built and run; clinician scoring pending |
-| Windows installer and offline model bundle, with a self-test | release, AMD-15 | built; test on a second PC pending |
+| Windows installer and offline model bundle (Ollama included, pinned and checked), with a self-test | release, AMD-15 | built and installed on the reference PC; a second PC is still to do |
 
-More than 350 tests run on every push, on Windows with Python 3.11 and 3.12, together with
+650 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
+
+**Still to do:** clinicians scoring a set of notes with the scoring sheet in `docs/eval/`,
+recordings with real voices, installing on a second, clean PC, targets for speed and memory, and
+applying the amendments to the proposal document.
 
 ---
 
@@ -327,8 +342,8 @@ accurate. But every note left out allergies or pertinent negatives; 3 of 4 short
 diagnosis the doctor had not made; one long note changed a blood-pressure reading, contradicted a
 symptom the patient described, and invented "the patient's wife is present". These findings are why
 the clinician gates exist. The automatic flags caught some of these errors (a mismatched number, a
-merged word, a pronoun) but not most, which is why a proper evaluation with scripted consultations
-is still to come.
+merged word, a pronoun) but not most. These first notes came before the prompt was tightened and
+before the scripted evaluation above (ADR-011).
 
 ---
 
@@ -336,8 +351,9 @@ is still to come.
 
 - **One machine.** Every measurement comes from one laptop, usually with only 0.7 to 3.6 GB of free
   memory because other programs were open.
-- **Not validated with clinicians yet.** Note quality has been checked by reading a handful of notes,
-  not by a structured evaluation or by practising clinicians.
+- **Not validated with clinicians yet.** Note quality has been measured with a structured
+  evaluation on 8 synthetic consultations (ADR-011), not by practising clinicians or with real
+  patients' speech.
 - **English only so far.** Swahili and mixed Swahili-English speech are untested.
 - **The flags are hints.** Advisory flags (numbers that do not match the transcript, merged words,
   pronouns) are simple checks, not a measure of whether a note is faithful.
@@ -408,7 +424,7 @@ running from source, do it once in PowerShell opened as administrator (use `-Rem
 installing packages, then `-Apply` again):
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scriptsirgap_firewall.ps1 -Apply
+powershell -ExecutionPolicy Bypass -File scripts\airgap_firewall.ps1 -Apply
 ```
 
 **Check this PC is ready** (models, Ollama, free memory, microphone, network):
@@ -466,6 +482,7 @@ src/clinassist/
   medcheck.py        flags transcript words that look like a misheard medicine name
   evaluation.py      scores a note against a consultation's key facts, denied symptoms and traps
   bundle.py          builds and checks the offline model bundle shipped beside the installer
+  model_update.py    installs a newer copy of the language model from a checked bundle
   selftest.py        uses every heavy part once, to prove an installed copy works
   domain.py          the data the app works with (draft, note, checklist, session record) and its errors
   ports.py           the small interfaces each outside part must provide
@@ -534,7 +551,7 @@ code, then the tests and measurements that check that requirement, before moving
 | [`docs/traceability.md`](docs/traceability.md) | every requirement, the branch that builds it, the test that checks it, and its status |
 | [`docs/AMENDMENTS.md`](docs/AMENDMENTS.md) | every change from the approved proposal, with the reason |
 | [`docs/proposal/CROSSCHECK.md`](docs/proposal/CROSSCHECK.md) | how the code maps onto the proposal's use cases, diagrams, schema and wireframe |
-| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012), suggestions and medicine names (013), backup and restore (014) |
+| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012), suggestions and medicine names (013), backup and restore (014), offline model update (015) |
 | [`docs/spikes/`](docs/spikes/) | raw measurement results from the reference PC |
 | [`docs/PRIOR_ART.md`](docs/PRIOR_ART.md) | what was reused from the earlier MedgemmaV2 prototype and what was left out |
 
@@ -555,7 +572,7 @@ code, then the tests and measurements that check that requirement, before moving
 | **SQLCipher** | a version of the SQLite database that encrypts the whole file |
 | **Argon2id** | a deliberately slow way to turn a password into a key, so guessing is expensive |
 | **Envelope key** | the data is locked with a random key, and that key is itself locked by the passphrase and, separately, by a recovery code; changing the passphrase only re-locks the small key |
-| **Recovery code** | a printed code shown once at setup that can reset a forgotten passphrase |
+| **Recovery code** | a code shown once at setup that can reset a forgotten vault passphrase or, when no other administrator can help, a forgotten login password |
 | **Hash chain** | a list where each entry contains a fingerprint of the one before, so changing any entry shows |
 | **Prompt injection** | text inside the input that tries to give the model instructions |
 | **Mutation check** | breaking a rule in the code on purpose to confirm a test notices |

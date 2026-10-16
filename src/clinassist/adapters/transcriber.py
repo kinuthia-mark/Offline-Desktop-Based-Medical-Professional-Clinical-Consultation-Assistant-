@@ -99,6 +99,12 @@ class WhisperTranscriber:
         self.last_info: TranscriptionInfo | None = None
 
     @property
+    def model_name(self) -> str:
+        """Which speech model this is, from its folder name (for example
+        "faster-whisper-small"), for the stored record."""
+        return self._dir.name
+
+    @property
     def loaded(self) -> bool:
         return self._model is not None
 

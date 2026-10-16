@@ -231,3 +231,30 @@ def test_storage_failure_keeps_the_session_editable(vault, store):
     with pytest.raises(VaultError):
         c.finalize(SoapNote("s", "o", "My assessment", "p"), "dr-a", FULL)
     assert c.state is State.DRAFTED
+
+
+def test_models_language_and_confidence_round_trip(store):
+    record = _record(
+        "m1",
+        asr_model="faster-whisper-small",
+        model_version="medgemma:4b",
+        transcript_language="en",
+        asr_confidence=0.54,
+    )
+    store.save(record)
+    loaded = store.load("m1")
+    assert (loaded.asr_model, loaded.model_version) == ("faster-whisper-small", "medgemma:4b")
+    assert (loaded.transcript_language, loaded.asr_confidence) == ("en", 0.54)
+
+
+def test_a_record_without_model_details_reads_back_empty(store):
+    store.save(_record("m2"))
+    loaded = store.load("m2")
+    assert loaded.asr_model == "" and loaded.asr_confidence is None
+
+
+def test_database_refuses_a_confidence_outside_0_to_1(vault, store):
+    with pytest.raises(StoreError) as info:
+        store.save(_record("m3", asr_confidence=1.5))
+    assert info.value.code == "rejected_by_schema"
+    assert _count(vault, "sessions") == 0

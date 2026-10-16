@@ -43,6 +43,10 @@ class SequentialModels:
         self._preload.start()
 
     @property
+    def model_name(self) -> str:
+        return getattr(self._transcriber, "model_name", "")
+
+    @property
     def last_info(self):
         """Facts about the last transcription (language, confidence hint), for the screen."""
         return getattr(self._transcriber, "last_info", None)
@@ -79,6 +83,34 @@ class _PlannedRecorder:
 
     def stop(self) -> bytes:
         return self._recorder.stop()
+
+
+class ModelUpdates:
+    """Offline language-model update for the admin screen (FR-10b, model_update.py)."""
+
+    def __init__(self, config, auditor, generator) -> None:
+        self._config, self._auditor, self._generator = config, auditor, generator
+
+    @property
+    def model(self) -> str:
+        return self._config.llm_model
+
+    def check(self, folder: str):
+        from clinassist.model_update import check_update
+
+        return check_update(folder, self._config.llm_model)
+
+    def apply(self, folder: str, user_id: str):
+        from clinassist.model_update import apply_update
+
+        # Free the model's memory first, so Ollama loads the new files on the next note.
+        unload = getattr(self._generator, "unload", None)
+        if unload:
+            unload()
+        result = apply_update(folder, self._config.llm_model)
+        if not result.already_installed:
+            self._auditor.record("language_model_updated", "", user_id)
+        return result
 
 
 class Backups:
@@ -229,6 +261,7 @@ class Services:
     auditor: Auditor
     auth: object  # AuthService; typed loosely to keep this module free of the security imports
     backups: Backups | None = None  # backup and restore, for the admin screen (FR-10c)
+    models: ModelUpdates | None = None  # offline model update, for the admin screen (FR-10b)
     database: DatabaseInspector | None = None  # read-only view for the Database tab
 
     def new_controller(self) -> ConsultationController:
@@ -285,6 +318,7 @@ def build(config: AppConfig, vault, *, recorder=None, transcriber=None, generato
         auditor=auditor,
         auth=AuthService(vault, auditor),
         backups=Backups(vault, auditor),
+        models=ModelUpdates(config, auditor, generator),
         database=DatabaseInspector(vault, auditor),
     )
 
