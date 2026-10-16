@@ -193,7 +193,7 @@ def run_primock57(label: str, source: str, model: str, limit: int | None, only) 
 
 
 # ----- AfriSpeech-200, Kenyan accents -----
-def run_afrispeech(label: str, accents, limit: int | None) -> Path:
+def run_afrispeech(label: str, accents, limit: int | None, whisper_size: str = "small") -> Path:
     from clinassist.adapters.transcriber import WhisperTranscriber
     from clinassist.config import AppConfig
     from clinassist.metrics import word_error_rate
@@ -201,10 +201,11 @@ def run_afrispeech(label: str, accents, limit: int | None) -> Path:
     from clinassist.public_scoring import drop_dictated_punctuation
 
     root = DATA / "afrispeech-ke"
-    path = OUT / f"afrispeech-ke-{label}.json"
+    suffix = "" if whisper_size == "small" else f"-{whisper_size}"
+    path = OUT / f"afrispeech-ke-{label}{suffix}.json"
     data = _load(path)
-    data.update(dataset=ATTRIBUTION["afrispeech"], **_machine())
-    config = AppConfig(models_dir=str(ROOT / "models"))
+    data.update(dataset=ATTRIBUTION["afrispeech"], whisper=whisper_size, **_machine())
+    config = AppConfig(models_dir=str(ROOT / "models"), whisper_model=whisper_size)
     whisper = WhisperTranscriber(config.whisper_dir())  # same settings as the application
     whisper.load()  # once for all clips; the application unloads after each consultation
     try:
@@ -353,6 +354,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--limit", type=int)
     parser.add_argument("--only", nargs="*")
     parser.add_argument("--accents", nargs="*", default=list(KENYAN_ACCENTS))
+    parser.add_argument("--whisper", default="small", help="speech model size, for afrispeech")
     args = parser.parse_args(argv)
     if args.dataset == "rescore":
         rescore(args.file)
@@ -363,7 +365,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.dataset == "primock57":
         path = run_primock57(args.label, args.source, args.model, args.limit, args.only)
     elif args.dataset == "afrispeech":
-        path = run_afrispeech(args.label, args.accents, args.limit)
+        path = run_afrispeech(args.label, args.accents, args.limit, args.whisper)
     else:
         path = run_aci(args.label, args.model, args.limit)
     print("results:", path)
