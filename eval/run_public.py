@@ -53,7 +53,8 @@ def _load(path: Path) -> dict:
 def _save(path: Path, data: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".part")
-    tmp.write_text(json.dumps(data, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    text = json.dumps(data, indent=1, ensure_ascii=False) + "\n"
+    tmp.write_text(text, encoding="utf-8", newline="\n")  # LF, as the repository expects
     tmp.replace(path)
 
 
