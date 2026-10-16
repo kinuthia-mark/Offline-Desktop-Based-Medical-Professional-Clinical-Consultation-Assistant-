@@ -1,6 +1,6 @@
 # ADR-016: Evaluation on public datasets with real voices and clinicians' notes
 
-- Status: accepted; round 2 (after the fixes) results added when the run completes
+- Status: accepted
 - Date: 2026-10-16
 - Requirement IDs: FR-02, FR-05, NFR-06 (AMD-06, AMD-30)
 - Evidence: `docs/eval/public/`, `eval/run_public.py`, `eval/report_public.py`,
@@ -80,8 +80,36 @@ The prompt change is the smallest that removes the contradiction; ADR-013 showed
 prompt made the suggestions worse.
 
 ## Round 2 results (after the changes)
-To be added from `docs/eval/public/*-mark-pc-v2*` and `afrispeech-ke-mark-pc-medium.json` when the
-run completes, with Whisper medium compared with small on the same Kenyan clips.
+The same datasets on the same PC, with the three changes above (`*-mark-pc-v2*`):
+
+| Measure | Round 1 | Round 2 |
+|---|---|---|
+| PriMock57: notes produced | 48/57 (84%) | **56/57 (98%)** |
+| PriMock57: needed the second attempt | 20 | 13 |
+| PriMock57: clinician's diagnosis among the AI's suggestions | 21/41 (51%) | **38/48 (79%)**, 35 as the first suggestion (73%) |
+| PriMock57: clinician's highlights covered | 118/212 (56%) | 129/238 (54%) |
+| PriMock57: ROUGE-1 / ROUGE-2 / ROUGE-L | 0.32 / 0.07 / 0.18 | 0.33 / 0.08 / 0.18 |
+| PriMock57: median drafting | 98 s | 99 s |
+| ACI-Bench: notes produced | 39/40 | **40/40** |
+| ACI-Bench: ROUGE-1 / ROUGE-2 / ROUGE-L | 0.42 / 0.17 / 0.24 | 0.43 / 0.17 / 0.24 |
+| ACI-Bench: median drafting | 73 s | 78 s |
+
+The changes did what they were for: almost every consultation now gets a note, and the AI's
+suggestions include the clinician's diagnosis in four out of five, without slower drafting.
+Highlight coverage and ROUGE did not move, which is expected: the changes were about getting a
+complete reply, not about what the note says.
+
+## Whisper medium on the Kenyan clips
+| Kenyan speakers, 631 clips, 99.6 min | small (default) | medium |
+|---|---|---|
+| words wrong, raw / without spoken punctuation | 29.3% / **20.0%** | 24.8% / **16.2%** |
+| clinical sentences (without spoken punctuation) | 21.6% | 18.0% |
+| time to transcribe, against the length of the audio | 0.33 | 1.10 |
+
+Medium makes about a fifth fewer errors but is 3.4 times slower on the reference PC's CPU: a
+ten-minute consultation would take about six minutes to transcribe instead of under two. **Small
+stays the default** for 8 GB clinic PCs. Medium is pinned in `model_files.py` and can be chosen
+with `whisper_model` in the settings on a faster PC; it is not in the installer's bundle.
 
 ## Limits
 - One PC, and memory was short during the runs (0.4 to 3.6 GB free at the start).
@@ -90,3 +118,5 @@ run completes, with Whisper medium compared with small on the same Kenyan clips.
   Kenyan clinic consultation; together they cover real conversation and Kenyan accents
   separately.
 - The diagnosis hit rate measures agreement with one clinician's impression, not correctness.
+- Round 2 reuses the same 57 consultations that guided the changes, so its numbers favour the
+  changes somewhat; ACI-Bench, which played no part in finding them, improved slightly too.

@@ -1,0 +1,416 @@
+{
+ "items": {
+  "D2N088": {
+   "source": "virtassist",
+   "draft_seconds": 88.2,
+   "failures": [],
+   "dialogue_words": 1563,
+   "rouge1": 0.3369,
+   "rouge2": 0.1213,
+   "rougeL": 0.1993,
+   "note": "Subjective: The patient reports feeling tired, short of breath, and experiencing some joint pain (elbows and knees) after carrying heavy bags. The patient has a history of depression, type 2 diabetes, and hypertension. The patient is vaccinated against COVID-19. Patient denies allergies. Patient's blood pressure is under control with medication. Patient reports feeling warm but attributing it to exertion. Patient's hemoglobin A1c is elevated at 8%. Patient feels well with their depression management.\nObjective: Vital signs are normal. Scattered ronchi bilaterally on lung exam, clears with cough. Some edema of lower extremities and pain to palpation of elbows bilaterally. Chest x-ray is normal. Hemoglobin A1c is elevated at 8%. Patient is taking lisinopril for hypertension.\nAssessment: Viral syndrome due to upper respiratory infection. Elevated hemoglobin A1c. Mild joint pain likely related to exertion and/or underlying condition. Depression appears well managed.\nPlan: Send COVID test. Provide robitussin for cough, ibuprofen or tylenol for fever. Increase metformin dose to 1000 mg twice daily. Order a hemoglobin A1c in four months. Continue lisinopril 20mg daily. Order lipid panel. Schedule follow-up appointment in four months. Refer patient to psychotherapy if needed."
+  },
+  "D2N089": {
+   "source": "virtassist",
+   "draft_seconds": 74.4,
+   "failures": [],
+   "dialogue_words": 1252,
+   "rouge1": 0.4227,
+   "rouge2": 0.1959,
+   "rougeL": 0.2362,
+   "note": "Subjective: The patient reports doing well. The patient has rheumatoid arthritis, atrial fibrillation, and reflux. The patient is on methotrexate once weekly for rheumatoid arthritis. The patient has palpitations with atrial fibrillation. The patient has nasal congestion due to allergies. The patient has a slight systolic ejection murmur. The patient has edema and erythema of the right elbow which hurts when pressed. The patient has no lower extremity edema. The patient reports no chest pain, shortness of breath, nausea or vomiting. The patient is taking protonix for reflux and dietary modifications have helped with symptoms.\nObjective: Heart rate controlled. Lungs clear. Slight 2/6 systolic ejection murmur heard. Edema and erythema noted on the right elbow. No lower extremity edema. Autoimmune panel normal. Event monitor shows atrial fibrillation with conversion pauses. Rheumatoid arthritis well-controlled on methotrexate.\nAssessment: Not stated\nPlan: Continue methotrexate 2.5 mg once weekly for rheumatoid arthritis. Refer to cardiology for cardiac ablation for atrial fibrillation. Continue protonix 40 mg daily for reflux. Continue dietary modifications. Follow up with rheumatologist if needed. Order methotrexate refill."
+  },
+  "D2N090": {
+   "source": "virtassist",
+   "draft_seconds": 85.3,
+   "failures": [],
+   "dialogue_words": 1471,
+   "rouge1": 0.4149,
+   "rouge2": 0.2188,
+   "rougeL": 0.2446,
+   "note": "Subjective: The patient is a 62-year-old male with a past medical history significant for depression, type 2 diabetes, and kidney transplant. The patient was in the emergency room due to elevated blood sugar levels, feeling woozy over the weekend. The patient's wife took him to the hospital because of his elevated blood sugar. The patient states that he has been following his diet closely during the week but not on weekends when he is busy with social activities. He takes immunotherapy medications for his kidney transplant and reports being diligent about them. The patient is doing well with his depression, using meditation as a coping mechanism. His hemoglobin A1c is 8%. The patient denies chest pain or shortness of breath. There is 1+ edema in the lower extremities. The patient's blood sugar was 162 at the time of examination.\nObjective: Blood glucose: 162. Hemoglobin A1C: 8%. Kidney function stable. Slight systolic ejection murmur heard on heart exam. 1+ edema in lower extremities. Vital signs normal.\nAssessment: Hyperglycemia, elevated HbA1c, mild edema, depression (stable).\nPlan: Increase lantus to 20 units at night. Monitor blood sugar and adjust as needed. Order a hemoglobin A1C in a couple of months. Follow up with Dr. Reyes for kidney transplant management. Hold off on medication or therapy for depression currently. Call if needed."
+  },
+  "D2N091": {
+   "source": "virtassist",
+   "draft_seconds": 58.2,
+   "failures": [],
+   "dialogue_words": 742,
+   "rouge1": 0.4297,
+   "rouge2": 0.1882,
+   "rougeL": 0.2773,
+   "note": "Subjective: The patient reports traveling all over the country, which has been stressful. The patient has insomnia and has tried various strategies to improve sleep without success. The patient is on fosamax for osteoporosis with no joint issues or broken bones recently. The patient was diagnosed with multiple sclerosis six months ago and takes medication for it. The patient had some weakness in their right leg after knee surgery, but the left leg is stronger. The patient denies chest pain, shortness of breath, or other significant symptoms.\nObjective: Vital signs are good. Heart and lungs sounds clear. Lower extremity strength: right 4/5, left 3/5. Reflexes are normal. Right knee x-ray shows arthritis changes. Fosamax refill ordered.\nAssessment: not stated\nPlan: Continue fosamax 1 tab per week for 11 refills. Continue seeing neurologist and taking medications as prescribed. Follow up with the neurologist as needed."
+  },
+  "D2N092": {
+   "source": "virtassist",
+   "draft_seconds": 50.6,
+   "failures": [],
+   "dialogue_words": 693,
+   "rouge1": 0.466,
+   "rouge2": 0.1107,
+   "rougeL": 0.233,
+   "note": "Subjective: The patient reports pain in her distal radius. The patient states she hit her arm on a tennis net pole during a backhand shot. The patient has some swelling, but no numbness or significant wrist pain. The patient is allergic to flonase and takes it. The patient had a stabbing injury from lawn work with a rake.\nObjective: The doctor examined the patient's arm and found tenderness over the distal radius on palpation. The patient reported pain when the doctor flexed her thumb, and also when she moved her wrist. X-ray shows no fractures or abnormalities.\nAssessment: Strain and contusion to the muscle of the distal radius.\nPlan: The doctor prescribed 800 mg of motrin three times a day with food for pain and swelling. The patient should use ice. If symptoms do not improve in one week, she should return for further evaluation. Dragon is to order medications as discussed."
+  },
+  "D2N093": {
+   "source": "virtassist",
+   "draft_seconds": 82.0,
+   "failures": [],
+   "dialogue_words": 1446,
+   "rouge1": 0.2975,
+   "rouge2": 0.0877,
+   "rougeL": 0.155,
+   "note": "Subjective: The patient reports shortness of breath, swelling in legs, lethargy. The patient is on insulin pump for type I diabetes and has n't noticed any blood sugar spikes recently. The patient has a history of depression and reflux, with no current issues reported. Patient is open to suggestions for depression.\nObjective: Patient is 62 years old with Type I Diabetes, CHF, Depression, Reflux. Shortness of breath, edema in legs, slight systolic ejection murmur, crackles bilaterally at lung bases. Chest x-ray shows no airspace disease. Labs are normal. Patient's oxygenation level looks good.\nAssessment: Acute heart failure exacerbation. Type I diabetes management needed. Depression needs psychiatric referral. Reflux needs continued omeprazole therapy.\nPlan: Start lasix 40mg daily, weigh daily, call if weight increases or shortness of breath worsens. Call 911/go to ER for severe respiratory distress. HbA1c in a month. Follow up with endocrinologist and eye exam. Refer patient to psychiatry for depression treatment. Continue omeprazole 20mg daily."
+  },
+  "D2N094": {
+   "source": "virtassist",
+   "draft_seconds": 54.7,
+   "failures": [],
+   "dialogue_words": 695,
+   "rouge1": 0.4753,
+   "rouge2": 0.1801,
+   "rougeL": 0.3025,
+   "note": "Subjective: The patient reports a right index finger injury sustained while skiing last saturday. The patient describes jamming the finger on something during the fall. The patient took ibuprofen, which did not alleviate the pain. The patient rates the pain as 7/10. The patient has chronic constipation and takes miralax. The patient had an appendectomy at age seven. The patient reports pain with palpation of the distal interphalangeal joint (DIP) of the right index finger.\nObjective: X-ray shows no fractures. Examination reveals tenderness to palpation over the DIP joint of the right index finger.\nAssessment: Distal interphalangeal joint sprain of the right index finger.\nPlan: Prescribe 14 tablets of 15 mg mobic once daily for pain management. Order splinting and follow-up in two weeks to assess healing. Schedule a hand therapy evaluation if needed. Dragon finalize report and order medications and procedures mentioned."
+  },
+  "D2N095": {
+   "source": "virtassist",
+   "draft_seconds": 67.1,
+   "failures": [],
+   "dialogue_words": 1218,
+   "rouge1": 0.4082,
+   "rouge2": 0.1575,
+   "rougeL": 0.2135,
+   "note": "Subjective: The patient reports back pain that started six days ago after walking. The patient states the pain is on both sides of her lower back and is exacerbated by flexion and extension. The patient denies numbness or weakness in her legs or feet. The patient has a little nasal congestion due to seasonal allergies. The patient's blood pressure is well-controlled with lisinopril 10mg daily, as confirmed by home readings. The patient reports lifting weights three times per week.\nObjective: The patient's vital signs are normal. Heart exam reveals a systolic ejection murmur (2/6). Back examination shows pain to palpation on the right lateral aspect of the lumbar spine with flexion and extension. Straight leg raise is negative. Lumbar x-ray shows good boney alignment, no obvious fracture. Labs show normal white blood cell count and no signs of infection.\nAssessment: Lumbar strain\nPlan: Prescribe meloxicam 15mg po daily for back pain. Advise ice and heat application to the affected area. Refer patient to physical therapy for strengthening exercises. Continue lisinopril 10mg po daily for hypertension. Order lisinopril refill. Follow up with nurse."
+  },
+  "D2N096": {
+   "source": "virtassist",
+   "draft_seconds": 72.4,
+   "failures": [],
+   "dialogue_words": 876,
+   "rouge1": 0.4432,
+   "rouge2": 0.1576,
+   "rougeL": 0.2541,
+   "note": "Subjective: The patient reports left shoulder pain for a week, started during gymnastics class. The patient took Tylenol for two or three days but it did not help. Patient has no allergies to medications. Patient had surgery on the left arm. Patient is trying to avoid heavy lifting with her right hand.\nObjective: Doctor examined the left shoulder and found pain with movement. X-ray shows no fracture. Doctor recommends ibuprofen 600mg three times a day for one week, ice or heat pad if needed. Doctor suggests resting the left arm for at least three to four weeks. Patient has past surgery on her left arm.\nAssessment: not stated\nPlan: Doctor prescribed ibuprofen 600mg three times daily for one week. Doctor advised patient to use ice or heat pad as needed. Doctor recommended resting the left arm for at least three to four weeks. Doctor suggested a follow-up appointment in three to four weeks if pain persists. Doctor suggested advil (aleve) as an alternative."
+  },
+  "D2N097": {
+   "source": "virtassist",
+   "draft_seconds": 68.2,
+   "failures": [],
+   "dialogue_words": 999,
+   "rouge1": 0.3806,
+   "rouge2": 0.1874,
+   "rougeL": 0.2549,
+   "note": "Subjective: the patient is doing well. the patient has been vaccinated and able to see grandkids again. the patient is seeing a therapist once a week for depression, mostly virtually but starting in-person. the patient has a husband and kids who are supportive. the patient's blood pressure is normal when using the cuff at home. the patient takes lisinopril. the patient denies chest pain, shortness of breath, abdominal pain, nausea or vomiting. the patient has trace lower extremity edema bilaterally.\nObjective: blood pressure: good; heart rate: normal; lungs clear; carotid bruits absent; slight 2/6 systolic ejection murmur present; ekg normal; trace lower extremity edema bilaterally.\nAssessment: not stated\nPlan: continue lisinopril, 20 mg daily. monitor blood pressures at home and contact if they rise. schedule mammogram for annual exam maintenance. set an alarm to remind patient to take medication together."
+  },
+  "D2N098": {
+   "source": "virtscribe",
+   "draft_seconds": 52.8,
+   "failures": [],
+   "dialogue_words": 952,
+   "rouge1": 0.4902,
+   "rouge2": 0.2956,
+   "rougeL": 0.3676,
+   "note": "Subjective: the patient reports pain in his left shoulder and elbow for five months, caused by a fall while going up stairs. The patient has been lifting weights but has stopped due to the pain. He experiences pain when pressing on his left shoulder and elbow. No numbness or tingling is reported. Patient enjoys walking with his wife daily.\nObjective: tender sa space , no warmth , erythema or deformity . positive hawkins-kennedy and neer's test . normal proximal and distar , distal upper extremity strength . intact median radial ulnar sensation and abduction to 90 degrees . normal empty tan , can test .\nAssessment: impingement syndrome of left shoulder.\nPlan: physical therapy referral requested for dr. martha rivera, two sessions per week. Ice and rest recommended. Call or email if symptoms worsen or do not improve with therapy."
+  },
+  "D2N099": {
+   "source": "virtscribe",
+   "draft_seconds": 138.8,
+   "failures": [],
+   "dialogue_words": 1882,
+   "rouge1": 0.4751,
+   "rouge2": 0.1316,
+   "rougeL": 0.2178,
+   "note": "Subjective: The patient reports that the patient started to get a runny nose around supper time last night. The patient has a stuffy nose, mucous is clear right now, and he also has a cough (not barky). He pulls on his ears. He also rubs at his nose. The patient's rectal temperature was 100.3. The patient ate about seven ounces from the bottle last night, but barely ate the second bottle. His energy seems irritable. The patient is exposed to his older sister who has been sick and a nephew with a sinus infection. The patient has been doing saline mist in his nose, gave him tylenol this morning because he was warm when he took the sleeper off of him, and used the humidifier. He also used baby vick's on his feet last night. The patient is using cradle cap brush and aveno shampoo for cradle cap. The patient has a regular cough. The patient wants to know if honey can be given to babies. The patient would like zarbee's for stuffy nose, and the medicine to give him just in case. The patient asks about information being in the papers. The patient wants to know what medicine to give him just in case. The patient is concerned about cradle cap getting worse.\nObjective: Rectal temperature 100.3. Patient has a runny nose, stuffy nose, clear mucous, and cough (not barky). Pulls on ears. Rubs at his nose. Ate 7 oz bottle last night, barely ate second bottle. Irritable energy. Exposed to older sister with illness, nephew with sinus infection. Saline mist in nose. Tylenol given this morning due to fever. Humidifier used. Baby vick's used on feet. Cradle cap treated with cradle cap brush and aveno shampoo. Regular cough. Zarbee's for stuffy nose. Medicine just in case. Cradle cap getting worse.\nAssessment: Viral illness, possible sinus infection. No antibiotics needed at this time. Watch for barky cough.\nPlan: Continue fluids, rest. Watch carefully for barky cough. If barky cough develops, give half a teaspoon of sister's medicine (same as sister). Zarbee's for stuffy nose. Baby vick's on feet. Cradle cap: Head & Shoulder shampoo or Selsun Blue/Nizoral AD (regular strength) twice per week. Avoid eyes during hair washing. Follow up in one week. If symptoms worsen, call. Provide half a teaspoon of sister's medicine for 5 days if needed."
+  },
+  "D2N100": {
+   "source": "virtscribe",
+   "draft_seconds": 194.1,
+   "failures": [
+    "repetition_detected"
+   ],
+   "dialogue_words": 956,
+   "rouge1": 0.6567,
+   "rouge2": 0.3711,
+   "rougeL": 0.3904,
+   "note": "Subjective: the patient has acne located on the face, which started about two years ago and is present most every day. she has been using persa-gel and washing regularly, which is somewhat helpful. there are no associated symptoms including itching , bleeding , or pain. she lives with her parents and sister. they have a dog , bird , and bunnies. she is in 7th grade. she plays basketball and volleyball and tap. she wears sunscreen in the summer , spf 30. no additional family history. hi kayla , i'm dr. juan price . i hear you are starting to get some acne on the face . how about the chest and back ? the patient says it's not too bad. the patient uses elf super clarity cleanser and then toner and persa-gel. the patient wipes her face in the morning with water and washcloth. sometimes she uses the elf cleanser in the morning. the patient says today is probably a good day for her since she is here. the patient does n't find that her acne flares with her periods. she gets a regular period. the patient has been getting a regular period for about two years. the biggest flare was when she started school sports in the fall. the patient says the facial care regimen has helped a little bit. the patient's acne is mild to moderate, mostly comedonal with small inflammatory component. the patient is using noncomedogenic moisturizer and sunscreen. the patient has multiple benign moles on the trunk and extremities. the patient has scattered skin colored papules. open and closed comedones. erythmateous papules on the face, primarily on the forehead and with also some on the central cheeks and chin. the chest and back are relatively spared. the remainder of the examination is normal.\nObjective: multiple benign nevi on the trunk and extremities. scattered skin colored papules. open and closed comedones. erythmateous papules on the face , primarily on the forehead and with also some on the central cheeks and chin . the chest and back are relatively spared. the remainder of the examination is normal.\nAssessment: mild to moderate acne, mostly comedonal with small inflammatory component\nPlan: every morning , wash your face with a mild cleanser then use a moisturizer labeled , \" noncomedogenic \", with sunscreen spf 30 or higher. apply adapalene , 0.1 % cream , in a thin layer to the areas you generally get acne. start off using this a few nights a week and slowly work up to using it every night. if it is ... excuse me , if it is very expensive or not covered by insurance , you can try different gel over the counter. you can follow that with clean and clear persa-gel in a thin layer , or where you generally get acne. and then a noncomedogenic moisturizer. you're atopic retinoid will cause some sensitivity , so you will need to wear sunscreen when you are outside. it may also cause some dryness or irritation. follow up at six months."
+  },
+  "D2N101": {
+   "source": "virtscribe",
+   "draft_seconds": 134.9,
+   "failures": [],
+   "dialogue_words": 2392,
+   "rouge1": 0.4058,
+   "rouge2": 0.1497,
+   "rougeL": 0.1628,
+   "note": "Subjective: Patient is Julia Jones, DOB 5/16/1996. She is a new breast reduction consult. Patient reports back pain and neck pain since high school. Patient wears about a G cup bra size with indentations in shoulders. Patient has been going to the chiropractor for several years. Patient takes propranolol for migraines. Patient has family history of breast cancer (mother diagnosed at age 40). Patient is 25 years old, studying psychology, and plans to have children in the future. Patient reports occasional wine consumption. Patient states she can not breastfeed after a breast reduction. Patient does not experience numbness or tingling in hands or nipple pain. Patient experiences sweating underneath breasts. Patient feels limited activities due to size of breasts. Patient has no rashes underneath breasts. Patient feels like her activities are limited because of the size and it hurts when working at desk all day. Patient reports that she can feel relief almost immediately after surgery.\nObjective: Patient is 25 years old, female. Breast size G cup with indentations in shoulders. No nipple retraction or discharge bilaterally. No breast tenderness, masses, or axillary lymphadenopathy palpable. Measurements taken and documented. Patient has family history of breast cancer (mother diagnosed at age 40).\nAssessment: Patient is a good candidate for breast reduction surgery.\nPlan: Submit insurance information to the office once it's switched over. Insurance will determine medical necessity. Once approved, schedule surgery date with the office. Meet again before surgery to answer any last minute questions and go over instructions in more detail. Take photos today. Physical exam findings of breast, inspection reveals asymmetrical breasts with severe ptosis bilaterally. There is no nipple retraction or discharge bilaterally. No breast tenderness, masses, or axillary lymphadenopathy is palpable."
+  },
+  "D2N102": {
+   "source": "virtscribe",
+   "draft_seconds": 69.9,
+   "failures": [],
+   "dialogue_words": 891,
+   "rouge1": 0.4563,
+   "rouge2": 0.2305,
+   "rougeL": 0.288,
+   "note": "Subjective: the patient reports hematuria for six weeks , bright red urine the color of cherry kool-aid , constant need to pee and pain last week . patient passed two small stones last week . patient drinks mountain dew more than water . patient takes alavert 10 mg daily. no drug allergies.\nObjective: urine dipstick negative for leukocytes , nitrates , protein , ketone , bilirubin and glucose . color yellow and clear , urobilinogen 0.2 , ph 5.5 and specific gravity 1.020 . right kidney is 10 cm in length by five centimeter wide . there are no stones , masses or hydronephrosis . the left kidney is 10.8 centimeters in length and five centimeters wide . there is a six millimeter left renal stone non-obstructing . 533 milliliters pre-void and 0 milliliters post-void . abdomen : no flank pain.\nAssessment: not stated\nPlan: recommend drinking about half of body weight in ounces of water a day. avoid sugary drinks like mountain dew. reduce sodium intake to less than 1,000 milligrams daily. reduce animal protein (beef , poultry , fish , and pork). provide handout with dietary recommendations. follow-up next year unless issues arise. if severe pain or bright red blood in urine go to emergency room."
+  },
+  "D2N103": {
+   "source": "virtscribe",
+   "draft_seconds": 134.8,
+   "failures": [
+    "repetition_detected"
+   ],
+   "dialogue_words": 1132,
+   "rouge1": 0.4028,
+   "rouge2": 0.1835,
+   "rougeL": 0.1874,
+   "note": "Subjective: the patient has a history of mitral regurgitation and atrial fibrillation, history of diabetes, asthma, and recurrent chest discomfort with negative cardiac workup for coronary artery disease. The patient reports feeling better since surgery. The patient reports occasional chest pains and shallow breathing. The patient takes coumadin, lasix, and atenolol. The patient reports no side effects from the medications except for irritability from the atenolol. The patient feels like she is learning what her body can and cannot do.\nObjective: atrial fibrillation with controlled ventricular response. T-wave inversion anteriorly. Trace peripheral edema on extremities. S1 slightly accentuated, no s3. Heart valves working well. No JVD detected. Lungs have reduced breath sounds but auscultation and percussion are clear.\nAssessment: not stated\nPlan: followup in six to nine months. Continue current medications (coumadin, lasix, atenolol). Encourage activity."
+  },
+  "D2N104": {
+   "source": "virtscribe",
+   "draft_seconds": 41.8,
+   "failures": [],
+   "dialogue_words": 776,
+   "rouge1": 0.2825,
+   "rouge2": 0.1049,
+   "rougeL": 0.2156,
+   "note": "Subjective: The patient reports feeling good, thanks. The patient reports some pain in the feet joints and knees. The patient reports bruising on the body with no sensation of impact. The patient reports psoriasis.\nObjective: Examination reveals joint pain in the feet and knees. Nails have ridges. No other objective findings are mentioned.\nAssessment: Not stated\nPlan: The doctor will discontinue prednisone and continue methotrexate. The patient should make an appointment for blood work. Follow-up in three months."
+  },
+  "D2N105": {
+   "source": "virtscribe",
+   "draft_seconds": 109.2,
+   "failures": [],
+   "dialogue_words": 2344,
+   "rouge1": 0.3317,
+   "rouge2": 0.1309,
+   "rougeL": 0.193,
+   "note": "Subjective: Patient reports having a heart murmur for an unknown duration. Patient denies chest pain or shortness of breath. Patient has leg pain, which she attributes to aortic stenosis. Patient takes amlodipine, lisinopril, and simvastatin. Patient reports lightheadedness that is managed with meclizine. Patient denies palpitations. Patient's brother had a stroke due to diabetes; her sister had a heart problem. Patient states she never smoked. Patient has no known allergies. Patient reports weight loss over the past year. Patient feels tired.\nObjective: Physical exam reveals a 4/6 systolic murmur at the right upper sternal border with mild radiation to the carotids. Neurologic exam is normal for age. Cardiovascular exam shows preserved S1 and S2. EKG shows sinus rhythm with frequent PVCs and an anterior septum infarct pattern. Patient has no significant palpitations. Patient reports lightheadedness.\nAssessment: Likely aortic stenosis, possibly moderate. Possible ischemic evaluation needed after echocardiogram. Lightheadedness may be related to aortic stenosis or PVCs.\nPlan: Schedule echocardiogram for cardiac structure and function assessment. Consider tavr evaluation following echocardiogram results. Defer statin management to PCP; consider stopping simvastatin due to leg pain. Follow up in 3-4 weeks after echocardiogram to discuss results and next steps. Monitor for palpitations and lightheadedness."
+  },
+  "D2N106": {
+   "source": "aci",
+   "draft_seconds": 126.1,
+   "failures": [
+    "repetition_detected"
+   ],
+   "dialogue_words": 829,
+   "rouge1": 0.3282,
+   "rouge2": 0.1085,
+   "rougeL": 0.2046,
+   "note": "Subjective: The patient reports shortness of breath, especially when outdoors and around cats. The patient has a history of allergies, including eye watering and possible cat allergies. The patient uses an inhaler for symptom relief. The patient denies rash, nausea, vomiting, lip or throat swelling, and previous allergic issues. Patient reports mild expiratory wheezing bilaterally on lung exam.\nObjective: Vital signs are normal. Pulse oximetry is normal. No visible rash. No stridor. Lungs clear except for faint expiratory wheezing bilaterally. Chest x-ray and pulmonary function tests were normal.\nAssessment: New diagnosis of allergic asthma. Possible environmental allergens (cats).\nPlan: Prescribe singulair ten milligrams daily. Schedule allergy testing (skin testing) next week. Continue albuterol inhaler as needed. Follow up with the provider next week to schedule allergy testing."
+  },
+  "D2N107": {
+   "source": "aci",
+   "draft_seconds": 63.9,
+   "failures": [],
+   "dialogue_words": 916,
+   "rouge1": 0.3668,
+   "rouge2": 0.096,
+   "rougeL": 0.201,
+   "note": "Subjective: the patient was raking leaves, felt fine, then back tightened up with pins and needles in the right foot. Patient took two advils which did n't help. The patient said it feels a little better when sitting. Patient had back pain three years ago but it went away after a day. Patient has n't been overly active for a long time. Partner reports partner is having pain standing up. Patient thinks it was a long term injury. Patient has n't taken meloxicam before. Patient has tingling in the right leg.\nObjective: normal dorsiflexion, equal pulses in all extremities, normal x-ray of low back, patient has n't been overly active for a long time.\nAssessment: likely sprained low back\nPlan: prescribe meloxicam, prescribe physical therapy, follow up with mri if pain persists after two weeks. Patient should call back in two weeks to schedule an mri if it is still not improving."
+  },
+  "D2N108": {
+   "source": "aci",
+   "draft_seconds": 77.7,
+   "failures": [],
+   "dialogue_words": 1033,
+   "rouge1": 0.4901,
+   "rouge2": 0.1761,
+   "rougeL": 0.2649,
+   "note": "Subjective: the patient has had a nonhealing foot ulcer for about two months, it is red and draining. the patient was at dewey beach when he hurt his foot. the patient takes medication but does not check blood sugar regularly. the patient's last a1c was around 10. the patient feels throbbing pain in the foot sometimes. the patient has no fever. the patient did an x-ray of his right foot and there is no evidence of osteomyelitis. the patient has a one by two inch circular wound on the dorsal aspect of the lateral right foot, it's red, swollen, with fluid drainage. the patient does not have any odor or bony exposure.\nObjective: the patient vitals are normal. the patient has no fever. The exam shows redness and edema around a one by two inch circular wound on the dorsal aspect of the lateral right foot. there is fluid drainage. No necrosis or odor, no bony exposure. An x-ray was done and it showed no osteomyelitis.\nAssessment: the patient has a diabetic foot ulcer with signs of infection. The blood supply to the foot needs to be assessed.\nPlan: order an abi ankle brachial index. perform debridement. prescribe clindamycin 400mg twice daily for seven days. get a surgical shoe. see the patient again in two weeks. call office if any issues arise."
+  },
+  "D2N109": {
+   "source": "aci",
+   "draft_seconds": 78.9,
+   "failures": [],
+   "dialogue_words": 1064,
+   "rouge1": 0.3704,
+   "rouge2": 0.1135,
+   "rougeL": 0.1793,
+   "note": "Subjective: The patient reports a left ankle injury two days ago from a fall. The patient states the pain is on the outside of the ankle and hip area, with swelling and tenderness over the lateral malleolus and fifth metatarsal bone. The patient has diabetes (HbA1c 6.8) and high blood pressure (norvasc). The patient reports stable blood sugars and blood pressure readings.\nObjective: Ankle exam: tenderness over lateral malleolus and fifth metatarsal bone, swelling, redness, pain with valgus stress of the ankle, normal pulses, normal sensation. Neck exam: fine. Lung exam: clear. Heart exam: normal. Bruit absent. Abdomen exam: good. Blood pressure: 170/70. No bleeding noted.\nAssessment: Ankle sprain, possible fracture (pending x-ray).\nPlan: Order ankle X-ray. Provide air splint and crutches. Administer naprosyn 500mg twice daily for pain control. Keep elevated and apply ice. Check baseline labs. Refill norvasc. Schedule HbA1c check. Follow up with a call back after x-ray results."
+  },
+  "D2N110": {
+   "source": "aci",
+   "draft_seconds": 99.5,
+   "failures": [],
+   "dialogue_words": 890,
+   "rouge1": 0.4064,
+   "rouge2": 0.2002,
+   "rougeL": 0.2365,
+   "note": "Subjective: The patient reports having a one by two inch circular wound on the dorsal aspect of the lateral right foot, proximal to the right fifth mtp joint. The wound has yellow slough and minimal granulation tissue. There is no surrounding erythema or cellulitis, no fluid collection, no necrosis, or odor. No bony exposure is appreciated. Palpable bilateral femoral and popliteal pulses are present. Doppler signs are present. The patient reports the wound does not hurt when touched. The patient's last HbA1c was slightly over 8.0%. Patient reports wearing Hoka shoes from REI.\nObjective: Temperature: 98.1 F, Heart Rate: 72 bpm, Respirations: 16, Blood Pressure: 110/65 mmHg. Foot exam: One by two inch circular wound on the dorsal aspect of the lateral right foot, proximal to the right fifth mtp joint. Yellow slough present with minimal granulation tissue. No surrounding erythema or cellulitis. No fluid collection. No necrosis. No odor. No bony exposure. Palpable bilateral femoral and popliteal pulses. Doppler signs present. Ankle-Brachial Index (ABI) ordered. Debridement performed in office. Prescribed collagenase ointment to be applied daily with a dry sterile dressing. Surgical shoe prescribed. HbA1c: 8.0+. No osteomyelitis on x-ray.\nAssessment: Diabetic foot ulcer. No evidence of osteomyelitis. Adequate blood supply to the foot based on ABI and Doppler studies. Patient's diabetes is not well controlled (HbA1c slightly elevated).\nPlan: Order Ankle-Brachial Index (ABI) to assess blood flow to the foot. Perform debridement in office. Prescribe collagenase ointment for daily application with a dry sterile dressing. Prescribe surgical shoe. Follow up in two weeks. Consider referral to a vascular specialist if ABI is abnormal. Obtain diabetic consult to help manage diabetes and lower HbA1c."
+  },
+  "D2N111": {
+   "source": "aci",
+   "draft_seconds": 81.5,
+   "failures": [],
+   "dialogue_words": 1303,
+   "rouge1": 0.3513,
+   "rouge2": 0.1364,
+   "rougeL": 0.2323,
+   "note": "Subjective: The patient injured his right knee while on the trampoline. He heard a pop and felt immediate pain. The patient does not work out regularly. He is taking lisinopril (20mg) for hypertension, metformin (500mg) for diabetes, and tylenol for pain. He has not measured his blood pressure or blood sugar recently. Patient reports the pain is on the outside of the knee. The patient has a limp. The patient had an x-ray which showed no fracture or bony abnormality.\nObjective: Blood pressure: 180/80 mmHg. Heart rate: regular rhythm. Lungs clear bilaterally. Knee exam shows ecchymosis and edema along the lateral aspect of the knee. Range of motion is adequate with some pain on movement. X-ray: no fracture or bony abnormality.\nAssessment: Lateral ligament strain, hypertension, diabetes. Not stated\nPlan: Prescribe meloxicam (15mg daily) for pain and swelling. Refer to physical therapy. Order an echocardiogram. Order A1C. Order lipid panel. Continue lisinopril (20mg). Monitor blood pressure regularly."
+  },
+  "D2N112": {
+   "source": "aci",
+   "draft_seconds": 75.9,
+   "failures": [],
+   "dialogue_words": 1362,
+   "rouge1": 0.5087,
+   "rouge2": 0.1971,
+   "rougeL": 0.3035,
+   "note": "Subjective: The patient reports back pain for a while, exacerbated by sitting. The patient states the pain radiates down the left leg to the big toe. The patient describes the pain as electrical toothache. The patient rates the pain at six out of ten when not medicated and thirteen out of ten when severe. The patient mentions numbness/tingling in the lower extremities, weakness in the legs, and that coughing/sneezing worsen symptoms. The patient uses a cane due to dragging foot. The patient reports the pain is eight out of ten with the pain being in the back, hip side of the leg, calf, and big toe. The patient states the foot drags when walking. The patient has n't taken medications because they wanted to see the doctor as they are. The patient mentions a friend who saw the doctor and burned nerves.\nObjective: Physical exam shows pain on palpation at l4 vertebrae with flexion and extension of back. Strength is 4/5 in left leg, 5/5 in right leg. Reflexes are brisk and motor/sensory intact in lower extremities. MRI shows disk herniation at l4-l5 with nerve root impingement.\nAssessment: Acute disk herniation at L4-L5 with nerve root impingement causing back pain and radicular pain down the left leg.\nPlan: Recommend epidural steroid injection today for pain relief. Refer patient to physical therapy after injection, with follow-up appointment in one month. Advise patient to continue PT."
+  },
+  "D2N113": {
+   "source": "aci",
+   "draft_seconds": 60.5,
+   "failures": [],
+   "dialogue_words": 1018,
+   "rouge1": 0.4752,
+   "rouge2": 0.1258,
+   "rougeL": 0.216,
+   "note": "Subjective: The patient reports being anxious about hepatitis C blood work. The patient denies ever having been told they have hepatitis C, and denies history of IV drug use or known hepatitis C positive partners. The patient drinks a beer a day and occasionally more on weekends. The patient smokes one to two cigarettes a day. The patient has hypertension, diabetes, and depression in the family. The patient feels tired at the end of the day after work. The patient reports that her children are doing well.\nObjective: Hepatitis C antibody test positive. AST 39. Other labs within normal limits. Heart exam: two out of six systolic murmur appreciated. Lungs clear. Abdomen soft, bowel sounds present, no hepatospleno splenomegaly appreciated. Musculoskeletal exam: no gait disturbance or edema. Vital signs are good.\nAssessment: Hepatitis C infection confirmed by positive antibody test. Liver disease severity needs further evaluation with liver ultrasound and fibrosis testing. Not stated.\nPlan: Order hepatitis C RNA, HCV genotype, and liver ultrasound to assess for fibrosis. Screen family members for hepatitis C. Follow up in three weeks. Suggestion: Hepatitis C, Liver Disease"
+  },
+  "D2N114": {
+   "source": "aci",
+   "draft_seconds": 83.7,
+   "failures": [],
+   "dialogue_words": 1239,
+   "rouge1": 0.4553,
+   "rouge2": 0.1762,
+   "rougeL": 0.2504,
+   "note": "Subjective: The patient reports having headaches for years, previously menstrual-related but now more frequent and severe. The headaches are on the right side and behind the eye, described as pulsating. The patient also reports ringing in the ears and blurred vision (on the side of vision). Exercise worsens the headaches. The patient is a runner using Asics and Nike shoes. The patient has had an MRI of the brain from a few years ago but not a recent one. The patient states that she wants to lose weight by exercising.\nObjective: Vitals are normal. Heart exam is normal. Funduscopic exam shows papilledema. Neurological exam is intact, including cranial nerves and reflexes. Gait is normal. Musculoskeletal exam is normal.\nAssessment: Idiopathic intracranial hypertension (IIH) is suspected based on headache characteristics, exercise exacerbation, tinnitus, blurred vision, and papilledema. Further testing with MRI and lumbar puncture are recommended to confirm the diagnosis. The patient's symptoms could be related to IIH or another cause of increased intracranial pressure.\nPlan: Obtain an MRI of the brain for confirmation. Perform a lumbar puncture to evaluate intracranial pressure. Refer to a neuro-ophthalmologist for a complete eye exam. Discuss medication options and lifestyle modifications (exercise, weight loss) with the patient. Follow up after diagnostic tests are completed."
+  },
+  "D2N115": {
+   "source": "aci",
+   "draft_seconds": 94.1,
+   "failures": [],
+   "dialogue_words": 960,
+   "rouge1": 0.493,
+   "rouge2": 0.2084,
+   "rougeL": 0.2605,
+   "note": "Subjective: The patient reports experiencing neck pain following a car accident where their head was whipped forward. The patient states the pain is rated as 7/10 and worsens with movement of the neck, particularly flexion and rotation. The patient has headaches and some hearing problems. The patient played football years ago without issues. The patient did not go to the emergency room after the accident due to cost concerns. There is no reported swelling or bruising on the neck. The patient can turn their neck from side to side but experiences pain with this movement. The patient reports pain when touching chin to chest and back, and lateral bending. The patient has had a recent x-ray which showed no fractures or bony abnormalities. Patient also states that they have been taking ibuprofen for the pain.\nObjective: Positive pain to palpation of the soft tissues of the neck. Positive pain with flexion. Positive pain with extension. Positive pain with rotation. Positive pain with lateral bending. No swelling or bruising on the neck. The patient can turn their head from side to side but experiences pain with this movement. X-ray shows no fractures or bony abnormalities.\nAssessment: Neck strain (whiplash).\nPlan: Prescribe motrin 600mg every 6-8 hours as needed for pain. Prescribe flexeril 10mg every 12 hours as needed for pain. Order an MRI to rule out concussion. Refer patient to physical rehab or chiropractor after MRI results are available. Advise the patient to relax their neck and avoid straining it."
+  },
+  "D2N116": {
+   "source": "aci",
+   "draft_seconds": 77.1,
+   "failures": [],
+   "dialogue_words": 1050,
+   "rouge1": 0.4393,
+   "rouge2": 0.1656,
+   "rougeL": 0.2461,
+   "note": "Subjective: the patient is doing good. the patient has left or some right shoulder pain for a few weeks, it's on the outside of the shoulder and tender to touch when raising the arm up. the patient had a little bit of pain in that same shoulder from playing baseball as a kid. the patient has n't had any numbness in their arm or hands. the patient is taking advil and icing. the patient says it helps a little bit. the patient has been putting an outdoor shower in, extending patio, making flower boxes, putting down stone, and doing laundry. the patient has no numbness. the patient has foot pain as well.\nObjective: the patient's vitals are normal. there is limited active and passive range of motion with the right shoulder. tenderness at the great tuberosity of the humerus. good hand grip. capillary refill less than three seconds, sensation to touch intact. no fracture on x-ray. foot pain.\nAssessment: rotator cuff tendinopathy\nPlan: order mri for left shoulder. refer patient to physical therapy for 6-8 weeks. continue tylenol and consider steroid injection if symptoms do n't improve. try epsom salts for feet. advise patient to drink more water."
+  },
+  "D2N117": {
+   "source": "aci",
+   "draft_seconds": 104.6,
+   "failures": [],
+   "dialogue_words": 1817,
+   "rouge1": 0.4891,
+   "rouge2": 0.1898,
+   "rougeL": 0.2358,
+   "note": "Subjective: The patient is a 45-year-old male with a history of diabetes type two, mild intermittent asthma, and right elbow pain. The patient reports that the elbow pain started three weeks ago after increased tennis activity. The patient describes the pain as sharp, shooting, stabbing, very sharp, worse with movement, better with rest. The patient has taken tylenol and ibuprofen without relief. The patient denies any trauma. The patient is on metformin 500mg twice daily. Patient reports blood sugars are around 150-160. Patient reports asthma is under control with flovent and albuterol as needed. Patient reports allergy to penicillin, gallbladder surgery ten years ago. Patient reports no fever recently.\nObjective: Exam: Right elbow: moderate lateral epicondylar tenderness. No joint effusion palpable. Wrist resisted extension: mild pain. Heart exam: Grade 3/6 systolic ejection murmur (unremarkable). Other exams normal. X-ray right elbow: no acute fracture or bony abnormality. HbA1c, CBC, and Chem-12 blood tests ordered.\nAssessment: Acute lateral epicondylitis of the right elbow (tennis elbow). Diabetes type two with elevated blood sugars. Mild intermittent asthma under control.\nPlan: Rest right arm for 4-6 weeks. Stop tennis. Ice right elbow 3x/day. Wear forearm brace. Ultram 50mg PRN for elbow pain. Increase metformin to 1000mg twice daily. Check blood sugar twice daily for 2 weeks and report back. Follow up in 4 weeks. Refill albuterol. Order HbA1c, CBC, and Chem-12 blood tests."
+  },
+  "D2N118": {
+   "source": "aci",
+   "draft_seconds": 111.0,
+   "failures": [],
+   "dialogue_words": 1765,
+   "rouge1": 0.4589,
+   "rouge2": 0.1689,
+   "rougeL": 0.195,
+   "note": "Subjective: The patient reports pain in the kidneys, which has been up and down. The patient had a kidney stone last week that they think passed about three days ago. They have no blood in their urine now. The patient is on norvasc 2.5mg daily for hypertension. The patient takes metformin 500mg daily for diabetes. The patient's blood pressure at home is usually good, but it was elevated during the visit (150/90). The patient has a history of recurrent kidney stones (7-8). The patient reports eating fast food and cakes occasionally. The patient has a grade 2 systolic ejection murmur. The patient has no abdominal pain or tenderness. The patient is on melatonin as needed for insomnia, but it hasn't been effective. Patient does not check blood sugar frequently.\nObjective: Blood pressure: 150/90. Medications: Norvasc 2.5mg daily, Metformin 500mg daily. Grade 2 systolic ejection murmur. No abdominal tenderness. Urine analysis pending. A1C: 6.7 (last check).\nAssessment: Recurrent kidney stones. Hypertension. Diabetes mellitus type 2 with elevated A1c.\nPlan: Referral to urology for evaluation of recurrent kidney stones. Urinalysis. Referral to nutrition counseling. Continue norvasc 2.5mg daily. Continue metformin 500mg daily. Consider blood glucose monitoring before meals. Melatonin 10mg as needed for insomnia, with emphasis on sleep hygiene. Follow up in three months."
+  },
+  "D2N119": {
+   "source": "aci",
+   "draft_seconds": 82.8,
+   "failures": [],
+   "dialogue_words": 1706,
+   "rouge1": 0.4406,
+   "rouge2": 0.1538,
+   "rougeL": 0.272,
+   "note": "Subjective: The patient reports being frustrated with asthma, experiencing frequent coughing and wheezing. The patient finds that colds trigger asthma flares. The patient avoids her aunt's house due to cat allergies. The patient uses albuterol inhaler almost daily, needing two puffs at a time. The patient has been hospitalized once for asthma as a child. The patient is not a smoker or vaper. The patient enjoys hiking and does not have seasonal allergies. The patient reports using prednisone during exacerbations. The patient's last exacerbation was about a month ago.\nObjective: Blood pressure: 128/82 mmHg, Respiratory rate: 16 breaths per minute, Oxygen saturation: 99% on room air. Heart sounds are normal. Lung exam shows diminished breath sounds with occasional expiratory wheeze bilaterally. Neck and hand exams are unremarkable. Pulmonary function tests show consistent asthma diagnosis.\nAssessment: Moderate intermittent asthma.\nPlan: Start flovent 100 mcg, one puff twice daily. Continue using ventolin inhaler (albuterol) two puffs every four to six hours as needed. Develop an asthma action plan. Follow-up in a month or sooner if symptoms worsen."
+  },
+  "D2N120": {
+   "source": "aci",
+   "draft_seconds": 77.2,
+   "failures": [],
+   "dialogue_words": 1007,
+   "rouge1": 0.5447,
+   "rouge2": 0.2408,
+   "rougeL": 0.2987,
+   "note": "Subjective: the patient has been having back pain for a couple of years, the patient feels sharp stabbing pain in their back and down to their right leg sometimes all the way down to their toe, the patient also feels numbness and tingling associated with their back pain to their right leg, the patient does not have loss of sensation in the genital or rectal area, the patient has no weakness, the patient does not experience any loss of control of their bladder or bowels, the patient tried physical therapy before, the patient was prescribed strong pain medications for a temporary period and surgery was mentioned, the patient is trying to be as active as possible but it's difficult with back pain, the patient has gained some weight, the patient used to like playing golf but this has set them back, the patient does not have any family members with spine conditions, the patient quit smoking about twenty years ago, the patient feels midline tenderness at l4 l5 disk space with right-sided lumbar paravertebral tenderness, the patient's patellar and achilles reflexes are symmetrical, the patient's mri shows disk herniation with nerve impingement\nObjective: vitals look good, midline tenderness at l4 l5 disk space with right-sided lumbar paravertebral tenderness, decreased sensation to light touch at the right lateral thigh at l4 dermatome, positive straight leg test on the right side, patellar and achilles reflexes are symmetrical, mri shows disk herniation with nerve impingement\nAssessment: the patient has an l4 l5 herniated disk with radiculopathy\nPlan: spinal injection with a corticosteroid under fluoroscopy is recommended to reduce inflammation, injections can be done up to four times a year, the procedure is relatively quick and common"
+  },
+  "D2N121": {
+   "source": "aci",
+   "draft_seconds": 94.5,
+   "failures": [],
+   "dialogue_words": 1282,
+   "rouge1": 0.4657,
+   "rouge2": 0.2252,
+   "rougeL": 0.2747,
+   "note": "Subjective: The patient reports right knee pain after twisting it while skiing five days ago. The patient can climb out of the boat but has decreased range of motion, pain to palpation, and effusion present on exam. Patient denies any popping or numbness in the foot. Patient is taking lisinopril 20mg daily with no side effects. Blood pressure is about 125/78 mmHg at home. The patient reports no surgeries. Patient had tonsils removed. Patient has a boat on lake martin and enjoys water skiing. Patient is not a baseball fan but her husband makes her watch the games.\nObjective: Vital signs: BP 125/78 mmHg. Neck exam: No lymphadenopathy. Heart exam: Regular rate and rhythm, no murmur. Lung exam: Clear to auscultation bilaterally. Musculoskeletal exam: Right knee: Ecchymosis, edema, effusion present. Decreased range of motion. Negative varus and valgus tests. Negative Lachman sign. Palpable dorsalis pedis and posterior tibial pulses. No lower extremity edema.\nAssessment: Medial collateral ligament strain right knee. Mild hypertension controlled with lisinopril. No other acute findings.\nPlan: Order x-ray of the right knee. Prescribe meloxicam 15mg once daily for pain and swelling. Refer to physical therapy for strengthening exercises. Order lipid panel. Administer tetanus shot. Continue lisinopril 20mg daily. Advise patient to rest the knee until x-ray results are available."
+  },
+  "D2N122": {
+   "source": "aci",
+   "draft_seconds": 64.2,
+   "failures": [],
+   "dialogue_words": 1292,
+   "rouge1": 0.3112,
+   "rouge2": 0.1528,
+   "rougeL": 0.201,
+   "note": "Subjective: The patient reports a three-month history of cough, initially associated with loading hay. The patient exercises regularly (biking). The patient has rheumatoid arthritis treated with methotrexate (7.5 mg weekly). The patient is a former smoker (stopped about seven years ago) and denies any current respiratory symptoms or family history of lung cancer.\nObjective: Vital signs: BP 124/76, HR 70, RR 16, O2 sat 98%. Lungs clear. Heart sounds normal. Extremities without edema or abnormalities. Chest CT shows a solitary 2 cm nodule in the right upper lobe. Rheumatoid arthritis is under control.\nAssessment: Not stated\nPlan: Order PFTs. Schedule PET CT to evaluate lung nodule. Suggest video-assisted thoracoscopic surgery (VATS) for removal of the nodule with general anesthesia and chest tube placement. Hospital admission for one night post procedure. Follow up with rheumatologist regarding RA treatment."
+  },
+  "D2N123": {
+   "source": "aci",
+   "draft_seconds": 86.5,
+   "failures": [],
+   "dialogue_words": 1432,
+   "rouge1": 0.3717,
+   "rouge2": 0.1562,
+   "rougeL": 0.2302,
+   "note": "Subjective: The patient is a 56-year-old male who presents with difficulty swallowing, particularly with solids. He reports that food sometimes feels stuck in his throat and he has to wash it down occasionally. He denies coughing or choking. The patient's diabetes is well-controlled with metformin (500 mg twice daily), and his blood pressure is controlled with norvasc (120/80 mmHg). The patient checks his blood sugars about 80% of the time, and they are within target range. He denies nausea, vomiting, or diarrhea from the medication. The patient reports no chest pain or shortness of breath.\nObjective: Physical exam reveals a normal neck with no swelling or masses. Thyroid is normal. No lymphadenopathy. Throat appears normal without masses or redness. Carotid bruit is absent. Lung and heart exams are normal. Abdomen shows epigastric tenderness, but no masses or significant swelling. Extremity and neurological exams are normal.\nAssessment: not stated\nPlan: Referral to gastroenterology for a scope to evaluate the swallowing difficulty. Start the patient on prilosec 20 mg once daily. Order another hemoglobin A1C and additional blood work (kidney function). Provide an eye referral to ophthalmology. Continue metformin and norvasc. Follow up in one month."
+  },
+  "D2N124": {
+   "source": "aci",
+   "draft_seconds": 53.9,
+   "failures": [],
+   "dialogue_words": 1006,
+   "rouge1": 0.3755,
+   "rouge2": 0.1822,
+   "rougeL": 0.2574,
+   "note": "Subjective: the patient is a 45-year-old male who came in with an ankle injury. The patient's son, Sean, injured his ankle while playing basketball. The patient has been having trouble walking and the ankle feels unstable. The patient had an x-ray which showed a displaced lateral malleolus fracture at Weber C level. The patient is a dog walker.\nObjective: The patient has tenderness on the outside of the ankle. There is swelling on the lateral side of the ankle. Capillary refill is brisk. No malalignment. X-ray shows a displaced lateral malleolus fracture at Weber C level.\nAssessment: lateral malleolar fracture\nPlan: Prescribe meloxicam for pain and swelling. Ice and elevate the ankle. Crutches. Surgery recommended. Three month recovery time. Continue coaching while recovering. Dog walking assistance needed."
+  },
+  "D2N125": {
+   "source": "aci",
+   "draft_seconds": 77.7,
+   "failures": [],
+   "dialogue_words": 1289,
+   "rouge1": 0.4857,
+   "rouge2": 0.1574,
+   "rougeL": 0.2103,
+   "note": "Subjective: miss edwards is here for evaluation of facial pain. The patient reports stabbing, shooting pain in the right face, especially in the cheek bone area. The pain can be super hot and sometimes triggered by cold or certain sensory stimuli. The patient has n't noticed any numbness or weakness on the left side of the face. Ibuprofen and motrin have n't helped. The patient reports occasional headaches that are usually relieved with tylenol. The pain is severe (10/10) at times, lasting from a few minutes to an hour. The patient has no history of multiple sclerosis or brain tumors. The patient takes tylenol for headaches.\nObjective: The patient reported following the doctor's finger in both directions and symmetric teeth. The patient can hear the rubbing of fingers on either side of the ear. The patient reports numbness on the right side of the face with cotton tape, but not on the left. The patient reports a dull sensation on the left side of the face compared to the right.\nAssessment: Trigeminal neuralgia due to compression of the trigeminal nerve by a blood vessel.\nPlan: Prescribe tegretol for pain management. Genetic testing may be considered to assess safety. Follow up in one month to evaluate effectiveness and discuss surgical options if needed."
+  },
+  "D2N126": {
+   "source": "aci",
+   "draft_seconds": 64.5,
+   "failures": [],
+   "dialogue_words": 991,
+   "rouge1": 0.4311,
+   "rouge2": 0.2258,
+   "rougeL": 0.2821,
+   "note": "Subjective: The patient injured her right knee while skiing in Vermont. She was unable to bear weight and had to be taken down by ski patrol. The patient reports pain on the outside of her knee, difficulty bearing weight, decreased flexion and extension, a positive Lachman sign, and edema over the right knee. The patient is taking ibuprofen for pain. The patient is an active mother with twins who are home with her husband.\nObjective: Edema and effusion over the right knee. Decreased flexion and extension of the right knee. Positive Lachman sign on the right knee. Palpable dorsalis pedis and posterior tibial pulses bilaterally. No leg edema in the ankle. Heart sounds regular rate and rhythm. Lungs clear to auscultation. Right knee pain to palpation.\nAssessment: Possible ACL tear, right knee. Not stated\nPlan: Order a knee MRI. Prescribe ibuprofen 600-800mg every 8 hours as needed for pain. Put patient in a brace. Follow up with MRI results and discuss treatment options. Suggestion: ACL tear, Right Knee."
+  },
+  "D2N127": {
+   "source": "aci",
+   "draft_seconds": 94.9,
+   "failures": [],
+   "dialogue_words": 1726,
+   "rouge1": 0.4286,
+   "rouge2": 0.1612,
+   "rougeL": 0.2411,
+   "note": "Subjective: The patient reports experiencing neck pain after multiple car crashes. The patient states they were fine after the second crash, but had surgery and was fine until the most recent crash in February. The patient has been to therapy for previous crashes. The patient was on fentanyl recently, but hasn't received a prescription in several weeks. The patient is able to move their neck from side to side and bend forward, but it hurts. The patient reports headaches, dizziness, and numbness in the left arm and right leg. The patient has spasms throughout their body. The patient states they have been experiencing fatigue since the accident. The patient saw Pamela and Dr. Collins's office.\nObjective: The doctor performed a physical exam on the patient, noting moderate range of movement in the neck. The doctor did not observe any bruising or swelling. The doctor ordered an MRI to be done. The doctor noted that the patient is experiencing pain when bending forward and backward. The doctor also noted that the patient has spasms throughout their body.\nAssessment: Neck sprain\nPlan: The doctor will order a CT scan, then an MRI of the neck. The doctor will prescribe Robaxin 1500mg every 6-8 hours as needed for pain relief. The doctor will recommend ice application when experiencing pain. The doctor will refer the patient to physical therapy. The doctor will consider local injections if necessary. The doctor will monitor the patient's medication and refer to pain medicine if needed."
+  }
+ },
+ "dataset": "ACI-Bench (Yim et al., Scientific Data 2023), CC BY 4.0, https://github.com/wyim/aci-bench",
+ "model": "medgemma:4b",
+ "machine": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+ "cpus": 12,
+ "ram_gb": 7.9,
+ "free_ram_gb_at_start": 0.8
+}

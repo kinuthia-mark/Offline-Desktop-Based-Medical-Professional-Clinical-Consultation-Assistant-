@@ -121,13 +121,13 @@ is defined and labelled as a hint (AMD-28); "Export / Save" is a PDF export of o
 ## 6. Findings not recorded before this cross-check
 | # | Where in the proposal | What it says | What we found | Status today |
 |---|---|---|---|---|
-| F1 | 1.3.1, 1.6, 2.6, UC-05, Diagnostics tab | The core output is a list of probable diseases with management strategies | suggestions were off by default for latency | on by default, measured (ADR-013, AMD-32); clinician scoring open |
+| F1 | 1.3.1, 1.6, 2.6, UC-05, Diagnostics tab | The core output is a list of probable diseases with management strategies | suggestions were off by default for latency | on by default, measured (ADR-013); on PriMock57 the clinician's diagnosis is among the suggestions in 38 of 48 (ADR-016, AMD-32) |
 | F2 | Figure 4.1, 4.3 | Four administrator functions | only "reserved" at the time | all four built (FR-10a to FR-10d, AMD-25) |
 | F3 | Figure 3.2, 4.3, 4.8 | Login by "Local PIN" and `pin_hash` | a short PIN is brute-forceable | password with Argon2id and lockout (AMD-26) |
 | F4 | UC-06 | Unparseable output goes to a fallback viewer | a failure state with retry or manual entry | kept: no raw-output viewer (AMD-27) |
 | F5 | UC-05, wireframe | "low confidence" segments highlighted; "ASR Conf" shown | an LLM has no calibrated confidence | advisory flags, and a defined speech confidence labelled as a hint (AMD-28) |
 | F6 | UC-01, 2.6, Figure 3.2 | Audio in memory (UC-01) but also a temporary WAV file (2.6, Figure 3.2) | the proposal contradicts itself | memory only (AMD-23) |
-| F7 | 3.6, 3.3, 3.2.5 | Synthetic audio validated by professionals; a rubric made with experts; clinician interviews; representative machines | none of these existed | synthetic audio and a scoring sheet made (ADR-011); **open:** clinician scoring, real voices, a second PC (AMD-30) |
+| F7 | 3.6, 3.3, 3.2.5 | Synthetic audio validated by professionals; a rubric made with experts; clinician interviews; representative machines | none of these existed | synthetic audio (ADR-011), then public datasets with real voices and clinicians' notes instead of clinician scoring (ADR-016); **open:** a second PC (AMD-30) |
 | F8 | 3.2.5 | Deliverables include System Design and Test Cases documentation | no test-case document planned | **open:** at the final update (AMD-31, NFR-08) |
 | F9 | Appendix 1 | Gantt: implementation to about week 19, submission end of week 24 | re-plan needed | implementation complete by about week 16 (AMD-31) |
 | F10 | 3.7 | "a minimum of 4 to 6 GB of RAM" | model uses 2.68 GB on an 8 GB PC | measured (AMD-33) |
