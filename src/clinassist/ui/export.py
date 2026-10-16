@@ -22,6 +22,8 @@ from pathlib import Path
 from PySide6.QtCore import QMarginsF
 from PySide6.QtGui import QPageLayout, QPageSize, QPdfWriter, QTextDocument
 
+from clinassist.ui.records import models_used
+
 CONFIDENTIAL = (
     "Confidential patient information. Store and share this document only as your clinic's "
     "rules for patient records allow."
@@ -77,6 +79,7 @@ def note_html(record, details: ExportDetails) -> str:
         _row("Finalized", f"{details.saved_at[:16].replace('T', ' ')} UTC"),
         _row("Finalized by", details.finalized_by),
         _row("History confirmed", ", ".join(confirmed) if confirmed else "none recorded"),
+        _row("Models used", models_used(record)),
         "</table>",
     ]
     for title, text in (
