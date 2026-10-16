@@ -1,0 +1,1761 @@
+{
+ "items": {
+  "day1_consultation01": {
+   "presenting_complaint": "I've been having really bad diarrhea for the last 3 days",
+   "transcribe_seconds": 105.9,
+   "wer": 0.1675,
+   "wer_reference_words": 1325,
+   "draft_seconds": 89.7,
+   "failures": [],
+   "rouge1": 0.3712,
+   "rouge2": 0.0836,
+   "rougeL": 0.1773,
+   "note": "Subjective: The patient reports diarrhea for three days with frequent loose and watery stools, lower abdominal pain on the left side, weakness, shakiness, a temperature of around 3-4 days ago, vomiting that stopped, loss of appetite, and feeling weak. The patient ate at a Chinese restaurant four days ago. The patient is an accountant who works and lives with his wife and two children. He doesn't smoke or drink alcohol. He uses an inhaler for asthma which is well controlled. He has been going to work despite symptoms. He feels that the symptoms have affected his daily life, making him need to stay close to a toilet.\nObjective: The patient reports diarrhea, abdominal pain on the left side, weakness and shakiness. The patient had vomiting at the start of the symptoms but it stopped. Patient has been drinking fluids. Patient is working. No blood in stool or vomit. No fever currently, but felt hot previously. Patient is not taking any other medications.\nAssessment: Gastroenteritis (tummy bug) is suspected. Possible bacterial cause.\nPlan: Conservative management: stay hydrated with fluids and electrolyte replacement if vomiting/diarrhea persists. Paracetamol for fever and weakness as needed up to four times a day for the first few days. Rest at work for 2-3 days if symptoms don't improve within 3-4 days. If symptoms persist, return for further evaluation (stool sample) in 3-4 days.",
+   "suggestions": [
+    "Gastroenteritis"
+   ],
+   "clinician_diagnoses": [
+    "gastroenteritis"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "3/7 hx of diarrhea",
+    "LLQ pain",
+    "Fever",
+    "gastroenteritis",
+    "Conservative management"
+   ],
+   "highlights_covered": [
+    "3/7 hx of diarrhea",
+    "LLQ pain",
+    "Fever",
+    "gastroenteritis",
+    "Conservative management"
+   ]
+  },
+  "day1_consultation02": {
+   "presenting_complaint": "I have sore, red skin",
+   "transcribe_seconds": 108.6,
+   "wer": 0.1605,
+   "wer_reference_words": 1583,
+   "draft_seconds": 83.9,
+   "failures": [],
+   "rouge1": 0.3442,
+   "rouge2": 0.1015,
+   "rougeL": 0.2077,
+   "note": "Subjective: The patient reports itchy and sore skin on their chest, hands, arms, and legs for three days. The patient has had eczema before which was only on the arms but now it is also on the chest and hands. The patient used a steroid cream from the pharmacy last night but did not help. The patient tried antihistamines but they didn't work either. The patient mentions hiking as an activity that causes pain due to itching. Patient lives with flatmates, works at a pharmaceutical company, and drinks alcohol occasionally.\nObjective: The patient has itchy and sore skin on the chest, hands, arms, and legs. Skin is dry and cracked in some areas. No bleeding or discharge from the skin. The patient denies any other symptoms such as fever or cough. Patient denies smoking and drinking heavily. Patient reports using a steroid cream at the pharmacy last night.\nAssessment: Eczema flare-up\nPlan: Prescribe stronger steroid cream, prescribe emollients for bathing and showering, prescribe loratidine (antihistamine), advise patient to keep a diary of triggers, schedule follow-up appointment next week if symptoms don't improve. Suggests the patient try using the prescribed medications regularly for 7-10 days before deciding on further treatment.",
+   "suggestions": [
+    "Eczema"
+   ],
+   "clinician_diagnoses": [
+    "flare up of eczema"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "4/7 hx of dry itchy skin",
+    "Eczema",
+    "Asthma",
+    "Steroid cream",
+    "Emmolients"
+   ],
+   "highlights_covered": [
+    "4/7 hx of dry itchy skin",
+    "Eczema",
+    "Steroid cream"
+   ]
+  },
+  "day1_consultation03": {
+   "presenting_complaint": "I have terrible headache",
+   "transcribe_seconds": 110.9,
+   "wer": 0.1496,
+   "wer_reference_words": 1504,
+   "draft_seconds": 175.1,
+   "failures": [
+    "repetition_detected"
+   ],
+   "rouge1": 0.3631,
+   "rouge2": 0.0955,
+   "rougeL": 0.1899,
+   "note": "Subjective: The patient reports a terrible headache on the left side since midday. The patient mentions zigzag lines in her vision before the headache started. The patient feels nauseous and has vomited twice today. The patient states she is worried about brain cancer due to family history. The patient takes microgynon pills.\nObjective: Patient reports headache on the left side. Patient reports zigzag lines in vision. Patient reports blurry vision. Patient reports nausea and vomiting. Patient denies fever or skin rashes. Patient denies neurological deficits such as speech problems, arm/leg weakness, balance issues, or injury. Patient reports being sensitive to bright lights. Patient reports headaches are throbbing and move with head movement. Patient reports no prior similar headaches. Patient reports stress at work. Patient lives alone. Patient does not smoke or drink alcohol. Patient reports no medications other than oral contraceptives.\nAssessment: Not stated\nPlan: Prescribe paracetamol or cocodamol for headache relief. Prescribe ibuprofen and naproxen for anti-inflammatory effects. Advise keeping a headache diary. Recommend follow up appointment in two to three days if symptoms worsen or do not improve. Instruct patient to return immediately if neck pain worsens, develops weakness in arms/legs, or visual changes occur. Provide advice regarding migraine management options (prophylactic medications) for persistent headaches.",
+   "suggestions": [
+    "Migraine",
+    "Tension Headache",
+    "Medication Overuse Headache"
+   ],
+   "clinician_diagnoses": [
+    "migraine"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "Headache",
+    "Throbbing",
+    "visual aura",
+    "photophobia",
+    "microgynon",
+    "migraine"
+   ],
+   "highlights_covered": [
+    "Headache",
+    "Throbbing",
+    "microgynon",
+    "migraine"
+   ]
+  },
+  "day1_consultation04": {
+   "presenting_complaint": "I don't feel well, I have a cough and runny nose",
+   "transcribe_seconds": 112.5,
+   "wer": 0.2047,
+   "wer_reference_words": 1558,
+   "draft_seconds": 88.1,
+   "failures": [],
+   "rouge1": 0.4211,
+   "rouge2": 0.1192,
+   "rougeL": 0.2632,
+   "note": "Subjective: The patient reports feeling under the weather for four days with sore throat, runny nose, cough, fatigue, night sweats, and mild fever that has subsided. The patient took paracetamol and ibuprofen which helped. There is some windedness on exertion. Muscle pain started a few days ago.\nObjective: No abnormal white spots in the back of the throat. Clear nasal discharge. Dry cough. Mild shortness of breath on exertion. No chest pain. No ear problems or discharge. No headaches, vision changes, nausea, vomiting, bowel issues, or skin rashes. Family history of diabetes and eczema. The patient is otherwise healthy.\nAssessment: Viral upper respiratory tract infection (URTI) with possible early signs of influenza. Not stated\nPlan: Advised the patient to rest for a day or two if possible. Encourage hydration. Continue paracetamol and ibuprofen as needed. Return if symptoms worsen, high fever, labored breathing, or chest pain.",
+   "suggestions": [
+    "Viral upper respiratory tract infection (URTI)",
+    "Influenza",
+    "Myalgia"
+   ],
+   "clinician_diagnoses": [
+    "viral URTI",
+    "influenza"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "sore throat",
+    "fatigue",
+    "myalgia",
+    "cough",
+    "viral URTI/influenza"
+   ],
+   "highlights_covered": [
+    "sore throat",
+    "fatigue",
+    "cough",
+    "viral URTI/influenza"
+   ]
+  },
+  "day1_consultation05": {
+   "presenting_complaint": "Lower abdominal pain",
+   "transcribe_seconds": 116.6,
+   "wer": 0.1257,
+   "wer_reference_words": 1536,
+   "draft_seconds": 99.7,
+   "failures": [],
+   "rouge1": 0.3032,
+   "rouge2": 0.0983,
+   "rougeL": 0.1663,
+   "note": "Subjective: The patient reports lower abdominal pain, described as burning and getting worse over two days. The patient also reports feeling hot and sweaty. The patient had constipation last week but is now having normal bowel movements. The patient has noticed pink urine but denies any burning or stinging when urinating. The patient feels nauseous. The patient is sexually active with the same partner, who was last active four days ago. The patient uses an Implanon implant for contraception and has no other known medical history. The patient reports feeling well otherwise.\nObjective: The patient's temperature is not mentioned. No other objective findings are provided in the transcript. Urine color is pink but no burning or stinging reported during urination. Bowel movements are normal. Patient denies fever, vomiting, shortness of breath, headaches, or vision problems. The patient reports being sexually active with a partner who was last active four days ago and uses an Implanon implant.\nAssessment: Not stated\nPlan: The clinician recommends empirically treating the patient for possible urinary tract infection (UTI) with Trimethoprim/sulfamethoxazole (Bactrim). The clinician advises the patient to take two tablets twice a day for three days. The clinician suggests that the patient also consider a pregnancy test, given her symptoms and use of an Implanon implant. The clinician recommends that the patient return if symptoms worsen or do not improve within a few days. The clinician advises the patient to take paracetamol for pain relief and drink plenty of fluids. The clinician sends a prescription for Trimethoprim/sulfamethoxazole to the patient's pharmacy.",
+   "suggestions": [
+    "Urinary Tract Infection (UTI)"
+   ],
+   "clinician_diagnoses": [
+    "UTI"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "abdo pain/suprapubic pain",
+    "burning",
+    "Feeling hot and sweaty",
+    "UTI",
+    "Abx"
+   ],
+   "highlights_covered": [
+    "abdo pain/suprapubic pain",
+    "burning",
+    "Feeling hot and sweaty",
+    "UTI"
+   ]
+  },
+  "day1_consultation06": {
+   "presenting_complaint": "hard to breathe",
+   "transcribe_seconds": 118.5,
+   "wer": 0.179,
+   "wer_reference_words": 1737,
+   "draft_seconds": 94.6,
+   "failures": [],
+   "rouge1": 0.3782,
+   "rouge2": 0.151,
+   "rougeL": 0.2539,
+   "note": "Subjective: The patient reports shortness of breath, worsening over the last couple of weeks. The patient feels breathless on minimal exertion and has a dry cough with some ankle swelling (bilateral). Patient denies chest pain or palpitations. Patient is feeling run down but otherwise normal. Patient has a history of heart failure and a small heart attack 5 years ago. Patient takes ferosimide, aspirin, simvastatin, and metaprolol. The patient denies allergies. Family history includes father with heart attack (died in his early 60s). Patient lives alone with two cats. Patient works part-time as a lorry driver during the day. Patient reports feeling more breathless even walking to the shops. Patient feels like she is getting worse and worries about her ability to work.\nObjective: Patient has no chest pain, palpitations or dizziness. Heart rate is normal. Oxygen saturation is good. Blood pressure is normal. Ankle swelling noted bilaterally. No fever or signs of infection. Patient denies any other symptoms. Patient reports being able to pass urine normally and having a good appetite.\nAssessment: Possible heart failure exacerbation. Further investigation needed to assess cardiac function.\nPlan: Increase furosemide dose from one tablet daily to two tablets daily for the first few days. Order blood tests (full blood count, kidney function). Arrange echocardiogram of the heart. Follow up in one week to review symptoms and test results. Advise patient to call sooner if symptoms worsen or new symptoms develop.",
+   "suggestions": [
+    "Heart failure exacerbation"
+   ],
+   "clinician_diagnoses": [
+    "exacerbation of heart failure"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "2/5 hx of SOB",
+    "No chest pain/palpitations",
+    "cough",
+    "ankle odema bilaterally",
+    "Heart failure",
+    "exacerbation of heart failure"
+   ],
+   "highlights_covered": [
+    "2/5 hx of SOB",
+    "No chest pain/palpitations",
+    "cough",
+    "ankle odema bilaterally",
+    "Heart failure",
+    "exacerbation of heart failure"
+   ]
+  },
+  "day1_consultation07": {
+   "presenting_complaint": "I have a cough and cold",
+   "transcribe_seconds": 173.2,
+   "wer": 0.2559,
+   "wer_reference_words": 2599,
+   "draft_seconds": 177.9,
+   "failures": [
+    "repetition_detected"
+   ],
+   "rouge1": 0.3472,
+   "rouge2": 0.1049,
+   "rougeL": 0.1944,
+   "note": "Subjective: The patient reports feeling unwell for several days with cough, cold symptoms (runny nose), sore throat, ear discomfort, shortness of breath, fever/sweating, and appetite changes. The patient is supporting Partick Thistle and has been drinking alcohol (4-5 pints per week) and smoking occasionally. Patient lives with his wife.\nObjective: Patient reports dry cough, runny nose, sore throat, mild ear discomfort, shortness of breath, and occasional fever/sweating. No chest pain reported. Patient denies any other significant complaints. Blood pressure slightly elevated. Patient takes metformine and Ryl. Patient reports being on a diet due to weight gain.\nAssessment: Viral illness likely. Possible signs of flu or upper respiratory infection. Mild shortness of breath. Elevated blood pressure.\nPlan: Advised to stay rested and drink fluids. Paracetamol recommended if needed for fever/ache. Antibiotics prescribed for possible bacterial superinfection if symptoms worsen after 24-48 hours. Follow up in one week if symptoms persist. Encourage quitting smoking.",
+   "suggestions": [
+    "Upper Respiratory Infection",
+    "Elevated Blood Pressure",
+    "Possible Bacterial Superinfection (Secondary)"
+   ],
+   "clinician_diagnoses": [
+    "viral URTI",
+    "LRTI"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "cough",
+    "SOB",
+    "Sore throat and blocked ears",
+    "myalgia",
+    "viral URTI/? LRTI"
+   ],
+   "highlights_covered": [
+    "cough",
+    "SOB",
+    "viral URTI/? LRTI"
+   ]
+  },
+  "day1_consultation08": {
+   "presenting_complaint": "I have dry, itchy skin",
+   "transcribe_seconds": 86.7,
+   "wer": 0.2054,
+   "wer_reference_words": 1110,
+   "draft_seconds": 65.0,
+   "failures": [],
+   "rouge1": 0.2623,
+   "rouge2": 0.0413,
+   "rougeL": 0.1967,
+   "note": "Subjective: The patient is 26 years old and reports dry, itchy skin on her arms and hands that started a few days ago after swimming. She denies fever, sore skin, or other symptoms. The patient takes Mike for him. She has no known allergies. Her father has asthma and her mother has hay fever. She lives alone and does not smoke or drink alcohol. She is lactose intolerant. She reports feeling tired due to stress at work.\nObjective: The patient presents with dry, itchy skin on the arms and hands. No other findings noted.\nAssessment: Not stated\nPlan: Recommend a steroid cream for inflammation and amolions for dry skin. Advise the patient to apply these creams throughout the day. Recommend antihistamines (piratin, loratidine) over-the-counter for itch relief. Suggest returning for follow up in one week if symptoms do not improve.",
+   "suggestions": [
+    "Dermatitis"
+   ],
+   "clinician_diagnoses": [
+    "dermatitis"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "3/7 hx of dry itchy skin",
+    "Lactose intolerance",
+    "Father - asthma",
+    "Mother - hayfever",
+    "dermatitis"
+   ],
+   "highlights_covered": [
+    "3/7 hx of dry itchy skin",
+    "Father - asthma"
+   ]
+  },
+  "day1_consultation09": {
+   "presenting_complaint": "It hurts when I pee",
+   "transcribe_seconds": 104.7,
+   "wer": 0.17,
+   "wer_reference_words": 1488,
+   "draft_seconds": 107.1,
+   "failures": [],
+   "rouge1": 0.3111,
+   "rouge2": 0.095,
+   "rougeL": 0.1833,
+   "note": "Subjective: The patient is a 19-year-old female presenting with burning pain when urinating, some lower abdominal cramping, and a small amount of blood in her urine for the past few days. She denies fever or back pain. She has a history of IBS. The patient uses condoms with her boyfriend. She does not smoke or drink alcohol. She is sexually active. She reports being allergic to clindamycin. She takes bicarbonate occasionally for abdominal pain, which did not help. She states she is feeling otherwise well. She lives in a flat near her college with friends and is studying biology. She has no family history of kidney, bladder, bowel, or gut problems. The patient took a pregnancy test but does not think she is pregnant.\nObjective: The patient reports burning pain when urinating, lower abdominal cramping, and blood in the urine for the past few days. No fever or back pain reported. Examination findings are not stated. Urine analysis is not stated. Urinalysis was not performed. The patient denies any other symptoms like nausea, vomiting, or diarrhea.\nAssessment: Simple UTI/bladder infection\nPlan: Prescribed Nitrofurantoin or Trimethoprim for a three-day course (one tablet twice daily). Advised to drink plenty of fluids and consider cranberry juice. Instructed the patient to call back if symptoms worsen or if she develops fever or back pain, indicating possible kidney involvement. Advised barrier contraception use.",
+   "suggestions": [
+    "Urinary Tract Infection",
+    "IBS",
+    "Pregnancy"
+   ],
+   "clinician_diagnoses": [
+    "UTI",
+    "cystitis"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "dysuria",
+    "suprapubic pain",
+    "haematuria",
+    "IBS",
+    "UTI/cystitis"
+   ],
+   "highlights_covered": [
+    "IBS",
+    "UTI/cystitis"
+   ]
+  },
+  "day1_consultation10": {
+   "presenting_complaint": "It hurts when I pee",
+   "transcribe_seconds": 119.7,
+   "wer": 0.208,
+   "wer_reference_words": 1764,
+   "draft_seconds": 179.4,
+   "failures": [
+    "repetition_detected"
+   ],
+   "rouge1": 0.2422,
+   "rouge2": 0.0375,
+   "rougeL": 0.1553,
+   "note": "Subjective: The patient reports burning pain when urinating, increased frequency of urination, abdominal pain at the bottom of her tummy, pink urine today, and occasional bowel problems (IBS). The patient has been experiencing these symptoms for under a week. She denies fever or back pain. She is sexually active and on the combined pill. She smoked weed once last week. She takes an IBS medication starting with N. She has no known allergies. Her family lives outside London. She is studying English at university and enjoys it. She drinks occasionally socially.\nObjective: Patient reports burning pain during urination, increased urinary frequency, and lower abdominal pain. Pink urine noted today. No fever or back pain reported. Patient is sexually active and on the combined pill. Smoked weed once last week. Takes an IBS medication starting with N. No known allergies. Family lives outside London. Studying English at university. Drinks alcohol socially.\nAssessment: Not stated\nPlan: Start trimethoprim or nitrofurantoin antibiotics for presumed UTI/bladder infection. Advise to stay well hydrated and take paracetamol for pain if needed. Collect urine sample for lab testing. Follow-up appointment in one week if symptoms improve. If fever or back pain develops, call immediately. Provide instructions on how to collect the urine sample.",
+   "suggestions": [
+    "Urinary Tract Infection (UTI)",
+    "Interstitial Cystitis",
+    "Vaginitis"
+   ],
+   "clinician_diagnoses": [
+    "UTI"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "dysuria",
+    "frequency",
+    "suprapubic pain",
+    "IBS",
+    "UTI"
+   ],
+   "highlights_covered": [
+    "frequency",
+    "IBS",
+    "UTI"
+   ]
+  },
+  "day1_consultation11": {
+   "presenting_complaint": "pouring diarrhoea from my bottom",
+   "transcribe_seconds": 157.4,
+   "wer": 0.166,
+   "wer_reference_words": 2205,
+   "draft_seconds": 220.8,
+   "failures": [
+    "repetition_detected"
+   ],
+   "rouge1": 0.3721,
+   "rouge2": 0.107,
+   "rougeL": 0.1993,
+   "note": "Subjective: The patient reports diarrhea, watery stools, frequent bowel movements (almost every hour), nausea, vomiting (occasional, especially with milk), mild abdominal cramps (in the middle), feeling hot, passing urine frequently, no blood in stool or throat, no family history of bowel problems, father has colon cancer (stage III), smokes socially, drinks beer occasionally (1-2 times per month), works at an office in central London (government). The patient's brother also has similar symptoms. Patient feels dehydrated.\nObjective: Patient presents with diarrhea, frequent bowel movements, nausea, occasional vomiting, abdominal cramping, and feeling hot. No blood in stool or throat. Patient denies any other medical history or allergies. Patient states he is otherwise fit. Patient is drinking fluids but losing them quickly. Patient is taking paracetamols for fever/pain. Patient lives with his sister and mother. Patient does not smoke regularly and drinks beer occasionally.\nAssessment: Gastroenteritis likely. Dehydration possible.\nPlan: Recommend dirolyte fluid replacement from pharmacy to address dehydration. Advise soft diet initially, gradually increasing as tolerated. Recommend paracetamol for fever/abdominal pain if needed. Instruct patient to call back within 48 hours if symptoms do not improve. Advise to avoid alcohol. Suggestion: Gastroenteritis, Dehydration",
+   "suggestions": [
+    "Gastroenteritis",
+    "Dehydration",
+    "Possible food poisoning"
+   ],
+   "clinician_diagnoses": [
+    "gastroenteritis"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "diarrhea",
+    "crampy abdo pain",
+    "vomited",
+    "feverish",
+    "hot/cold",
+    "father - colon Ca",
+    "gastroenteritis"
+   ],
+   "highlights_covered": [
+    "diarrhea",
+    "crampy abdo pain",
+    "vomited",
+    "father - colon Ca",
+    "gastroenteritis"
+   ]
+  },
+  "day1_consultation12": {
+   "presenting_complaint": "I've been having really bad diarrhoea for the last 3 days",
+   "transcribe_seconds": 84.2,
+   "wer": 0.1324,
+   "wer_reference_words": 1110,
+   "draft_seconds": 71.3,
+   "failures": [],
+   "rouge1": 0.3649,
+   "rouge2": 0.0777,
+   "rougeL": 0.2456,
+   "note": "Subjective: The patient reports diarrhea for three days with vomiting that has now stopped. The patient states the diarrhea is watery and frequent (5-6 times per day). No blood in stools reported. Patient feels weak and dehydrated. Temperature was slightly elevated initially, but now feels fine. No headaches or muscle pains. Patient took a blue inhaler for asthma infrequently. Father had bowel cancer 10 years ago. Mother has type 2 diabetes. The patient lives alone and is a software engineer. Has been off work for three days due to illness. Denies smoking or drinking alcohol.\nObjective: Patient reports diarrhea, vomiting (resolved), weakness, dehydration, and mild fever initially. No blood in stools. Patient denies other symptoms like abdominal pain or headaches. Patient takes blue inhaler for asthma infrequently. Patient lives alone.\nAssessment: Not stated\nPlan: Advised the patient to drink plenty of fluids (electrolyte replacement). Advised paracetamol for feverishness/weakness. Recommend taking time off work until diarrhea resolves (20-40 hours). Return if symptoms persist beyond a week.",
+   "suggestions": [
+    "Gastroenteritis"
+   ],
+   "clinician_diagnoses": [
+    "gastroenteritis"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "vomiting",
+    "diarrhea",
+    "No fever/temp",
+    "gastroenteritis"
+   ],
+   "highlights_covered": [
+    "vomiting",
+    "diarrhea"
+   ]
+  },
+  "day1_consultation13": {
+   "presenting_complaint": "I've had a blinding headache for a few days",
+   "transcribe_seconds": 119.6,
+   "wer": 0.0984,
+   "wer_reference_words": 1637,
+   "draft_seconds": 109.5,
+   "failures": [],
+   "rouge1": 0.2871,
+   "rouge2": 0.0378,
+   "rougeL": 0.1412,
+   "note": "Subjective: The patient reports having a headache for the past three days that is described as dull but sometimes sharper, located around her right eye and all over her head. The patient states that it comes and goes, but is present most of the time. The patient took ibuprofen which did not help. She also reported some light sensitivity. The patient has no vision loss or blurry vision. She denies nausea or vomiting. There are no neck pains or stiffness. The patient reports feeling sick with the headache. She states she has had headaches before, but they usually go away after taking ibuprofen. She has a family history of migraines (mother and sister). She is not on any regular medications except for glasses since childhood. She denies allergies to medications. She socially smokes and drinks alcohol. The patient does not have any ideas as to what could be causing her symptoms. She wants stronger analgesia or painkillers.\nObjective: Headache described as dull but sometimes sharper, located around the right eye and all over the head. It comes and goes, but is present most of the time. Light sensitivity reported. No vision loss or blurry vision. No neck pain or stiffness. Patient reports feeling sick with headache. Family history of migraines (mother and sister). Patient takes ibuprofen which did not help.\nAssessment: Likely migraine headache given family history and symptoms. Not stated\nPlan: Prescribe naproxen for pain relief. Advise patient to take up to two tablets three times a day. Recommend keeping a headache diary. Advise patient to return in one week if headaches worsen or are frequent. If vision loss, weakness in arms/legs, or other concerning symptoms, advise patient to call and return immediately.",
+   "suggestions": [
+    "Migraine",
+    "Tension Headache",
+    "Medication Overuse Headache"
+   ],
+   "clinician_diagnoses": [
+    "migraines"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "headache",
+    "Visual aura",
+    "photophobia",
+    "nauseous",
+    "mother and sister - migraines",
+    "migraines"
+   ],
+   "highlights_covered": [
+    "headache",
+    "mother and sister - migraines",
+    "migraines"
+   ]
+  },
+  "day1_consultation14": {
+   "presenting_complaint": "I have a cough and cold",
+   "transcribe_seconds": 125.1,
+   "wer": 0.179,
+   "wer_reference_words": 1860,
+   "draft_seconds": 131.0,
+   "failures": [
+    "repetition_detected",
+    "repetition_detected"
+   ]
+  },
+  "day1_consultation15": {
+   "presenting_complaint": "I have sore, cracked skin on my hands",
+   "transcribe_seconds": 93.3,
+   "wer": 0.1588,
+   "wer_reference_words": 1222,
+   "draft_seconds": 77.0,
+   "failures": [],
+   "rouge1": 0.3052,
+   "rouge2": 0.085,
+   "rougeL": 0.1688,
+   "note": "Subjective: The patient reports soreness in her fingers and the skin on her hands is cracked. The patient has dryness in her hands and legs. The patient works as a housekeeper and has recently changed jobs to a hotel. She uses both cleaning products for bathrooms and bedrooms, but not always gloves. The patient has diabetes. She has no known allergies or other skin problems. The patient reports that she hasn't tried anything over the counter. The patient feels well otherwise.\nObjective: The patient is 45 years old. The patient has dry hands and legs. The patient has cracked skin on her hands. The patient has diabetes. The patient denies fever, nausea, vomiting, bowel or urinary problems. She reports no bleeding from scratching. The patient denies any other symptoms. The patient takes no medications.\nAssessment: Not stated\nPlan: Prescribe steroid cream and stronger emollients for the patient's dry hands and cracked skin. Advise the patient to wear gloves when cleaning at all times. Instruct the patient to apply the creams three to four times a day for two weeks. If symptoms do not improve within one to two weeks, return for further evaluation.",
+   "suggestions": [
+    "Contact dermatitis"
+   ],
+   "clinician_diagnoses": [
+    "contact dermatitis"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "sore and cracked skin",
+    "itchy",
+    "cleaner",
+    "Type 2 diabetes",
+    "contact dermatitis"
+   ],
+   "highlights_covered": [
+    "sore and cracked skin"
+   ]
+  },
+  "day2_consultation01": {
+   "presenting_complaint": "I don't hear as well as I used to",
+   "transcribe_seconds": 75.1,
+   "wer": 0.1272,
+   "wer_reference_words": 1116,
+   "draft_seconds": 65.7,
+   "failures": [],
+   "rouge1": 0.3587,
+   "rouge2": 0.0989,
+   "rougeL": 0.2283,
+   "note": "Subjective: The patient reports difficulty hearing, especially in the left ear. The patient also experiences tinnitus (ringing) in the left ear and occasional dizziness with nausea. The patient denies chest pain or palpitations.\nObjective: Not stated\nAssessment: Not stated\nPlan: The clinician recommends a face-to-face appointment at a clinic to examine the ears for wax blockage. The clinician will send a message to schedule an appointment within 4-5 days. A leaflet about tinnitus is being sent in the notes of the appointment.",
+   "suggestions": [
+    "Tinnitus",
+    "Wax impaction",
+    "Vestibular dysfunction"
+   ],
+   "clinician_diagnoses": [],
+   "diagnosis_rank": null,
+   "highlights": [
+    "difficulty hearing",
+    "tinnitus",
+    "need to exclude impacted wax",
+    "examine ear"
+   ],
+   "highlights_covered": [
+    "difficulty hearing",
+    "tinnitus",
+    "examine ear"
+   ]
+  },
+  "day2_consultation02": {
+   "presenting_complaint": "I have a strange swelling on my elbow",
+   "transcribe_seconds": 115.1,
+   "wer": 0.1628,
+   "wer_reference_words": 1615,
+   "draft_seconds": 87.7,
+   "failures": [],
+   "rouge1": 0.2604,
+   "rouge2": 0.039,
+   "rougeL": 0.144,
+   "note": "Subjective: The patient reports a slightly warm, fluid-filled swelling on his left elbow for about a week. The swelling is not painful but feels somewhat fluid-filled. Patient denies any injury or prior history of similar issues. Patient has osteoarthritis confirmed by a GP years ago and suspects it may be the cause. Patient is allergic to peanuts. Patient takes no regular medication. Patient reports being generally fit and well, runs regularly twice/three times per week. Patient's elbow feels warm compared to surrounding skin. The tip of the elbow is slightly dry. Patient denies eczema or other skin conditions. Patient has had blood tests done for inflammatory markers, infection, rheumatological antibodies, and gout.\nObjective: The patient presents with a warm, fluid-filled swelling on his left elbow. Skin appears dry at the tip of the elbow. No signs of redness or intense pain are noted. The elbow is mobile. No obvious signs of septic arthritis are present.\nAssessment: Likely bursitis (inflammation of the joint capsule).\nPlan: Arrange blood tests to check for inflammatory markers, infection, rheumatological antibodies, and gout. Send blood test forms home with instructions. Arrange follow-up appointment via phone or video after blood test results are available. Advise patient to take ibuprofen 400mg twice daily after food if needed. If the elbow becomes red, painful, or shows signs of spreading redness, contact clinic for further assessment.",
+   "suggestions": [
+    "Bursitis"
+   ],
+   "clinician_diagnoses": [
+    "possible bursitis"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "elbow swelling",
+    "No trauma",
+    "allergic to peanuts",
+    "looks well",
+    "possible bursitis",
+    "for NSAIDs",
+    "bloods"
+   ],
+   "highlights_covered": [
+    "elbow swelling",
+    "allergic to peanuts",
+    "bloods"
+   ]
+  },
+  "day2_consultation03": {
+   "presenting_complaint": "I can't hear very well and my face is a bit numb",
+   "transcribe_seconds": 94.0,
+   "wer": 0.1957,
+   "wer_reference_words": 1359,
+   "draft_seconds": 80.9,
+   "failures": [],
+   "rouge1": 0.3516,
+   "rouge2": 0.058,
+   "rougeL": 0.1844,
+   "note": "Subjective: The patient reports having some problems with hearing, including a feeling of muffled hearing in the left ear and numbness on the left side of the face around the jawline. The patient also mentions occasional ringing in the ears and dizziness when riding horses. The patient is not experiencing any other significant symptoms like weakness or difficulty swallowing. The patient takes a nasal spray for allergies and occasionally uses Rennies. The patient has no known allergies to medications, except latex. The patient's brother had neurofibromatosis. The patient is a jockey who has been impacted by the symptoms at work.\nObjective: The patient reports muffled hearing in the left ear and numbness on the left side of the face around the jawline. The patient denies any other significant symptoms like weakness or difficulty swallowing. No discharge from the ear, no pain in the ear, no fever, no itchiness in the ear, no problems with vision, and no difficulties speaking.\nAssessment: Not stated\nPlan: The clinician recommends a face-to-face appointment at one of their clinics in central London to assess the patient's symptoms. The clinician will perform a neurological examination and examine the ear. The patient is advised to ring the support team number after five minutes for a PACE test community.",
+   "suggestions": [
+    "Valve palsy"
+   ],
+   "clinician_diagnoses": [
+    "Bell's Palsy"
+   ],
+   "diagnosis_rank": null,
+   "highlights": [
+    "difficulty hearing",
+    "facial numbness",
+    "tinnitus",
+    "latex allergy",
+    "no facial assymetry"
+   ],
+   "highlights_covered": [
+    "difficulty hearing"
+   ]
+  },
+  "day2_consultation04": {
+   "presenting_complaint": "I feel breathless",
+   "transcribe_seconds": 120.9,
+   "wer": 0.1164,
+   "wer_reference_words": 1744,
+   "draft_seconds": 101.6,
+   "failures": [],
+   "rouge1": 0.354,
+   "rouge2": 0.075,
+   "rougeL": 0.1925,
+   "note": "Subjective: The patient is 45 years old and reports shortness of breath, chest pain that worsens with deep breaths, fever, cough with blood, fatigue, and a feeling of increased heart rate. The patient has been experiencing these symptoms for about a day. The patient denies any recent long-haul flights or history of clots. The patient takes methotrexate for SLE.\nObjective: Pulse: 66-74 bpm (irregular). Blood pressure: Not stated. Oxygen saturation: Not stated. Lung auscultation: Not stated. Throat examination: Not stated. Neck palpation: No enlarged glands noted. Temperature: Not stated. Other findings: Patient reports feeling a bit warmer.\nAssessment: Possible chest infection or pneumonia. Consider lung cancer as a possibility, but less likely given the acute presentation and lack of other symptoms over a longer period of time. The patient needs to be examined in person for further assessment.\nPlan: Arrange for the patient to be reviewed at a clinic today. Have someone listen to her chest, check blood pressure, and recheck pulse. Check temperature. Consider antibiotics if needed. Follow-up appointment scheduled in two weeks after initial assessment. If symptoms do not settle down, consider a follow-up chest x-ray.",
+   "suggestions": [
+    "Possible chest infection or pneumonia",
+    "Consider lung cancer",
+    "SLE (Systemic Lupus Erythematosus)"
+   ],
+   "clinician_diagnoses": [
+    "probable LRTI"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    ""
+   ],
+   "highlights_covered": [
+    ""
+   ]
+  },
+  "day2_consultation05": {
+   "presenting_complaint": "My asthma is not responding to my inhalers",
+   "transcribe_seconds": 125.1,
+   "wer": 0.104,
+   "wer_reference_words": 1817,
+   "draft_seconds": 130.0,
+   "failures": [],
+   "rouge1": 0.2863,
+   "rouge2": 0.069,
+   "rougeL": 0.145,
+   "note": "Subjective: The patient reports experiencing very weird symptoms over the past month or so. The patient started with getting tired for a couple of days and then got back to normal. Then, the patient lost feeling from their hands and arms. The patient feels like they have needles in their hand. The patient has pins and needles in the right hand but it only lasts a few days. The patient also feels weaker in the arm but it's not constant. The patient reports walking slightly differently to normal for three or four days, but this is outside of episodes. The patient feels tired and weak sometimes with nausea. The patient can't hold their cup of coffee now and has some difficulty drinking coffee. The patient has no swallowing difficulties at the moment. There are no visual problems during these episodes. The patient has a family history of stroke on his father's side, but he hasn't had any mini-strokes or anything like that. The patient takes aspirin 75 milligrams once a day because they read about it online. The patient feels fine at the moment. The patient is working as a medical doctor and is allergic to penicillin only.\nObjective: The patient has no current symptoms of stroke or TIA, but reports episodes of weakness and numbness in their right hand that occur several times a day and last for a few days. The patient's father had an operation on the side of his neck to reduce the risk of stroke. The patient takes aspirin 75 milligrams once a day. The patient is working as a medical doctor.\nAssessment: Not stated\nPlan: The clinician will refer the patient to a stroke TIA clinic. The referral should be sent within a few days, and the patient should hear back from the hospital in one or two days. The patient can call the hospital on the PALS number for updates. If there is any delay, the patient should contact the clinic again. The clinician will assess the patient over the phone if needed.",
+   "suggestions": [
+    "Transient ischemic attack (TIA)",
+    "Stroke",
+    "Peripheral neuropathy"
+   ],
+   "clinician_diagnoses": [
+    "TIAs"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    ""
+   ],
+   "highlights_covered": [
+    ""
+   ]
+  },
+  "day2_consultation06": {
+   "presenting_complaint": "I’m having difficulty breathing",
+   "transcribe_seconds": 124.8,
+   "wer": 0.1436,
+   "wer_reference_words": 1831,
+   "draft_seconds": 85.9,
+   "failures": [],
+   "rouge1": 0.29,
+   "rouge2": 0.0201,
+   "rougeL": 0.14,
+   "note": "Subjective: Patient reports difficulty breathing, anxiety about potential worsening of symptoms (swelling of lips and tongue), rash on arm where stung, history of eczema.\nObjective: No signs of significant swelling of the lips or throat observed. Skin examination shows redness and a puncture mark on the arm. Patient is not taking any medications currently. No known allergies to penicillin or other substances. Patient reports occasional anxiety/panic attacks but no current medication for this. Patient works as a computer scientist, lives alone with a cat, and has no pets.\nAssessment: Not stated\nPlan: Advised patient that the immediate reaction is likely localized and not life-threatening. Recommended taking antihistamines (pyrotone or chlorphenamine) up to 6 times daily for symptom control. Advised to seek further medical attention if symptoms worsen, including difficulty breathing or swelling of lips/throat. Provided information about potential anaphylactic reactions. No energy testing recommended at this time. Follow-up instructions given in case of recurrent or worsening symptoms.",
+   "suggestions": [],
+   "clinician_diagnoses": [
+    "localized inflammatory reaction to insect bite",
+    "cellulitis"
+   ],
+   "diagnosis_rank": null,
+   "highlights": [
+    "bee/wasp bite",
+    "No PMHx of anaphylaxis",
+    "anxiety in past",
+    "no airways compromise",
+    "localized inflammatory reaction",
+    "for OTC antihistamines"
+   ],
+   "highlights_covered": [
+    "localized inflammatory reaction"
+   ]
+  },
+  "day2_consultation07": {
+   "presenting_complaint": "I'm having chest discomfort",
+   "transcribe_seconds": 89.9,
+   "wer": 0.1477,
+   "wer_reference_words": 1246,
+   "draft_seconds": 115.6,
+   "failures": [
+    "repetition_detected"
+   ],
+   "rouge1": 0.2329,
+   "rouge2": 0.0486,
+   "rougeL": 0.1285,
+   "note": "Subjective: The patient reports chest discomfort, pressure sensation as if someone is sitting on his chest. The patient also reports nausea, sweating, shortness of breath, and left arm pain. The patient states he was gardening when symptoms started. He denies prior similar episodes. Patient has high blood pressure and smokes 10 cigarettes a day. Father died of heart attack at age 60. Patient drinks about 7-8 pints of beer per week. Patient lives alone and owns a sushi shop. Patient is overweight. Patient has an allergy to aspirin.\nObjective: Patient presents with chest discomfort, nausea, sweating, shortness of breath, and left arm pain. Heart rate slightly elevated. ECG pending.\nAssessment: Possible acute coronary syndrome (ACS).\nPlan: Call ambulance. Monitor vital signs. Aspirin contraindicated due to allergy. Prepare for potential transfer to hospital. Obtain ECG.",
+   "suggestions": [
+    "Acute Coronary Syndrome (ACS)"
+   ],
+   "clinician_diagnoses": [
+    "acute cardiac event"
+   ],
+   "diagnosis_rank": null,
+   "highlights": [
+    "chest pain",
+    "chronic smoker",
+    "FH of IHD",
+    "Hypertension",
+    "overweight",
+    "allergy to aspirin",
+    "haemodynamically stable",
+    "acute cardiac event",
+    "LAS blue light called"
+   ],
+   "highlights_covered": [
+    "chest pain",
+    "overweight",
+    "allergy to aspirin"
+   ]
+  },
+  "day2_consultation08": {
+   "presenting_complaint": "I've been feeling very hot and sweaty for the past week",
+   "transcribe_seconds": 124.3,
+   "wer": 0.1214,
+   "wer_reference_words": 1730,
+   "draft_seconds": 213.9,
+   "failures": [
+    "repetition_detected"
+   ],
+   "rouge1": 0.402,
+   "rouge2": 0.1535,
+   "rougeL": 0.229,
+   "note": "Subjective: The patient reports fever for seven days with sweats, aching muscles, nausea, tiredness, sweating during the night, and feeling cold. The patient has been taking ibuprofen and paracetamol without relief. Patient recently returned from Vietnam (four weeks ago) where she was trekking and cycling through farmland and some cities. She took malaria preventive medication daily. Patient has no cough or cold symptoms. No ear pain. Patient has not had diarrhea, constipation, or urinary problems. No joint swelling or tenderness. No rash. No headache. Patient has a history of back pain managed by physiotherapy. Patient's father died of heart attack at age 68. Patient takes Cerezzette. Patient has pollen allergy. Patient works as a nurse and does moderate exercise. Patient drinks alcohol moderately.\nObjective: Not stated\nAssessment: Not stated\nPlan: Dr. Jean Miser will examine the patient at one of their clinics in central London. Blood tests including thick and thin blood films to check for malaria and inflammatory markers are recommended. Patient is advised to stay home until this is sorted out. A message will be sent to book an appointment. Patient should ring the number provided after a few minutes. The clinic team will arrange the blood tests based on examination findings.",
+   "suggestions": [
+    "Malaria",
+    "Viral illness (e.g., influenza-like illness)",
+    "Other infectious cause"
+   ],
+   "clinician_diagnoses": [
+    "PUO"
+   ],
+   "diagnosis_rank": null,
+   "highlights": [
+    "fever",
+    "sweatiness",
+    "muscle aches",
+    "nausea",
+    "fatigue",
+    "night sweats",
+    "Recent foreign travel",
+    "cerazette",
+    "Nil allergies",
+    "hayfever",
+    "nurse",
+    "non smoker",
+    "PUO",
+    "need to exclude malaria"
+   ],
+   "highlights_covered": [
+    "fever",
+    "nausea",
+    "night sweats",
+    "nurse"
+   ]
+  },
+  "day2_consultation09": {
+   "presenting_complaint": "I can't move my left arm",
+   "transcribe_seconds": 73.0,
+   "wer": 0.1255,
+   "wer_reference_words": 964,
+   "draft_seconds": 59.7,
+   "failures": [],
+   "rouge1": 0.3394,
+   "rouge2": 0.1018,
+   "rougeL": 0.1949,
+   "note": "Subjective: The patient woke up this morning about an hour ago and couldn't move their left arm anymore. The arm feels fine apart from me not being able to move it. There is some tingling on the left side of the face since waking up, difficulty swallowing, speech is harder and slower, more complicated. Type 2 diabetes and high blood pressure. Taking melt form in low certain and low depen. Allergy to penicillin. Father has heart disease. Used to smoke, drinks a few pints of beer over the weekend, maybe a couple during the week. The arm still can't move and speech is getting harder.\nObjective: Not stated\nAssessment: Not stated\nPlan: Call ambulance to patient's home address. Stay on line until ambulance arrives. Make sure front door is unlocked and patient sits in hallway by the front door so that they have access if needed.",
+   "suggestions": [
+    "Stroke"
+   ],
+   "clinician_diagnoses": [
+    "CVA"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "Difficulty moving left arm",
+    "Tingling present on left side of face",
+    "Difficulty swallowing water",
+    "Speech seems ‘harder' or ‘slow'",
+    "? CVA",
+    "LAS called"
+   ],
+   "highlights_covered": [
+    "Difficulty moving left arm",
+    "Tingling present on left side of face",
+    "Difficulty swallowing water"
+   ]
+  },
+  "day2_consultation10": {
+   "presenting_complaint": "I've got a really bad headache",
+   "transcribe_seconds": 126.7,
+   "wer": 0.1077,
+   "wer_reference_words": 1718,
+   "draft_seconds": 208.0,
+   "failures": [
+    "repetition_detected"
+   ],
+   "rouge1": 0.4041,
+   "rouge2": 0.0962,
+   "rougeL": 0.2226,
+   "note": "Subjective: The patient reports waking up this morning with a horrible pain on the left side of their head, described as headachey feeling. The pain woke them up around 5:30 AM. They normally get up at 7:00 AM. The headache is still present now. The patient has a history of headaches but nothing as severe before. The pain tends to be a cluster at the front of their head. The patient feels sensitive to bright lights. They are not nauseous. There is no fever. The patient does not feel anxious at work, but sometimes they do feel anxious. They have been under stress at work for about two months. The patient has anxiety for about two years and is taking sertraline. They are not allergic to any medications. They live with their partner. They run three times a week and eat okay. The patient had a follow-up appointment with Dr. Mizzle who prescribed ibuprofen and suggested taking some time off work to reduce stress. The patient was advised to explore counseling options and to ensure adequate sleep (at least 7 hours) and hydration (at least 1.5 liters of fluids). The patient reported that lying down initially makes the headache worse, but it eventually soothes. The patient took paracetamol for the headache.\nObjective: The patient reports a headache on the left side of their head. No fever or nausea. Mild sensitivity to bright light. Patient denies being anxious. Patient is taking sertraline. Patient runs 3 times per week and eats okay. Patient has a history of anxiety. Patient is not allergic to medication. Patient lives with a partner. Patient is not hypertensive. Patient is not a smoker. Patient has a cat. Patient gets 70 hours of sleep per week. Patient drinks 1.5 liters of water daily.\nAssessment: Tension headache or migraine. Stress related.\nPlan: Prescribe ibuprofen. Suggest taking time off work to reduce stress. Encourage exploring counseling options. Advise at least 7 hours of sleep and 1.5 liters of fluid intake daily. Follow up in one week. If symptoms worsen or change, contact the clinic. Provide link to danger signs and symptoms of headaches. Sertraline continued as needed.",
+   "suggestions": [
+    "Tension Headache",
+    "Migraine",
+    "Stress-related headache"
+   ],
+   "clinician_diagnoses": [
+    "tension type headache"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "headache",
+    "left side head",
+    "Some sensitivity to bright lights",
+    "anxiety",
+    "on sertraline",
+    "tension type headache",
+    "ibuprofen"
+   ],
+   "highlights_covered": [
+    "headache",
+    "left side head",
+    "Some sensitivity to bright lights",
+    "anxiety",
+    "on sertraline",
+    "tension type headache",
+    "ibuprofen"
+   ]
+  },
+  "day3_consultation01": {
+   "presenting_complaint": "lips swelling after eating a sandwich",
+   "transcribe_seconds": 89.8,
+   "wer": 0.1853,
+   "wer_reference_words": 1241,
+   "draft_seconds": 63.1,
+   "failures": [],
+   "rouge1": 0.3698,
+   "rouge2": 0.0913,
+   "rougeL": 0.1811,
+   "note": "Subjective: The patient reports lip swelling after eating prawns. The swelling is getting bigger, causing difficulty breathing. She feels tightness in her chest. She has a history of asthma and uses salbutamol inhalers. She has a peanut allergy and remembers having an allergic reaction as a child with swelling and difficulty breathing. She does not have any antihistamines at the moment. Her mother has given her some antihistamines.\nObjective: The patient reports lip swelling, tightness in chest, and difficulty breathing. The patient is alone.\nAssessment: Anaphylactic reaction suspected.\nPlan: Call ambulance immediately. Ask for antihistamines if available. Call 999 to report anaphylactic reaction and request immediate assistance. Follow up with injection after hospital visit.",
+   "suggestions": [
+    "Anaphylaxis"
+   ],
+   "clinician_diagnoses": [
+    "anaphylactic reaction"
+   ],
+   "diagnosis_rank": null,
+   "highlights": [
+    "lip swelling",
+    "asthma",
+    "peanut allergy",
+    "anaphylactic reaction"
+   ],
+   "highlights_covered": [
+    "lip swelling",
+    "asthma",
+    "peanut allergy",
+    "anaphylactic reaction"
+   ]
+  },
+  "day3_consultation02": {
+   "presenting_complaint": "feeling hot and having severe headache",
+   "transcribe_seconds": 79.4,
+   "wer": 0.1366,
+   "wer_reference_words": 1091,
+   "draft_seconds": 112.0,
+   "failures": [],
+   "rouge1": 0.4098,
+   "rouge2": 0.1868,
+   "rougeL": 0.2732,
+   "note": "Subjective: The patient reports having a severe headache for the past four days, accompanied by fever and general muscle aches. The patient took paracetamol and ibuprofen but found them ineffective. The patient denies visual disturbances, neck pain, or neurological deficits such as weakness or pins and needles. The patient has no cough or ear complaints. The patient had mosquito bites while traveling to Thailand a week ago. The patient feels cold and has a red and itchy rash all over the body that disappears when pressure is applied. The patient reports no bleeding.\nObjective: The patient reports fever, headache, muscle aches, and a red/itchy rash. No visual disturbances or neurological deficits are reported. The patient denies coughs, ear pain, or bleeding. The patient has been to Thailand recently for travel. Examination not possible online.\nAssessment: Not stated\nPlan: The clinician recommends urgent examination at one of the hubs within the next few hours. If a slot is unavailable, the clinician advises the patient to go to A&E. The clinician suggests ruling out meningitis and other viral illnesses with blood tests and examinations. The clinician recommends seeing a GP as soon as possible if available.",
+   "suggestions": [
+    "Viral illness",
+    "Meningitis",
+    "Dengue Fever",
+    "Zika Virus"
+   ],
+   "clinician_diagnoses": [],
+   "diagnosis_rank": null,
+   "highlights": [
+    "headache",
+    "mosquito bites",
+    "No allergies"
+   ],
+   "highlights_covered": [
+    "headache",
+    "mosquito bites"
+   ]
+  },
+  "day3_consultation03": {
+   "presenting_complaint": "I don't have much appetite or energy lately",
+   "transcribe_seconds": 127.6,
+   "wer": 0.1378,
+   "wer_reference_words": 1742,
+   "draft_seconds": 114.7,
+   "failures": [],
+   "rouge1": 0.344,
+   "rouge2": 0.0968,
+   "rougeL": 0.1881,
+   "note": "Subjective: The patient reports feeling down, low energy, and short of breath for the past three months. The patient's mood is low, with a desire to be more active but difficulty doing so. The patient has experienced some nausea and loss of appetite. The patient denies chest pain or diarrhea. The patient had hypothyroidism treated with thyroxine, which they stopped taking when changing law firms. The patient reports feeling short of breath in enclosed spaces like lifts, where their heart beats faster and they feel unable to breathe. The patient's bowels are normal, and there is no blood in the stool. The patient has not been walking lately due to feeling unwell. The patient denies any recent illness.\nObjective: The patient reports a three-month history of low mood, low energy, shortness of breath, nausea, loss of appetite, palpitations, and difficulty breathing in enclosed spaces like lifts. The patient's thyroid function was previously treated with thyroxine but has not been taking it for the past three months. The patient denies chest pain or diarrhea. The patient reports no recent illness.\nAssessment: not stated\nPlan: The clinician recommends a general blood test to assess anemia, kidney and liver function, and thyroid levels. The clinician advises the patient to call support to arrange the blood tests. If the patient experiences chest pain or changes in bowel habits, they should contact support again. The clinician suggests that if the patient feels unwell, they should not wait for the results of the blood test but rather contact support.",
+   "suggestions": [
+    "Major Depressive Disorder",
+    "Hypothyroidism (untreated)",
+    "Anxiety Disorder"
+   ],
+   "clinician_diagnoses": [],
+   "diagnosis_rank": null,
+   "highlights": [
+    "loss of appetite",
+    "breathlessness",
+    "weight loss in the past 6 months about a stone",
+    "underactive thyroid"
+   ],
+   "highlights_covered": [
+    "loss of appetite"
+   ]
+  },
+  "day3_consultation04": {
+   "presenting_complaint": "my chest feels very tight",
+   "transcribe_seconds": 81.5,
+   "wer": 0.1651,
+   "wer_reference_words": 1060,
+   "draft_seconds": 92.9,
+   "failures": [],
+   "rouge1": 0.4096,
+   "rouge2": 0.1016,
+   "rougeL": 0.1915,
+   "note": "Subjective: The patient reports shortness of breath, wheezing, and coughing over the past few days. The patient uses a blue inhaler (salbutamol) as needed, but it has not provided significant relief. The patient takes clenol (fluticasone), cetraben, and hydrocortisone for eczema and asthma. The patient denies sputum production. The patient reports using the brown inhaler (clenol) twice daily, increasing to four puffs twice a day due to increased symptoms. The patient had an asthma attack about three to four years ago, treated with encouragement to use inhalers. The last asthma review was two years ago. The patient uses a peak flow meter at home and reports normal readings (around 380). The patient has hay fever but no medication allergies. The patient is not allergic to medications.\nObjective: The patient is using salbutamol every 2-4 hours, and clenol twice daily increasing to four puffs twice daily due to increased symptoms. Peak flow reading around 380. No sputum production.\nAssessment: Not stated\nPlan: Increase brown inhaler (clenol) dose to four puffs twice a day. Continue using salbutamol every 2-4 hours as needed. See a general practitioner within the next few days for further assessment and management. If breathing worsens, seek immediate medical attention.",
+   "suggestions": [
+    "Asthma exacerbation",
+    "Eczema",
+    "Hay fever"
+   ],
+   "clinician_diagnoses": [],
+   "diagnosis_rank": null,
+   "highlights": [
+    "breathlessness",
+    "asthma",
+    "eczema",
+    "peak flow reading is 380"
+   ],
+   "highlights_covered": [
+    "asthma",
+    "eczema",
+    "peak flow reading is 380"
+   ]
+  },
+  "day3_consultation05": {
+   "presenting_complaint": "I've been feeling dizzy",
+   "transcribe_seconds": 82.4,
+   "wer": 0.1002,
+   "wer_reference_words": 1058,
+   "draft_seconds": 64.5,
+   "failures": [],
+   "rouge1": 0.3985,
+   "rouge2": 0.0927,
+   "rougeL": 0.2452,
+   "note": "Subjective: The patient reports feeling dizzy, with a spinning room and buzzing ears. The symptoms started about two hours ago while making breakfast. There was a similar episode a month ago lasting only a few minutes. No recent viral illness or ear pain/discharge reported. Temperature is unknown. Patient can walk but feels unsteady due to the perceived movement of the room. Patient has premature ovarian failure and takes HRT. No allergies or other medications listed. The patient reports feeling sick, nausea, and no fever.\nObjective: No objective findings provided in transcript\nAssessment: Not stated\nPlan: Prescription for Cermetal (3 tablets three times a day) sent to Lloyd pharmacy. Patient should see a doctor for examination of the ears. If weakness or sudden headache develops, contact support. Follow up with appointment.",
+   "suggestions": [
+    "Labyrinthitis"
+   ],
+   "clinician_diagnoses": [
+    "labrynthitis"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "dizziness",
+    "premature ovarian failure",
+    "HRT",
+    "labrynthitis"
+   ],
+   "highlights_covered": [
+    "premature ovarian failure",
+    "HRT"
+   ]
+  },
+  "day3_consultation06": {
+   "presenting_complaint": "I'm having difficulty breathing",
+   "transcribe_seconds": 45.6,
+   "wer": 0.1289,
+   "wer_reference_words": 574,
+   "draft_seconds": 62.1,
+   "failures": [],
+   "rouge1": 0.3012,
+   "rouge2": 0.0366,
+   "rougeL": 0.2048,
+   "note": "Subjective: The patient reports having shallow breath and tightness in the chest since being stung by a wasp. The patient feels tingling in the lips. The patient has no history of similar reactions. The patient is allergic to penicillin. The patient has eczema. The patient has used antihistamines for flying, specifically aerosynositis. The patient does not have any rush on their body.\nObjective: Not stated\nAssessment: Not stated\nPlan: The clinician advises the patient to call an ambulance and give the patient antihistamines while waiting for the ambulance. The clinician advises the patient to go to the hospital immediately because of breathing difficulties.",
+   "suggestions": [
+    "Anaphylaxis",
+    "Articulatory reaction",
+    "Asthma exacerbation"
+   ],
+   "clinician_diagnoses": [
+    "urticaria"
+   ],
+   "diagnosis_rank": null,
+   "highlights": [
+    "Eczema",
+    "Allergic to penicillin",
+    "Hives",
+    "anaphylactic reaction"
+   ],
+   "highlights_covered": [
+    "Eczema",
+    "Allergic to penicillin"
+   ]
+  },
+  "day3_consultation07": {
+   "presenting_complaint": "I have sore red skin",
+   "transcribe_seconds": 88.5,
+   "wer": 0.1552,
+   "wer_reference_words": 1115,
+   "draft_seconds": 73.7,
+   "failures": [],
+   "rouge1": 0.4359,
+   "rouge2": 0.0948,
+   "rougeL": 0.2222,
+   "note": "Subjective: The patient reports skin is sore and red on chest, hands and arms, especially inside of elbows. Itchy and dry all over body. History of eczema on back. Tried depro base in shower and dermal soap. Used hydrocortisone for eczema. No change. Tried antihistamines (cetrazin) without improvement. Asthma controlled with blue inhaler used only during flare-ups. Mother has hypothyroidism and migraine.\nObjective: No findings\nAssessment: Not stated\nPlan: Prescribe fexaphenidine (antihistamine). Prescribe betanowate (steroid cream). Instructions to apply betanowate twice daily for 2 weeks, or sooner if worsening. Continue using depro base and dermal soap. Patient to call if worsening in the next two weeks.",
+   "suggestions": [
+    "Eczema",
+    "Hypothyroidism",
+    "Asthma"
+   ],
+   "clinician_diagnoses": [],
+   "diagnosis_rank": null,
+   "highlights": [
+    "asthma",
+    "eczema",
+    "FH Hypothyroidism",
+    "No allergies"
+   ],
+   "highlights_covered": [
+    "asthma",
+    "eczema",
+    "FH Hypothyroidism"
+   ]
+  },
+  "day3_consultation08": {
+   "presenting_complaint": "I have a cough and a cold",
+   "transcribe_seconds": 67.0,
+   "wer": 0.1193,
+   "wer_reference_words": 872,
+   "draft_seconds": 65.5,
+   "failures": [],
+   "rouge1": 0.4,
+   "rouge2": 0.1277,
+   "rougeL": 0.2947,
+   "note": "Subjective: The patient reports a cough and cold symptoms for about five days including runny nose, muscle aches, occasional chills, and dry cough. The patient is not bringing up any blood. No shortness of breath or wheezing. Patient takes metformin and Lisinopril for diabetes and high blood pressure respectively. Blood sugar control is normal. Last blood pressure reading was within the normal range this morning. Mild redness at the back of the throat. No enlarged tonsils. The patient has no concerns.\nObjective: Mild redness at the back of the throat. Normal blood pressure readings. Examination findings are unremarkable.\nAssessment: Likely viral upper respiratory infection (URI).\nPlan: Use night nurse/day nurse if symptoms worsen or persist beyond three weeks. No prescription needed.",
+   "suggestions": [
+    "Viral URI"
+   ],
+   "clinician_diagnoses": [
+    "Upper respiratory tract infection"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "Sugar levels and BP normal today",
+    "Upper respiratory tract infection"
+   ],
+   "highlights_covered": [
+    "Sugar levels and BP normal today",
+    "Upper respiratory tract infection"
+   ]
+  },
+  "day3_consultation09": {
+   "presenting_complaint": "I have pain in my jaw",
+   "transcribe_seconds": 144.8,
+   "wer": 0.102,
+   "wer_reference_words": 2030,
+   "draft_seconds": 90.9,
+   "failures": [],
+   "rouge1": 0.3833,
+   "rouge2": 0.1193,
+   "rougeL": 0.2021,
+   "note": "Subjective: The patient reports pain in her jaw, numbness and tingling in her left arm (second, third, and fourth fingers), mild weakness in the left arm, difficulty holding objects, a cold two weeks ago, vision loss from the left eye for about 20 minutes, occasional headaches, takes ibuprofen occasionally, vitamin D, melatonin, and iron supplements (but forgets to take them). The patient is concerned about potential neurological issues.\nObjective: The patient has numbness and tingling in her left arm (second, third, and fourth fingers), mild weakness in the left arm, difficulty holding objects. Vision loss from the left eye for about 20 minutes. No neck pain or fits. Patient reports a cold two weeks ago. The patient is not taking any regular medications.\nAssessment: Not stated\nPlan: The clinician will refer the patient to neurology urgently. The clinician suggests investigating possible multiple sclerosis and recommends monitoring for worsening weakness, headaches, vomiting, seizures, or vision loss. The clinician advises that if these symptoms worsen, the patient should go to A&E.",
+   "suggestions": [
+    "Multiple Sclerosis"
+   ],
+   "clinician_diagnoses": [],
+   "diagnosis_rank": null,
+   "highlights": [
+    "Dad - hypothyroidism",
+    "MOM- diabetes high cholesterol and high BP",
+    "r/o MS"
+   ],
+   "highlights_covered": []
+  },
+  "day3_consultation10": {
+   "presenting_complaint": "I have really bad diarrhea",
+   "transcribe_seconds": 100.0,
+   "wer": 0.1077,
+   "wer_reference_words": 1300,
+   "draft_seconds": 109.7,
+   "failures": [],
+   "rouge1": 0.3099,
+   "rouge2": 0.1076,
+   "rougeL": 0.1972,
+   "note": "Subjective: The patient reports experiencing diarrhea for about three days, with symptoms including abdominal pain and vomiting once. The patient has been to the toilet four to five times a day, with loose stools that may contain solid pieces. There is no blood or mucus in the stool. The patient reports feeling slightly unwell but able to drink plenty of fluids. The patient has not taken any medications for diarrhea or abdominal pain. The patient's father had hypertension and died of bowel cancer 10 years ago. The patient uses Lexipro inhaler (salbutamol) for asthma, which is not a known brand. The patient reports no allergies.\nObjective: The patient reports four to five bowel movements per day with loose stools. No blood or mucus in the stool. Patient reports mild abdominal pain and one episode of vomiting. Patient reports feeling slightly unwell but able to drink plenty of fluids. Patient uses Lexipro inhaler (salbutamol) for asthma. The patient denies any allergies.\nAssessment: not stated\nPlan: Recommend a soft diet, avoiding dairy, fish, meat, and eggs initially. Advise drinking plenty of fluids. Recommend Dioraly over-the-counter to replenish electrolytes. If diarrhea persists beyond one week or if blood is present in the stool, obtain a stool sample for analysis. Monitor fluid intake closely; if more than six to eight bowel movements per day are experienced, consider hospitalization.",
+   "suggestions": [
+    "Acute infectious gastroenteritis",
+    "Irritable Bowel Syndrome (IBS)",
+    "Medication-induced diarrhea"
+   ],
+   "clinician_diagnoses": [
+    "Gastroenteritis"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "Diarrhoea",
+    "PMH : asthma",
+    "Dad died of bowel cancer 10 years HTN",
+    "Gastroenteritis"
+   ],
+   "highlights_covered": [
+    "Diarrhoea",
+    "Dad died of bowel cancer 10 years HTN"
+   ]
+  },
+  "day4_consultation01": {
+   "presenting_complaint": "I'm having chest discomfort",
+   "transcribe_seconds": 94.6,
+   "wer": 0.1275,
+   "wer_reference_words": 1216,
+   "draft_seconds": 192.3,
+   "failures": [
+    "repetition_detected"
+   ],
+   "rouge1": 0.3161,
+   "rouge2": 0.1284,
+   "rougeL": 0.1884,
+   "note": "Subjective: The patient reports experiencing chest discomfort for a couple of hours now, described as more of a pressure than pain. It feels like someone sitting on his chest. The patient also has shortness of breath, lightheadedness, and nausea. He experiences difficulty climbing stairs and walking uphill. There is some pain in the left shoulder. The patient denies radiation to the head or arms, swallowing/drinking problems, or bowel issues. The patient is normally fit and well apart from high blood pressure and high cholesterol. The patient lives with his wife.\nObjective: Patient reports chest discomfort (7/10), feeling like pressure; shortness of breath; lightheadedness; nausea; difficulty climbing stairs and walking uphill; left shoulder pain. Patient denies radiation to head/arms, swallowing/drinking problems, or bowel issues. Patient is normally fit and well apart from high blood pressure and high cholesterol. Patient lives with his wife. Heart rate not stated. Blood pressure not stated. Oxygen saturation not stated. ECG not stated. Troponin not stated. Chest X-ray not stated. EKG not stated. Not stated\nAssessment: Not stated\nPlan: Call an ambulance. Monitor symptoms. Provide reassurance. Advise patient to stay calm and have water if needed. Do not take any medications. Arrange follow up appointment once patient is at the hospital. The consultant will be contacted for updates.",
+   "suggestions": [
+    "Angina pectoris",
+    "Myocardial infarction",
+    "Pulmonary embolism"
+   ],
+   "clinician_diagnoses": [
+    "MI",
+    "PE",
+    "GORD"
+   ],
+   "diagnosis_rank": 2,
+   "highlights": [
+    ""
+   ],
+   "highlights_covered": [
+    ""
+   ]
+  },
+  "day4_consultation02": {
+   "presenting_complaint": "I'm feeling hot and have severe headaches",
+   "transcribe_seconds": 90.4,
+   "wer": 0.0923,
+   "wer_reference_words": 1192,
+   "draft_seconds": 100.8,
+   "failures": [],
+   "rouge1": 0.284,
+   "rouge2": 0.0536,
+   "rougeL": 0.1479,
+   "note": "Subjective: The patient reports feeling hot and has had severe headaches. The headaches come in and go, and the patient feels like they are hard to focus on work. The patient also experiences tingling in their arms, especially when entering an elevator in the morning, which causes a fast heartbeat. The patient's appetite is reduced, leading to weight loss of approximately 5 pounds. The patient reports feeling short of breath at times. The patient has hypothyroidism and takes levothyroxine medication regularly. The patient drinks alcohol occasionally (once a week, a couple of glasses of wine) and does not smoke or use recreational drugs. The patient also mentions some loss of libido.\nObjective: The patient is 35 years old with a history of hypothyroidism treated with levothyroxine. The patient reports headaches that are mostly in the front of their head, but can spread to their arms. The patient experiences tingling in both hands and no legs. The patient reports feeling short of breath at times. The patient has lost approximately 5 pounds.\nAssessment: Not stated\nPlan: The doctor recommends seeing a clinic doctor for an examination and blood tests (thyroxine). The doctor advises booking an appointment through the app to see one of their colleagues in the clinic.",
+   "suggestions": [
+    "Hypothyroidism",
+    "Anxiety/Stress related headache",
+    "Cardiovascular issues"
+   ],
+   "clinician_diagnoses": [
+    "hypothyroid"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    ""
+   ],
+   "highlights_covered": [
+    ""
+   ]
+  },
+  "day4_consultation03": {
+   "presenting_complaint": "I'm feeling short of breath",
+   "transcribe_seconds": 72.7,
+   "wer": 0.0884,
+   "wer_reference_words": 995,
+   "draft_seconds": 74.6,
+   "failures": [],
+   "rouge1": 0.2166,
+   "rouge2": 0.0655,
+   "rougeL": 0.1227,
+   "note": "Subjective: the patient is feeling short of breath for an hour while watching TV and has a c-section scar that feels tender; the patient had a c-section four weeks ago; the patient has no cough or colds with baby; the patient was taking codeine painkillers after the c-section, but hasn't taken them in a week; the patient is allergic to ibuprofen; the patient's heart rate is slightly fast and she can feel her heartbeat on her left wrist; the patient feels stressed out because of her heart racing; the patient has no other medical problems or allergies; the patient has not measured her heart rate before\nObjective: heart rate 30 bpm; c-section four weeks ago; taking codeine painkillers for pain after c-section, but hasn't taken them in a week; allergic to ibuprofen; chest feels sore and tender due to c-section scar\nAssessment: not stated\nPlan: the patient should go to the hospital with baby; do not take any medications like codeine; check heart rate on left wrist; consider possibility of clots, especially given recent c-section; if clots are found, they can give medication to reduce clot size",
+   "suggestions": [
+    "possible pulmonary embolism"
+   ],
+   "clinician_diagnoses": [
+    "PE"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    ""
+   ],
+   "highlights_covered": [
+    ""
+   ]
+  },
+  "day4_consultation04": {
+   "presenting_complaint": "I'm wheezy",
+   "transcribe_seconds": 70.1,
+   "wer": 0.0816,
+   "wer_reference_words": 944,
+   "draft_seconds": 78.4,
+   "failures": [],
+   "rouge1": 0.2203,
+   "rouge2": 0.0533,
+   "rougeL": 0.1145,
+   "note": "Subjective: The patient reports wheezing that started two days ago after cleaning the house. The wheeze is getting worse at night and makes it hard to breathe and talk. The patient has a history of asthma as a child, occasional hay fever in the summer, and no allergies known. The patient takes steroids for asthma but does not see her doctor regularly. She feels short of breath and dizzy. Patient reports four or five glasses of water daily. Patient is minutes away from a doctor's surgery.\nObjective: Oxygen saturation level not stated. No other objective findings are mentioned in the transcript.\nAssessment: Not stated\nPlan: The clinician will write a letter to the patient's GP regarding the consultation and the need for further tests at the clinic. The patient should take an antihistamine if available, otherwise, her doctor can prescribe one. The clinician recommends visiting a clinic to check oxygen saturation levels to rule out asthma or allergy.",
+   "suggestions": [
+    "Asthma",
+    "Not stated"
+   ],
+   "clinician_diagnoses": [
+    "acute exacerbation of asthma",
+    "allergy"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    ""
+   ],
+   "highlights_covered": [
+    ""
+   ]
+  },
+  "day4_consultation05": {
+   "presenting_complaint": "I've had bad diarrhea for 3 days",
+   "transcribe_seconds": 101.4,
+   "wer": 0.1945,
+   "wer_reference_words": 1486,
+   "draft_seconds": 63.7,
+   "failures": [],
+   "rouge1": 0.2468,
+   "rouge2": 0.0258,
+   "rougeL": 0.1447,
+   "note": "Subjective: The patient reports having diarrhea for three days with abdominal pain and vomiting. The patient states they have a history of asthma, take an inhaler, and has a family history of cancer. The patient denies blood in the stool or vomit. The patient reports feeling better after breakfast but then experiencing nausea and vomiting again. The patient drinks water occasionally. The patient does not report fever.\nObjective: Not stated\nAssessment: Not stated\nPlan: The doctor advises the patient to drink plenty of fluids, stay home until they feel slightly better, and see a GP in person if symptoms worsen. Antibiotics are not recommended as they can make the situation worse. The doctor suggests booking an appointment with a general practitioner.",
+   "suggestions": [
+    "Gastroenteritis"
+   ],
+   "clinician_diagnoses": [
+    "gastroenteritis"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    ""
+   ],
+   "highlights_covered": [
+    ""
+   ]
+  },
+  "day4_consultation06": {
+   "presenting_complaint": "my chest hurts and it's been hard to breathe",
+   "transcribe_seconds": 118.2,
+   "wer": 0.1256,
+   "wer_reference_words": 1569,
+   "draft_seconds": 82.9,
+   "failures": [],
+   "rouge1": 0.3732,
+   "rouge2": 0.0645,
+   "rougeL": 0.1749,
+   "note": "Subjective: The patient reports a sudden onset headache that started this morning with a severe pain level (6/10) on the left side of the head and blurry vision with zigzag lines. The patient also experiences nausea and vomiting twice since the headache began, dizziness, and difficulty tolerating screens. Patient has a history of kidney stones and hypothyroidism in family. Patient took paracetamol three hours ago but it did not relieve symptoms. Patient is concerned about possible brain tumor or stroke.\nObjective: Patient reports headache on left side of head with blurry vision and zigzag lines. Patient also experiences nausea, vomiting twice since the headache began, dizziness, and difficulty tolerating screens. No neurological deficits noted in examination (walking fine).\nAssessment: Migraine.\nPlan: Recommend ibuprofen for pain relief. Suggest drinking a sugary carbonated drink like coke to help with nausea. Advise patient to monitor symptoms between now and next appointment. If symptoms improve significantly, cancel the appointment. If symptoms persist or worsen despite medication, contact clinic for further assessment. Consider prescribing specific migraine medications if needed.",
+   "suggestions": [
+    "Migraine"
+   ],
+   "clinician_diagnoses": [
+    "migraine"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    ""
+   ],
+   "highlights_covered": [
+    ""
+   ]
+  },
+  "day4_consultation07": {
+   "presenting_complaint": "I have a cold",
+   "transcribe_seconds": 119.8,
+   "wer": 0.1703,
+   "wer_reference_words": 1679,
+   "draft_seconds": 112.2,
+   "failures": [],
+   "rouge1": 0.2806,
+   "rouge2": 0.0721,
+   "rougeL": 0.1373,
+   "note": "Subjective: The patient reports having a cough and sore throat for about a week, with the sore throat developing first followed by the cough. The patient is experiencing shortness of breath, which started after the cough. The cough is dry, and there's no sputum production. There are some headaches that come and go. The patient has been feeling up and down in terms of symptoms over the past few days. The patient has a family history of lung cancer. The patient reports a loss of appetite but denies weight loss. The patient is concerned about shortness of breath, lung cancer, and her appetite.\nObjective: The patient reports shortness of breath with cough. There's no chest pain or wheezing reported. No fever or sweating are mentioned. Patient has no medical history or known allergies. Patient was born in the US and moved to the UK 12 years ago. The patient denies smoking, asbestos exposure, or any other significant risk factors.\nAssessment: Not stated\nPlan: The clinician advises reassurance that symptoms should improve within a few days. If symptoms worsen or shortness of breath increases, the patient should seek medical attention again. A sick note is provided for additional work days. The clinician recommends fluids and rest. The clinician does not provide any specific medications or prescriptions.",
+   "suggestions": [
+    "Acute bronchitis",
+    "Viral upper respiratory infection",
+    "Pneumonia"
+   ],
+   "clinician_diagnoses": [],
+   "diagnosis_rank": null,
+   "highlights": [
+    ""
+   ],
+   "highlights_covered": [
+    ""
+   ]
+  },
+  "day4_consultation08": {
+   "presenting_complaint": "lately, I haven't had much appetite or energy",
+   "transcribe_seconds": 139.7,
+   "wer": 0.1501,
+   "wer_reference_words": 1632,
+   "draft_seconds": 151.6,
+   "failures": [
+    "repetition_detected"
+   ],
+   "rouge1": 0.3223,
+   "rouge2": 0.1083,
+   "rougeL": 0.2231,
+   "note": "Subjective: The patient reports difficulty waking up in the morning, lack of energy during the day, difficulty doing things they normally find easy, difficulty sleeping, difficulty focusing, easily distracted, lower mood, decreased sex drive, shortness of breath when exercising, and a history of hypothyroidism.\nObjective: Patient is married and has no medication allergies. Patient takes thyroxine. Patient's father committed suicide 15 years ago. Patient has no significant past medical or psychiatric history. Patient denies thoughts of harming self or others. Patient reports being able to enjoy daily activities sometimes, but finds it difficult to breathe when exercising. Patient's mother is well. No vision changes reported.\nAssessment: Not stated\nPlan: The clinician recommends seeing the patient in person for an examination and ordering blood tests to investigate the cause of the patient's symptoms. The clinician will schedule an appointment with the patient's GP within a few days. The clinician also advises on the importance of having a plan to address the patient's symptoms.",
+   "suggestions": [
+    "Hypothyroidism",
+    "Depression",
+    "Anxiety"
+   ],
+   "clinician_diagnoses": [
+    "depression"
+   ],
+   "diagnosis_rank": 2,
+   "highlights": [
+    ""
+   ],
+   "highlights_covered": [
+    ""
+   ]
+  },
+  "day4_consultation09": {
+   "presenting_complaint": "I have pain in my jaw",
+   "transcribe_seconds": 146.4,
+   "wer": 0.1545,
+   "wer_reference_words": 1638,
+   "draft_seconds": 113.7,
+   "failures": [],
+   "rouge1": 0.2827,
+   "rouge2": 0.0817,
+   "rougeL": 0.1627,
+   "note": "Subjective: The patient reports a three-hour history of tight chest and mild shortness of breath, with wheezing. The patient had a cold last week that has resolved except for a persistent cough. The patient uses Ventolin (salbutamol) and Clenil (fluticasone) inhalers, but ran out of them about a week ago. The patient reports no drug allergies, only dust allergy. The patient's mother has eczema, and his father has asthma. The patient had an asthma exacerbation in high school that required intubation. The patient is not short of breath at rest, but feels more breathless when walking upstairs. The patient has never used a spacer before.\nObjective: The patient reports wheezing with cough and mild shortness of breath. Peak flow readings are not available. Patient can walk up stairs without significant shortness of breath. No chest pain reported. Patient is using Ventolin (salbutamol) and Clenil (fluticasone) inhalers, but ran out about a week ago.\nAssessment: Asthma exacerbation with persistent cough and wheezing despite intermittent use of salbutamol inhaler. The patient has a history of severe asthma exacerbations requiring intubation in the past.\nPlan: Prescribe Ventolin (salbutamol) inhaler for rescue therapy, to be used as needed every 3 hours or more frequently if symptoms worsen. Prescribe Clenil (fluticasone) inhaler for maintenance therapy. Send prescription for both inhalers and spacer device. Advise patient to use the spacer with each dose of Ventolin. Prescribe oral prednisolone tablets for five days, two tablets in the morning. Instruct patient on potential side effects of steroids. Recommend rest from work for seven days. Advise patient to seek further medical attention if symptoms worsen or new concerning symptoms develop (worsening shortness of breath, chest pain, lightheadedness).",
+   "suggestions": [
+    "Asthma exacerbation"
+   ],
+   "clinician_diagnoses": [
+    "Asthma exacerbation"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    ""
+   ],
+   "highlights_covered": [
+    ""
+   ]
+  },
+  "day4_consultation10": {
+   "presenting_complaint": "I have really bad diarrhea",
+   "transcribe_seconds": 147.0,
+   "wer": 0.1318,
+   "wer_reference_words": 1586,
+   "draft_seconds": 98.7,
+   "failures": [],
+   "rouge1": 0.2014,
+   "rouge2": 0.058,
+   "rougeL": 0.1439,
+   "note": "Subjective: The patient reports feeling sick in her lower abdomen for the last couple of days with nausea and an ache. She also feels hot and sweaty. The patient has been going to the toilet more frequently than usual, but there is no diarrhea or pain when urinating. The patient was constipated a week ago, but now she's regular. She had some spotting in her urine recently, thinking it might be her period. Her last menstrual period was about three weeks ago. She is sexually active and uses the Implanon contraceptive implant. She has no other medical problems or allergies except for Moxicillin. The patient does not smoke.\nObjective: The patient reports feeling hot and sweaty. No vomiting, lightheadedness, or fainting. No pain when urinating. Regular bowel movements after being constipated a week ago. Spotting in urine recently, thinking it might be her period. Last menstrual period was three weeks ago. Patient is sexually active with regular partner using Implanon.\nAssessment: Not stated\nPlan: The clinician recommends seeing the patient for further examination and investigations to rule out pregnancy and other possible causes of the symptoms. The clinician advises that if the patient feels worse in between appointments, she should seek urgent medical attention.",
+   "suggestions": [
+    "Constipation",
+    "Gastroenteritis",
+    "Pregnancy"
+   ],
+   "clinician_diagnoses": [
+    "Simple constipation",
+    "PID",
+    "STI",
+    "UTI"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    ""
+   ],
+   "highlights_covered": [
+    ""
+   ]
+  },
+  "day5_consultation01": {
+   "presenting_complaint": "I have a headache",
+   "transcribe_seconds": 101.7,
+   "wer": 0.1564,
+   "wer_reference_words": 1189,
+   "draft_seconds": 151.2,
+   "failures": [
+    "repetition_detected"
+   ],
+   "rouge1": 0.3205,
+   "rouge2": 0.0418,
+   "rougeL": 0.1543,
+   "note": "Subjective: The patient reports a bad headache for about a day now, mainly on the left side, described as bobbing and sensitive to light. Patient denies fever, runny nose, sore ears, nausea, vomiting, abnormal smells/tastes, eye problems, weakness, tingling, numbness, cough, sneeze, skin changes, or recent travel. The patient has no history of regular headaches. Patient takes contraception (started six years ago). Patient is allergic to aspirin. Patient drinks alcohol in moderation. Patient does not smoke or use drugs. Patient has a family history of migraines in her mother. Patient lives with her husband at home. Patient has been taking painkillers.\nObjective: Patient reports a headache on the left side. Patient denies fever. No other objective findings are mentioned.\nAssessment: Migraine-like headache. Not stated\nPlan: Advise the patient to take anti-inflammatories along with paracetamol and stay well hydrated. Advise the patient to check temperature at home. If headache worsens or develops other symptoms like rash, seek immediate medical attention. Suggest checking blood pressure. Consider further discussion regarding persistent headaches or headaches associated with menstrual cycle.",
+   "suggestions": [
+    "Migraine",
+    "Tension Headache",
+    "Cluster Headache"
+   ],
+   "clinician_diagnoses": [
+    "Tension headache",
+    "first episode migraine"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "Left sided headache",
+    "Intermittent",
+    "Non positional",
+    "Doesn't feel feverish",
+    "No tingling/numbness/weakness/rash",
+    "Worse with light but vision not altered"
+   ],
+   "highlights_covered": [
+    "Left sided headache",
+    "No tingling/numbness/weakness/rash"
+   ]
+  },
+  "day5_consultation02": {
+   "presenting_complaint": "It hurts when I pee",
+   "transcribe_seconds": 91.2,
+   "wer": 0.0944,
+   "wer_reference_words": 1059,
+   "draft_seconds": 82.5,
+   "failures": [],
+   "rouge1": 0.2887,
+   "rouge2": 0.0415,
+   "rougeL": 0.1512,
+   "note": "Subjective: The patient reports pain in the lower abdomen, which is constant and rated at 7/10. The patient has blood in the urine for six days. The patient feels no fever or low back pain. The patient can pass water normally. The patient has been taking mebin three times a day (200mg). The patient is allergic to clean the mysine. The patient lives with friends and works as a support worker. The patient drinks occasionally, one glass of wine per week. The patient does not smoke. The patient had IBS previously. The patient reports no weight loss or bowel changes. The patient has no other medical problems or surgeries in the past.\nObjective: \nAssessment: not stated\nPlan: Prescribe a course of antibiotics for three days. Advise to drink 2.5-3 liters of water daily and take cranberry juice sachets to change urine acidity. Send prescription to Nidesbridge practice pharmacy. If symptoms worsen or do not resolve, contact the clinic again. Follow up is not required after completing the antibiotic course unless symptoms recur.",
+   "suggestions": [
+    "Urinary tract infection",
+    "IBS",
+    "Kidney stones"
+   ],
+   "clinician_diagnoses": [
+    "Likely UTI"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "dysuria",
+    "Strong odour",
+    "No back/loin pain",
+    "Not feverish"
+   ],
+   "highlights_covered": [
+    "No back/loin pain"
+   ]
+  },
+  "day5_consultation03": {
+   "presenting_complaint": "I'm feeling very anxious",
+   "transcribe_seconds": 180.0,
+   "wer": 0.1215,
+   "wer_reference_words": 2345,
+   "draft_seconds": 193.3,
+   "failures": [
+    "repetition_detected"
+   ],
+   "rouge1": 0.2796,
+   "rouge2": 0.0324,
+   "rougeL": 0.1505,
+   "note": "Subjective: The patient reports feeling anxious over the past few months, experiencing nervousness every morning about leaving the house. The anxiety has built up and impacted her sleep, leading to difficulty falling asleep and waking up early due to racing heartbeats and panic attacks. She describes these episodes as stressful and impacting her ability to enjoy activities she used to find pleasurable. The patient also mentions feeling down and lacking energy throughout the day. She drinks alcohol regularly, especially on weekends, and hasn't tried any self-help measures. She lives at home with her parents.\nObjective: Not stated\nAssessment: Not stated\nPlan: Send link for NHS talking therapies. Suggest online resources for managing anxiety. Recommend basic blood tests to rule out underlying medical causes of palpitations. Arrange GP follow-up in one week after blood tests are completed. Advise patient to discuss results with the GP. Encourage patient to consider medication if needed, but not first line treatment. Provide information on improving sleep patterns. Offer support line contact details.",
+   "suggestions": [
+    "Generalized Anxiety Disorder (GAD)",
+    "Panic Disorder",
+    "Adjustment Disorder with Anxious Distress"
+   ],
+   "clinician_diagnoses": [
+    "Work related anxiety"
+   ],
+   "diagnosis_rank": null,
+   "highlights": [
+    "Anxiety symptoms",
+    "insomnia",
+    "Associated palpitations",
+    "Low mood most of the time but denies any suicidal ideation",
+    "Work related anxiety"
+   ],
+   "highlights_covered": []
+  },
+  "day5_consultation04": {
+   "presenting_complaint": "Lower stomach pain",
+   "transcribe_seconds": 112.8,
+   "wer": 0.1841,
+   "wer_reference_words": 1222,
+   "draft_seconds": 87.5,
+   "failures": [],
+   "rouge1": 0.2824,
+   "rouge2": 0.0462,
+   "rougeL": 0.1527,
+   "note": "Subjective: The patient reports lower abdominal pain that is constant and worsening over the last few days. The patient also reports light vaginal bleeding for the past two weeks, which she describes as pink in color. She has been constipated for a week but now her bowel movements are normal. The patient had a pregnancy test one month ago, which was negative. She uses an Implanon implant and is currently menstruating sporadically. The patient also reports nausea and occasional vomiting. No fever or difficulty breathing reported.\nObjective: Not stated\nAssessment: Not stated\nPlan: Arrange face-to-face examination with a doctor to examine the abdomen. Perform pregnancy test today if possible. Call support line for appointment. If pain worsens or patient cannot hold fluids, see patient before then.",
+   "suggestions": [
+    "Pelvic Inflammatory Disease (PID)",
+    "Ectopic Pregnancy",
+    "Ovarian Cyst"
+   ],
+   "clinician_diagnoses": [
+    "Abdominal pain cause"
+   ],
+   "diagnosis_rank": null,
+   "highlights": [
+    "Periumbilical pain",
+    "light PV bleeding",
+    "difficulty PUing",
+    "LMP 2 weeks ago"
+   ],
+   "highlights_covered": [
+    "light PV bleeding"
+   ]
+  },
+  "day5_consultation05": {
+   "presenting_complaint": "My tummy hurts",
+   "transcribe_seconds": 82.5,
+   "wer": 0.1342,
+   "wer_reference_words": 879,
+   "draft_seconds": 76.5,
+   "failures": [],
+   "rouge1": 0.3093,
+   "rouge2": 0.0751,
+   "rougeL": 0.1547,
+   "note": "Subjective: The patient reports lower abdominal pain for two days, feeling hot and sweaty. The patient denies prior similar episodes. The patient had constipation last week but is now fine. The patient went to the toilet two hours ago with normal bowel movements. There was some slight blood in the urine, pink-colored. The patient feels a bit nauseous. The patient has not experienced acid reflux or discharge below. The patient has no recent travel history. The patient denies other medical problems. The patient is allergic to almost nothing. The patient takes implant contraceptive for one year and no other regular medications. The patient has normal periods with no bleeding in between or after the course. The patient's mother had breast cancer, but it was cured at that time. The patient lives with her parents. The patient smokes and drinks alcohol 4 times per week. The patient feels a bit thirsty. The patient measured temperature which is around 37.3 degrees Celsius. The patient has not felt shivery or sweaty. The patient has no back pain or strong smell to the urine.\nObjective: The patient's temperature is approximately 37.3 degrees Celsius. No other objective findings are mentioned in the transcript.\nAssessment: Not stated\nPlan: The clinician suggests a possible urinary tract infection and recommends a three-day course of antibiotics if symptoms worsen or new ones develop. The clinician advises to contact them again if the problem recurs. The clinician offers to send the prescription to the pharmacy for immediate use.",
+   "suggestions": [
+    "Urinary Tract Infection"
+   ],
+   "clinician_diagnoses": [
+    "UTI"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "lower abdominal pain",
+    "blood in the urine",
+    "temp - 37",
+    "No back pain",
+    "thirsty"
+   ],
+   "highlights_covered": [
+    "lower abdominal pain",
+    "blood in the urine",
+    "No back pain",
+    "thirsty"
+   ]
+  },
+  "day5_consultation06": {
+   "presenting_complaint": "Diarrhoea",
+   "transcribe_seconds": 123.6,
+   "wer": 0.1473,
+   "wer_reference_words": 1460,
+   "draft_seconds": 125.5,
+   "failures": [],
+   "rouge1": 0.2974,
+   "rouge2": 0.0613,
+   "rougeL": 0.1385,
+   "note": "Subjective: The patient reports diarrhea starting about three days ago and being watery initially, now loose. She has been running a fever (boiling) and vomiting everything she tries to eat or drink. She is urinating normally but can't recall the color of her urine. The patient feels like she has abdominal pains towards her navel area that comes and goes. She takes vitamin D daily. Her bowels are normal, with no previous problems. She has been in contact with her brother who also has similar symptoms. She hasn't traveled anywhere. She is not allergic to anything known. She takes no other medications regularly except for vitamin D when she gets her period. She eats well normally and doesn't smoke or drink alcohol. She does take pain medication occasionally. Her last menstrual period was two weeks ago, and she isn't on any contraception. She works as a graphics designer and has had to work from home due to the symptoms. She lives with her brother and mother. She tried ORS (salt and sugar mix) at home but it didn't help. She feels like her symptoms are not getting better. The patient is dehydrated.\nObjective: The patient reports running a fever, vomiting everything she eats or drinks, and experiencing abdominal pain towards the center of her navel that comes and goes. She has been urinating normally. She can't recall the color of her urine. She feels like her symptoms are not getting better.\nAssessment: Not stated\nPlan: The clinician recommends an urgent appointment to check hydration and get a stool sample sent off for testing, as the symptoms have persisted for several days. The patient should continue with ORS (salt and sugar mix) in small sips. If her symptoms worsen or she becomes more dehydrated, she should go to A&E immediately. The clinician will book an appointment through the support line.",
+   "suggestions": [
+    "Viral gastroenteritis",
+    "Bacterial gastroenteritis",
+    "Other causes of abdominal pain"
+   ],
+   "clinician_diagnoses": [
+    "Gastroenteritis Viral",
+    "food poisoning"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "3/7 hx diarrhoea",
+    "No blood in stool",
+    "Vomiting",
+    "Still PUing ok",
+    "Last 1 hr ago"
+   ],
+   "highlights_covered": [
+    "Vomiting"
+   ]
+  },
+  "day5_consultation07": {
+   "presenting_complaint": "Cough and a cold",
+   "transcribe_seconds": 108.7,
+   "wer": 0.1131,
+   "wer_reference_words": 1185,
+   "draft_seconds": 113.9,
+   "failures": [],
+   "rouge1": 0.3277,
+   "rouge2": 0.0591,
+   "rougeL": 0.1303,
+   "note": "Subjective: The patient reports a cough lasting five days, with dry coughing every 20-30 minutes. The patient is experiencing constant nasal streaming and has been feeling hot/chilly. The patient's temperature is not known. The patient reports diarrhea for a few days but it has settled down since then. The patient feels achy muscles. The patient has no chest pain or difficulty breathing. The patient denies coughing up blood. The patient is taking metformin and lisinopril, last checked three weeks ago with normal results. The patient's blood pressure is not known to be stable. The patient reports drinking normally and passing water normally. The patient has no rashes or headaches/vision changes. The patient lives with a partner and dog and works as an office manager. The patient uses Lemsips for symptom relief. The patient denies allergies to medications or anything else.\nObjective: The patient is diabetic and on metformin and lisinopril. Last blood pressure check was three weeks ago, normal results. No known unstable blood pressure. Patient reports a temperature of 37.5 degrees Celsius but does not have a thermometer. Patient's weight and height are 65 kg and 1.65 m respectively.\nAssessment: Likely viral upper respiratory infection (URI) with possible secondary bacterial bronchitis or pneumonia due to diabetes. The patient is likely experiencing symptoms of a common cold, possibly complicated by a bacterial infection given the patient's diabetic status. Not stated\nPlan: Advise the patient to monitor temperature and cough frequency. If fever persists above 37.5 degrees Celsius, if cough worsens, or if other concerning symptoms develop (coughing up blood, shortness of breath, chest pain), return for further evaluation. Continue Lemsips as needed for symptom relief. Advise against taking paracetamol-containing medications with Lemsips. No specific medication prescribed at this time.",
+   "suggestions": [
+    "Viral upper respiratory infection",
+    "Secondary bacterial bronchitis/pneumonia (possible)",
+    "Acute bronchitis"
+   ],
+   "clinician_diagnoses": [
+    "Viral bronchitis"
+   ],
+   "diagnosis_rank": 2,
+   "highlights": [
+    "No sputum/haemoptysis",
+    "No SOB/inspiratory pain/wheeze",
+    "T2 DM",
+    "Non smoker"
+   ],
+   "highlights_covered": [
+    "No SOB/inspiratory pain/wheeze"
+   ]
+  },
+  "day5_consultation08": {
+   "presenting_complaint": "I'm wheezy",
+   "transcribe_seconds": 108.5,
+   "wer": 0.1056,
+   "wer_reference_words": 1259,
+   "draft_seconds": 101.6,
+   "failures": [],
+   "rouge1": 0.3604,
+   "rouge2": 0.086,
+   "rougeL": 0.1486,
+   "note": "Subjective: The patient reports a recent onset of cough and fever with shortness of breath and difficulty completing sentences. The patient had asthma as a child which was well-controlled with medication, but they stopped taking it about three to four years ago. They have hay fever and occasionally miss school due to asthma symptoms. The patient's temperature is normal (37). The patient has been working from home recently. The patient reports using cell butomol inhaler every few weeks when needed. The patient lives with a partner.\nObjective: The patient reported a normal temperature of 37. They have no chest pain or blood in their cough. The patient is able to get up and down the stairs without difficulty. The patient has not used a peak flow meter before. The patient does not have an aspirin inhaler at home. The patient reports taking cell butomol inhaler regularly, but they don't remember when they last took it.\nAssessment: Asthma flare-up likely triggered by viral infection or pollen exposure. Possible need for increased asthma medication and/or antihistamine.\nPlan: Prescribe peak flow meter and spacer. Advise patient to take two to four puffs of the inhaler every four hours initially, increasing frequency if symptoms worsen or temperature rises. Instruct patient to call back immediately if symptoms worsen. Arrange a review in one week to assess asthma control and consider additional medication. Recommend regular antihistamine use. Provide instructions on how to use peak flow meter.",
+   "suggestions": [
+    "Asthma exacerbation",
+    "Viral upper respiratory infection"
+   ],
+   "clinician_diagnoses": [
+    "Exacerbation asthma"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "Wheeze",
+    "No fever",
+    "Not coughing up sputum",
+    "Sometimes can't complete sentences but no SOB at rest",
+    "Stopped medication 3-4 years ago but sometimes takes salbutamol still every few weeks"
+   ],
+   "highlights_covered": [
+    "No fever",
+    "Not coughing up sputum",
+    "Stopped medication 3-4 years ago but sometimes takes salbutamol still every few weeks"
+   ]
+  },
+  "day5_consultation09": {
+   "presenting_complaint": "Tired all the time",
+   "transcribe_seconds": 115.1,
+   "wer": 0.1617,
+   "wer_reference_words": 1311,
+   "draft_seconds": 98.8,
+   "failures": [],
+   "rouge1": 0.303,
+   "rouge2": 0.0608,
+   "rougeL": 0.1595,
+   "note": "Subjective: The patient reports feeling tired and run down for the last six weeks. The patient feels less hungry but is not experiencing weight change. The patient had a rash on the back of their car that faded over a couple of weeks. The patient recalls having a sore throat at the time of the rash. The patient was active while on holiday in the States, near Yosemite. The patient has no chest symptoms or other respiratory issues. The patient denies abdominal pain, diarrhea, vomiting, blood in stool or urine, difficulty swallowing, acid reflux, or changes in bowel habit. The patient reports aching shoulders, back, hips, and knees but denies joint swelling or pain. The patient is generally feeling well mentally. The patient takes a daily inhaler for asthma and preventive medication. The patient does not smoke or drink alcohol regularly.\nObjective: The patient has been experiencing fatigue and malaise for six weeks. The patient reports a rash on the back of their car that faded over two weeks, possibly coinciding with a sore throat. The patient denies chest symptoms, abdominal pain, diarrhea, vomiting, blood in stool or urine, difficulty swallowing, acid reflux, joint swelling or pain. The patient is generally feeling well mentally.\nAssessment: Not stated\nPlan: The clinician recommends booking blood tests to check for various conditions including bacterial infection and Lyme disease. A follow-up appointment will be scheduled a week after the test results are available. The clinician suggests calling back for a follow-up phone consultation.",
+   "suggestions": [
+    "Lyme Disease",
+    "Viral Infection",
+    "Asthma exacerbation"
+   ],
+   "clinician_diagnoses": [
+    "6/52 hx fatigue",
+    "hx circular rash on calf"
+   ],
+   "diagnosis_rank": null,
+   "highlights": [
+    "Tired",
+    "Did lots of walking in shorts in Yosemite",
+    "red circular rash",
+    "fever",
+    "sore throat",
+    "Aching shoulder/legs/back"
+   ],
+   "highlights_covered": [
+    "Tired",
+    "sore throat",
+    "Aching shoulder/legs/back"
+   ]
+  },
+  "day5_consultation10": {
+   "presenting_complaint": "I have a blinding headache",
+   "transcribe_seconds": 126.6,
+   "wer": 0.1542,
+   "wer_reference_words": 1492,
+   "draft_seconds": 199.2,
+   "failures": [
+    "repetition_detected"
+   ],
+   "rouge1": 0.3903,
+   "rouge2": 0.0727,
+   "rougeL": 0.161,
+   "note": "Subjective: The patient reports having a blinding headache for three days, described as all over but stronger over the right eye. The patient experiences sensitivity to bright light and occasional shooting lights. There are no nausea or vomiting episodes reported. No tingling or numbness or weakness are present. No changes in swell or taste are noted. In the past, headaches were normal, pressure-like, not major. This headache started suddenly three days ago and has been constant since. Pain severity is mostly 8/10, decreasing to around 5/10 at times. Standing up quickly causes stabbing pain at 45 degrees. No recent eye checks or cold symptoms. Patient works from home and has missed work for three days. Patient takes Barcelona (apropan) for one year without side effects. Blood pressure was normal when taking the pill a year ago. No allergies. Lives alone. Drinks alcohol occasionally (3 beers per week). No other drugs taken. Headache is better at night, does not wake her up. Mother suffers from migraines with vomiting. Patient feels like she might be lacking energy due to the headache.\nObjective: Headache for three days, all over, worse on the right side. Sensitivity to bright light. Occasional shooting lights. No nausea or vomiting. No tingling or numbness or weakness. No change in smell or taste. Normal blood pressure when taking Barcelona. No recent eye check. Patient reports that her mother has migraines with vomiting. The patient's examination revealed no abnormalities. The patient reported that they had not checked their temperature.\nAssessment: Not stated\nPlan: Prescribe stronger ibuprofen and paracetamol. Advise to take medication with food. Schedule neurological examination and review of back of eyes. If headache worsens or changes, go to A&E. Consider changing the Barcelona pill if migraine suspected based on flashing lights. Send referral to specialist or support team for further evaluation. Advised to call for advice if headache becomes unbearable. Check blood pressure during follow-up appointment.",
+   "suggestions": [
+    "Migraine",
+    "Tension Headache",
+    "Cluster Headache"
+   ],
+   "clinician_diagnoses": [
+    "Likely migraine"
+   ],
+   "diagnosis_rank": 1,
+   "highlights": [
+    "Starts on waking up",
+    "Over right eye",
+    "Seeing lights in front of eyes",
+    "Worse in the light",
+    "No rash",
+    "No fever",
+    "Not woken up in the night"
+   ],
+   "highlights_covered": [
+    "Starts on waking up",
+    "Over right eye",
+    "Worse in the light",
+    "Not woken up in the night"
+   ]
+  },
+  "day5_consultation11": {
+   "presenting_complaint": "I have a pouring diarrhea",
+   "transcribe_seconds": 154.8,
+   "wer": 0.1074,
+   "wer_reference_words": 1908,
+   "draft_seconds": 117.7,
+   "failures": [],
+   "rouge1": 0.3844,
+   "rouge2": 0.0733,
+   "rougeL": 0.1946,
+   "note": "Subjective: The patient reports knee pain and clicking in both knees, especially during running (approximately 20-30 minutes after starting). The patient also experiences tingling in the toes after running. The patient is training for a marathon (7-8 miles per run) and has been increasing mileage over the past month. There was a previous injury to the right knee from falling on ice, but no other joint problems are reported. The patient takes ibuprofen as needed for joint issues. Patient reports feeling some fluid in the knees.\nObjective: The patient is experiencing pain and clicking in both knees during running. Tingling sensation in toes after running. No swelling or redness noted. Range of motion is full. No locking or instability observed. Patient denies any other medical problems, allergies, or medications besides ibuprofen (400mg max) and vitamin D/melatonin.\nAssessment: Not stated\nPlan: Prescribe a stronger anti-inflammatory medication for knee pain. Refer the patient to a physiotherapist for assessment of both knees. Advise the patient to use ice therapy on the knees as much as possible. Instruct the patient to ease up on running if it causes significant pain, and to seek medical attention urgently if there is persistent swelling, heat, redness, locking, or inability to bend/stretch the knee.",
+   "suggestions": [
+    "Osteoarthritis",
+    "Patellofemoral Pain Syndrome",
+    "Ligament Injury (ACL or MCL)"
+   ],
+   "clinician_diagnoses": [],
+   "diagnosis_rank": null,
+   "highlights": [
+    "Training for marathon",
+    "puffiness of knee after exercise",
+    "No giving way/locking",
+    "FROM",
+    "tingling R side forefoot",
+    "If persistent swelling/heat/redness/locking to see Dr asap"
+   ],
+   "highlights_covered": [
+    "Training for marathon",
+    "FROM",
+    "If persistent swelling/heat/redness/locking to see Dr asap"
+   ]
+  },
+  "day5_consultation12": {
+   "presenting_complaint": "Headache",
+   "transcribe_seconds": 69.9,
+   "wer": 0.1229,
+   "wer_reference_words": 765,
+   "draft_seconds": 69.7,
+   "failures": [],
+   "rouge1": 0.3177,
+   "rouge2": 0.0582,
+   "rougeL": 0.2022,
+   "note": "Subjective: The patient reports having a headache on the left side at the back, starting yesterday around mid-morning and rated as an 8/10. The headache is throbbing and has not been affected by position or activity. The patient denies nausea, vomiting, blurred vision, eye pain, fever, rash, neck stiffness, or neurological symptoms like tingling, numbness, or weakness. The patient took Neurofen yesterday without relief. The patient's mother has hypertension and migraines. The patient lives with her partner and is a designer. She does not smoke, drink alcohol, or use drugs. The patient denies any recent changes in stress, diet, or lifestyle that could be contributing to the headache. The patient reports no missed work.\nObjective: Not stated\nAssessment: Not stated\nPlan: The clinician suggests trying stronger pain relief such as paracetamol and ibuprofen regularly with food. If the pain worsens or new symptoms develop (fever, rash, vomiting, neck stiffness), the patient should contact the clinic for further evaluation and management.",
+   "suggestions": [
+    "Tension headache"
+   ],
+   "clinician_diagnoses": [
+    "New onset headache"
+   ],
+   "diagnosis_rank": null,
+   "highlights": [
+    ""
+   ],
+   "highlights_covered": [
+    ""
+   ]
+  }
+ },
+ "dataset": "PriMock57 (Korfiatis et al., ACL 2022; Babylon Health), CC BY 4.0, https://github.com/babylonhealth/primock57",
+ "model": "medgemma:4b",
+ "source": "speech",
+ "machine": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+ "cpus": 12,
+ "ram_gb": 7.9,
+ "free_ram_gb_at_start": 0.5
+}
