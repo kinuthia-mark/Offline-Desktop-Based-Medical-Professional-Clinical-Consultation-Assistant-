@@ -35,6 +35,13 @@ WHISPER_MODELS = {
         483_546_902,
         "3e305921506d8872816023e4c273e75d2419fb89b24da97b4fe7bce14170d671",
     ),
+    # Measured on Kenyan-accented speech against small (ADR-016); not the default.
+    "medium": ModelFile(
+        "faster-whisper-medium",
+        "https://huggingface.co/Systran/faster-whisper-medium",
+        1_527_906_378,
+        "9b45e1009dcc4ab601eff815b61d80e60ce3fd8c74c1a14f4a282258286b51ae",
+    ),
 }
 _REQUIRED = ("model.bin", "config.json", "tokenizer.json", "vocabulary.txt")
 

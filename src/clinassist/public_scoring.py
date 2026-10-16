@@ -202,8 +202,38 @@ def clinician_diagnoses(note: str) -> list[str]:
     return [i for i in items if _core(i) and not _RULED_OUT.match(i)]
 
 
+# Plain-English names that mean exactly the same as the clinical term. Only exact equivalents:
+# nothing that is merely related ("viral bronchitis" is not "upper respiratory infection").
+SYNONYMS = {
+    "chest infection": "lower respiratory tract infection",
+    "heart attack": "myocardial infarction",
+    "stroke": "cerebrovascular accident",
+    "hives": "urticaria",
+    "stomach flu": "gastroenteritis",
+}
+
+
 def _core(diagnosis: str) -> set[str]:
-    return {w for w in content(diagnosis) if w not in QUALIFIERS}
+    text = diagnosis.lower()
+    for plain, clinical in SYNONYMS.items():
+        text = re.sub(rf"(?<![a-z]){plain}(?![a-z])", clinical, text)
+    return {w for w in content(text) if w not in QUALIFIERS}
+
+
+def _close(word: str, words: set[str], threshold: float = 0.85) -> bool:
+    """The word, or a spelling of it close enough to be a typing slip ("labrynthitis" for
+    "labyrinthitis"). Only words of six letters or more, so short ones never match by chance."""
+    from difflib import SequenceMatcher
+
+    if word in words:
+        return True
+    if len(word) < 6:
+        return False
+    return any(len(w) >= 6 and SequenceMatcher(None, word, w).ratio() >= threshold for w in words)
+
+
+def _within(a: set[str], b: set[str]) -> bool:
+    return all(_close(w, b) for w in a)
 
 
 def diagnosis_rank(reference: str | list[str], suggestions: list[str]) -> int | None:
@@ -219,7 +249,7 @@ def diagnosis_rank(reference: str | list[str], suggestions: list[str]) -> int | 
         return None
     for rank, suggestion in enumerate(suggestions, start=1):
         sug = _core(suggestion)
-        if sug and any(ref <= sug or sug <= ref for ref in cores):
+        if sug and any(_within(ref, sug) or _within(sug, ref) for ref in cores):
             return rank
     return None
 

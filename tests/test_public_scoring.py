@@ -122,3 +122,20 @@ def test_any_listed_diagnosis_counts():
     assert diagnosis_rank(["MI", "PE", "GORD"], ["Pulmonary embolism", "Pleurisy"]) == 1
     assert diagnosis_rank(["MI", "PE", "GORD"], ["Pleurisy", "Costochondritis"]) is None
     assert diagnosis_rank(["MI", "PE", "GORD"], ["Costochondritis", "GORD"]) == 2
+
+
+@pytest.mark.parametrize(
+    ("reference", "suggestions", "rank"),
+    [
+        ("labrynthitis", ["Labyrinthitis"], 1),  # the clinician's typing slip
+        ("probable LRTI", ["Chest infection", "Pneumonia"], 1),  # the same thing in plain words
+        ("urticaria", ["Hives"], 1),
+        ("Viral bronchitis", ["Viral upper respiratory infection"], None),  # related, not same
+        ("MI", ["Angina"], None),
+        ("asthma", ["ascites"], None),  # short words never match by spelling
+    ],
+)
+def test_typing_slips_and_exact_synonyms_match_but_related_conditions_do_not(
+    reference, suggestions, rank
+):
+    assert diagnosis_rank(reference, suggestions) == rank

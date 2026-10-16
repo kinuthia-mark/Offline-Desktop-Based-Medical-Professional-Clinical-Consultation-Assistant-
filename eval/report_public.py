@@ -130,7 +130,8 @@ def afrispeech_report(data: dict) -> str:
     def both(group) -> str:
         return f"{wer(group)} / {wer(group, 'errors_no_spoken_punctuation')}"
 
-    lines = _header(data, f"AfriSpeech-200, Kenyan speakers: {len(items)} clips, Whisper small")
+    size = data.get("whisper", "small")
+    lines = _header(data, f"AfriSpeech-200, Kenyan speakers: {len(items)} clips, Whisper {size}")
     lines += [
         "Word error rate is total errors divided by total reference words (so long clips count "
         "more), after the same normalising as the other speech tests (numbers as digits, "
