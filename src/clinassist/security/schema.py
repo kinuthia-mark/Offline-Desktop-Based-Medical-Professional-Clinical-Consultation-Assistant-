@@ -80,6 +80,13 @@ MIGRATIONS: tuple[str, ...] = (
     ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0
         CHECK (must_change_password IN (0, 1));
     """,
+    # v4: the transcript's language and the speech model's confidence, as in the proposal's
+    # `transcripts` table (Figure 4.7). Confidence is a probability, so between 0 and 1.
+    """
+    ALTER TABLE sessions ADD COLUMN transcript_language TEXT;
+    ALTER TABLE sessions ADD COLUMN asr_confidence REAL
+        CHECK (asr_confidence IS NULL OR (asr_confidence >= 0 AND asr_confidence <= 1));
+    """,
 )
 
 LATEST = len(MIGRATIONS)

@@ -76,6 +76,7 @@ The application is a step-by-step process. The software will not let a step happ
 stateDiagram-v2
     [*] --> Idle
     Idle --> Recording: start recording
+    Idle --> Transcribed: type the transcript instead
     Recording --> Transcribed: stop (speech is turned into text)
     Transcribed --> Approved: doctor edits and approves the text
     Approved --> Drafted: model drafts the note
@@ -107,9 +108,14 @@ Nothing typed is lost.
 
 Left to right: the recording controls, the transcript the clinician corrects and approves, and the
 drafted note. A clinician who does not want to record can choose "Type the transcript instead" and
-type it; the typed text goes through the same approval and checks as a spoken one (AMD-39). The clinician's own assessment is separate from the model's text, which is labelled
-as AI-generated. "Finalize and save" stays disabled until the assessment is written and all three
-history boxes are ticked; here one is still unticked.
+type it; the typed text goes through the same approval and checks as a spoken one (AMD-39). The
+clinician's own assessment is separate from the model's text, which is labelled as AI-generated. "Finalize and save" stays disabled until the assessment is written and all three
+history boxes are ticked; here none are ticked yet. The main step on each panel is shown in the
+brand colour, and the program follows the Windows light or dark setting.
+
+Administrators land on their own overview instead (AMD-41), and never see patient notes:
+
+![The administrator overview](docs/screenshots/admin-overview.png)
 
 ---
 
@@ -185,6 +191,10 @@ These apply to every file, and the tests check them.
 
 ## 6. What is built so far
 
+**Status: 27 of 29 requirements verified; all 29 are built.** The other two: speech accuracy
+on Kenyan-accented clinical speech misses its target with the default model (NFR-06, below),
+and the System Design and Test Cases documents come at the final update (NFR-08).
+
 Status is kept up to date in [`docs/traceability.md`](docs/traceability.md). A requirement counts
 as **verified** only when its tests pass on Windows in GitHub Actions and any measurement it needs
 is recorded.
@@ -193,24 +203,28 @@ is recorded.
 |---|---|---|
 | Controller with the clinician gates | FR-11 to FR-15 | built and tested |
 | Note generator (Ollama client, output cap, loop detection, retry, JSON check, advisory flags) | FR-04, FR-05, FR-13 | built and tested on real model output |
-| Encrypted vault, recovery code, session store, optional encrypted audio | FR-07, NFR-05 | built; Windows CI green |
+| Encrypted vault, recovery code, session store (each record notes which speech and language model produced it, with the transcript's language and confidence), optional encrypted audio | FR-07, NFR-05 | built and tested |
 | Accounts, roles, lockout, idle timeout, password change, admin password reset (new password required at next login), "Forgot password?" with the vault's recovery code when no other admin can help | FR-08, FR-10a | built and tested |
 | Export one finalized note as a PDF to print or attach to a referral; audited ([sample](docs/screenshots/export-sample.png), synthetic) | FR-17, AMD-36 | built and tested |
 | Tamper-evident audit log | FR-09, FR-10d | built and tested |
 | Backup and restore of the encrypted vault, from the admin screen | FR-10c | built and tested (ADR-014) |
+| Offline update of the language model from a checked model bundle, from the admin screen | FR-10b | built and tested (ADR-015) |
 | Database tab for administrators: encryption shown on the real file, tables, rules and rows (read-only; clinical text never shown) | AMD-40 | built and tested |
 | Separate roles: clinicians land on the consultation screen; administrators land on an overview and never see patient notes | AMD-41 | built and tested |
 | Input check (prompt injection, personal data) and checks on the model's reply | FR-05, AMD-11 | built and tested |
 | Microphone recorder | FR-01 | built and tested, including on the real microphone |
 | Speech-to-text (Faster-Whisper small, offline) | FR-02 | built and measured with synthetic speech |
-| Desktop interface (PySide6): consultation screen, records, audit and accounts | FR-03, FR-06, FR-16 | built and tested |
+| Desktop interface (PySide6): consultation screen, records, audit and accounts, one look in light and dark | FR-03, FR-06, FR-16, AMD-42 | built and tested |
 | Wiring of all parts, memory plan, startup checks | NFR-04, NFR-07 | built and run end to end |
-| Air-gap enforcement: in-app network guard, firewall rules, checks shown on screen | NFR-01, NFR-02, FR-18 | built; firewall rules to be applied on the reference PC |
+| Air-gap enforcement: in-app network guard, firewall rules, checks shown on screen | NFR-01, NFR-02, FR-18 | built and tested; the installer applies the firewall rules, confirmed on the reference PC and in the clean-machine installer test |
 | Evaluation: 8 scripted consultations with key facts and traps, scored end to end | FR-05, NFR-03, NFR-06 | built and run; clinician scoring pending |
-| Windows installer and offline model bundle, with a self-test | release, AMD-15 | built; test on a second PC pending |
+| Windows installer and offline model bundle (Ollama included, pinned and checked), with a self-test | release, AMD-15 | built and installed on the reference PC; a second PC is still to do |
 
-More than 350 tests run on every push, on Windows with Python 3.11 and 3.12, together with
+696 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
+
+**Still to do:** installing on a second, clean PC, and applying the amendments to the
+proposal document with the System Design and Test Cases documents.
 
 ---
 
@@ -327,8 +341,46 @@ accurate. But every note left out allergies or pertinent negatives; 3 of 4 short
 diagnosis the doctor had not made; one long note changed a blood-pressure reading, contradicted a
 symptom the patient described, and invented "the patient's wife is present". These findings are why
 the clinician gates exist. The automatic flags caught some of these errors (a mismatched number, a
-merged word, a pronoun) but not most, which is why a proper evaluation with scripted consultations
-is still to come.
+merged word, a pronoun) but not most. These first notes came before the prompt was tightened and
+before the scripted evaluation above (ADR-011).
+
+**On public datasets: real voices and clinicians' notes**
+([ADR-016](docs/ADR/016-public-dataset-evaluation.md), [results](docs/eval/public/)).
+Three public datasets, none with real patients' data (they are recorded with actors or read
+aloud): PriMock57 (57 mock GP consultations with audio and the clinician's own note,
+CC BY 4.0), ACI-Bench (dialogues with expert notes, CC BY 4.0) and AfriSpeech-200 (accented
+clinical speech, CC BY-NC-SA 4.0; 631 clips from Kenyan speakers). The datasets are not in
+this repository; only the scores are.
+
+| What | Result |
+|---|---|
+| PriMock57, real voices through the whole system: notes produced | 56 of 57 |
+| ... the clinician's diagnosis among the AI's suggestions | 38 of 48 (79%), 35 as the first |
+| ... the clinician's highlighted points in the note | 54% |
+| ... words wrong in speech-to-text (natural conversation) | 14.6% |
+| ACI-Bench, 40 dialogues: notes produced; ROUGE-1 against the expert note | 40 of 40; 0.43 |
+| AfriSpeech-200, Kenyan speakers: words wrong, Whisper small / medium | 20.0% / 16.2% |
+
+These are after three fixes the first round showed were needed: the instructions told the
+model "exactly these keys" before asking for one more (11 of 48 notes had no suggestions),
+a plan written as a list was rejected, and the retry did not look far enough back for
+repeated sentences. Before them: 48 of 57 notes, and the diagnosis among the suggestions in
+21 of 41. Whisper medium makes a fifth fewer errors on Kenyan accents but is 3.4 times
+slower, so small stays the default. ROUGE counts shared words, not meaning, and the matching
+is automatic; every item is listed in the reports.
+
+**Against the targets** ([ADR-017](docs/ADR/017-performance-targets.md)). Set from what a
+clinic needs, then compared with the measurements as they are:
+
+| Target | Measured | Result |
+|---|---|---|
+| Draft within 5 minutes of a consultation up to 10 minutes, in 9 of 10 | 36 of 38 (PriMock57) | met |
+| Models need at most 4 GB at once on the 8 GB PC | 2.68 GB at most | met |
+| At most 15% of words wrong on conversation | 14.6% | met |
+| At most 20% of words wrong on Kenyan clinical speech | 21.6% with Whisper small; 18.0% with medium | not met with the default |
+
+Whisper medium meets the last target but is 3.4 times slower, which would break the first on
+the reference PC, so speed was kept and the transcript review catches misheard words.
 
 ---
 
@@ -336,8 +388,12 @@ is still to come.
 
 - **One machine.** Every measurement comes from one laptop, usually with only 0.7 to 3.6 GB of free
   memory because other programs were open.
-- **Not validated with clinicians yet.** Note quality has been checked by reading a handful of notes,
-  not by a structured evaluation or by practising clinicians.
+- **Not validated with clinicians or real patients.** Note quality is measured on synthetic
+  consultations (ADR-011) and on public datasets with real voices and clinicians' notes
+  (ADR-016), automatically. Kenyan accents are measured on read speech, not on conversation.
+- **Kenyan-accented speech is harder.** Whisper small gets about 1 word in 5 wrong on Kenyan
+  speakers (AfriSpeech-200), against about 1 in 7 on PriMock57's British voices. The
+  clinician's transcript check is what catches these errors.
 - **English only so far.** Swahili and mixed Swahili-English speech are untested.
 - **The flags are hints.** Advisory flags (numbers that do not match the transcript, merged words,
   pronouns) are simple checks, not a measure of whether a note is faithful.
@@ -408,7 +464,7 @@ running from source, do it once in PowerShell opened as administrator (use `-Rem
 installing packages, then `-Apply` again):
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scriptsirgap_firewall.ps1 -Apply
+powershell -ExecutionPolicy Bypass -File scripts\airgap_firewall.ps1 -Apply
 ```
 
 **Check this PC is ready** (models, Ollama, free memory, microphone, network):
@@ -433,6 +489,14 @@ python eval/run_eval.py --label my-pc --source script # the labelled script stra
 ```
 
 Results, a readable report and a clinician scoring sheet are written to `docs/eval/`.
+
+**Run the public-dataset evaluation** (the datasets are downloaded into the git-ignored
+`datasets/` folder first, see ADR-016; several hours):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File eval\run_public_all.ps1 -Label my-pc
+python eval/run_public.py afrispeech --label my-pc --whisper medium  # compare a model
+```
 
 **Repeat the measurements** on another machine:
 
@@ -465,7 +529,10 @@ src/clinassist/
   vocabulary.py      common medicine names in Kenyan primary care, and accepted other spellings
   medcheck.py        flags transcript words that look like a misheard medicine name
   evaluation.py      scores a note against a consultation's key facts, denied symptoms and traps
+  public_data.py     reads the public evaluation datasets (PriMock57, AfriSpeech-200, ACI-Bench)
+  public_scoring.py  ROUGE, clinicians' highlights and diagnoses, for the public datasets
   bundle.py          builds and checks the offline model bundle shipped beside the installer
+  model_update.py    installs a newer copy of the language model from a checked bundle
   selftest.py        uses every heavy part once, to prove an installed copy works
   domain.py          the data the app works with (draft, note, checklist, session record) and its errors
   ports.py           the small interfaces each outside part must provide
@@ -534,7 +601,7 @@ code, then the tests and measurements that check that requirement, before moving
 | [`docs/traceability.md`](docs/traceability.md) | every requirement, the branch that builds it, the test that checks it, and its status |
 | [`docs/AMENDMENTS.md`](docs/AMENDMENTS.md) | every change from the approved proposal, with the reason |
 | [`docs/proposal/CROSSCHECK.md`](docs/proposal/CROSSCHECK.md) | how the code maps onto the proposal's use cases, diagrams, schema and wireframe |
-| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012), suggestions and medicine names (013), backup and restore (014) |
+| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012), suggestions and medicine names (013), backup and restore (014), offline model update (015), public-dataset evaluation (016), targets for speed, memory and speech accuracy (017) |
 | [`docs/spikes/`](docs/spikes/) | raw measurement results from the reference PC |
 | [`docs/PRIOR_ART.md`](docs/PRIOR_ART.md) | what was reused from the earlier MedgemmaV2 prototype and what was left out |
 
@@ -555,7 +622,7 @@ code, then the tests and measurements that check that requirement, before moving
 | **SQLCipher** | a version of the SQLite database that encrypts the whole file |
 | **Argon2id** | a deliberately slow way to turn a password into a key, so guessing is expensive |
 | **Envelope key** | the data is locked with a random key, and that key is itself locked by the passphrase and, separately, by a recovery code; changing the passphrase only re-locks the small key |
-| **Recovery code** | a printed code shown once at setup that can reset a forgotten passphrase |
+| **Recovery code** | a code shown once at setup that can reset a forgotten vault passphrase or, when no other administrator can help, a forgotten login password |
 | **Hash chain** | a list where each entry contains a fingerprint of the one before, so changing any entry shows |
 | **Prompt injection** | text inside the input that tries to give the model instructions |
 | **Mutation check** | breaking a rule in the code on purpose to confirm a test notices |
