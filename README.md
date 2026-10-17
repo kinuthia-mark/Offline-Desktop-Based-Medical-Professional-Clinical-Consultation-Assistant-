@@ -191,9 +191,9 @@ These apply to every file, and the tests check them.
 
 ## 6. What is built so far
 
-**Status: 25 of 29 requirements verified; all 29 are built.** The other four need something
-other than code: a target set from the measurements for speed, memory and speech accuracy
-(NFR-03, NFR-04, NFR-06), and the System Design and Test Cases documents (NFR-08).
+**Status: 27 of 29 requirements verified; all 29 are built.** The other two: speech accuracy
+on Kenyan-accented clinical speech misses its target with the default model (NFR-06, below),
+and the System Design and Test Cases documents come at the final update (NFR-08).
 
 Status is kept up to date in [`docs/traceability.md`](docs/traceability.md). A requirement counts
 as **verified** only when its tests pass on Windows in GitHub Actions and any measurement it needs
@@ -223,8 +223,8 @@ is recorded.
 696 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
 
-**Still to do:** installing on a second, clean PC, targets for speed, memory and word error
-rate set from the measurements, and applying the amendments to the proposal document.
+**Still to do:** installing on a second, clean PC, and applying the amendments to the
+proposal document with the System Design and Test Cases documents.
 
 ---
 
@@ -368,6 +368,19 @@ repeated sentences. Before them: 48 of 57 notes, and the diagnosis among the sug
 21 of 41. Whisper medium makes a fifth fewer errors on Kenyan accents but is 3.4 times
 slower, so small stays the default. ROUGE counts shared words, not meaning, and the matching
 is automatic; every item is listed in the reports.
+
+**Against the targets** ([ADR-017](docs/ADR/017-performance-targets.md)). Set from what a
+clinic needs, then compared with the measurements as they are:
+
+| Target | Measured | Result |
+|---|---|---|
+| Draft within 5 minutes of a consultation up to 10 minutes, in 9 of 10 | 36 of 38 (PriMock57) | met |
+| Models need at most 4 GB at once on the 8 GB PC | 2.68 GB at most | met |
+| At most 15% of words wrong on conversation | 14.6% | met |
+| At most 20% of words wrong on Kenyan clinical speech | 21.6% with Whisper small; 18.0% with medium | not met with the default |
+
+Whisper medium meets the last target but is 3.4 times slower, which would break the first on
+the reference PC, so speed was kept and the transcript review catches misheard words.
 
 ---
 
@@ -588,7 +601,7 @@ code, then the tests and measurements that check that requirement, before moving
 | [`docs/traceability.md`](docs/traceability.md) | every requirement, the branch that builds it, the test that checks it, and its status |
 | [`docs/AMENDMENTS.md`](docs/AMENDMENTS.md) | every change from the approved proposal, with the reason |
 | [`docs/proposal/CROSSCHECK.md`](docs/proposal/CROSSCHECK.md) | how the code maps onto the proposal's use cases, diagrams, schema and wireframe |
-| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012), suggestions and medicine names (013), backup and restore (014), offline model update (015), public-dataset evaluation (016) |
+| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012), suggestions and medicine names (013), backup and restore (014), offline model update (015), public-dataset evaluation (016), targets for speed, memory and speech accuracy (017) |
 | [`docs/spikes/`](docs/spikes/) | raw measurement results from the reference PC |
 | [`docs/PRIOR_ART.md`](docs/PRIOR_ART.md) | what was reused from the earlier MedgemmaV2 prototype and what was left out |
 
