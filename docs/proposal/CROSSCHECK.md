@@ -4,12 +4,10 @@ Checked on 2026-10-02 against `PROPOSAL.md` (the approved proposal) and the impl
 stood after `feature/secure-store`. Purpose: make sure nothing in the proposal is lost, and record
 where the implementation differs and why. Every difference has an amendment in `../AMENDMENTS.md`.
 
-## Update, 2026-10-04
-Since this check, `security/auth.py` (accounts, lockout, idle timeout) and `security/audit.py` (the
-hash-chained audit log) have been built (ADR-004, PR #12), and the vault, store and audio store are
-on PR #11. Rows below that say "not built yet" for these describe the state on 2026-10-02. The store
-class is `VaultSessionStore` (not `SqlcipherStore`), and the tables are `sessions`, `notes` (one row
-for the model draft and one for the clinician's note) and `suggestions`.
+## Update, 2026-10-16
+The tables in sections 3, 4 and 6 now describe the build as it is today: all 29 requirements are
+built and 25 are verified (`../traceability.md`). The original check of 2026-10-02 is kept in
+sections 0, 1, 2 and 5. Gaps that remain are marked **open** below.
 
 ## 0. How this was checked, and what was not
 - Read: every chapter, the references, the abbreviations, the abstract.
@@ -61,19 +59,19 @@ Not numbered: Authenticate / Log In, and four administrator use cases.
 ## 3. Class diagram (Figure 4.2) against the implementation
 | Proposal class | Members in the proposal | Implementation |
 |---|---|---|
-| `User` (abstract), `Clinician`, `SystemAdmin` | userId, username, pinHash, role; authenticate(pin); manageUsers, updateModelWeights, backupDatabase, viewAuditLogs | `security/auth.py` (not built yet): `AuthService`, roles clinician and admin |
-| `ConsultationSession` | sessionId, startTime, endTime, status | `SessionRecord` (domain.py) plus controller state. **start time, end time and status are not stored yet.** |
-| `AudioRecord` | recordingId, filePath, durationSeconds | `adapters/audio_store.py` (optional, off by default). No metadata table. |
-| `Transcript` | transcriptId, rawText, confidenceScore | transcript text only. **language and confidence are not stored yet.** |
-| `SOAPNote` | summaryId, S, O, A, P; toDict(), validate() | `SoapNote`, `Draft`; validation in `soap_generator.parse_draft` |
+| `User` (abstract), `Clinician`, `SystemAdmin` | userId, username, pinHash, role; authenticate(pin); manageUsers, updateModelWeights, backupDatabase, viewAuditLogs | `security/auth.py`: `AuthService` and `UserSession`, roles clinician and admin, passwords instead of a PIN (AMD-26). manageUsers is `create_user`, `set_active`, `unlock_account`, `reset_password`; updateModelWeights is `model_update.py`; backupDatabase is `security/backup.py`; viewAuditLogs is the admin screen with `HashChainAuditor.verify` |
+| `ConsultationSession` | sessionId, startTime, endTime, status | `SessionRecord` (domain.py) plus the controller's state. **open:** start time, end time and status are not stored |
+| `AudioRecord` | recordingId, filePath, durationSeconds | `adapters/audio_store.py` (optional, off by default, ADR-003). No metadata table |
+| `Transcript` | transcriptId, rawText, confidenceScore | the approved text, stored in `sessions` with `transcript_language` and `asr_confidence` (schema v4) |
+| `SOAPNote` | summaryId, S, O, A, P; toDict(), validate() | `SoapNote` (the clinician's) and `Draft` (the model's); validation in `soap_generator.parse_draft` |
 | `ConsultationController` | currentSession; orchestrate() | `controller.ConsultationController`: explicit steps and a state machine, no single orchestrate() |
-| `AudioRecorder` | sampleRate, isRecording, audioBuffer, device; start(), stop() | port `Recorder` (adapter not built) |
-| `WhisperTranscriber` | modelPath, language, quantType; transcribe(audio) | port `Transcriber` (adapter not built) |
+| `AudioRecorder` | sampleRate, isRecording, audioBuffer, device; start(), stop() | `adapters/recorder.py` (16 kHz mono, in memory, ADR-006) |
+| `WhisperTranscriber` | modelPath, language, quantType; transcribe(audio) | `adapters/transcriber.py` (Faster-Whisper small, int8, local files only, ADR-007) |
 | `LLMInferenceEngine` | modelName, quantization, maxTokens; loadModel(), generate(prompt) | `OllamaClient`, `SoapGenerator`, `GeneratorSettings`; Ollama loads on demand, `unload()` frees it |
 | `ClinicalOutputFormatter` | template, rules; formatSOAP(), validate() | `soap_generator.parse_draft`, `groundcheck`, `loopcheck` |
-| `EncryptedDatabaseManager` | storagePath, encKey, algorithm; saveSession, loadSession, writeAuditLog | `security.vault.Vault`, `adapters.store.SqlcipherStore`, audit log (not built) |
-| `DashboardUI` | isRecording; render() | not built |
-| (not in the proposal) | | `InputGuard` (planned), loop and grounding checks, `Vault`, `AuthService`, composition root |
+| `EncryptedDatabaseManager` | storagePath, encKey, algorithm; saveSession, loadSession, writeAuditLog | `security.vault.Vault`, `adapters.store.VaultSessionStore`, `security.audit.HashChainAuditor`, `security.backup` |
+| `DashboardUI` | isRecording; render() | `ui/`: `MainWindow`, `ConsultationWorkspace`, `RecordsView`, `OverviewView`, `AdminView`, `DatabaseView` (ADR-009) |
+| (not in the proposal) | | `PatternInputGuard` (ADR-005), loop and grounding checks, the medicine-name check (`medcheck.py`), the network guard (`airgap.py`), the offline bundle and installer (ADR-012), the composition root (`app.py`) |
 
 Operations in the sequence diagram (Figure 4.3) and system sequence diagram (4.5):
 startConsultation() / startRecording() is `start_recording()`; stopConsultation() is
@@ -87,14 +85,14 @@ transcript, discard, and login. The diagrams must show them (AMD-11, AMD-14).
 ## 4. Database schema (Figure 4.7) against the implementation
 | Proposal table and columns | Implementation | Difference |
 |---|---|---|
-| `users`: user_id, username, pin_hash, full_name, role, created_at | planned `users` | needs `full_name`; password hash replaces pin_hash; extra lockout columns |
-| `audit_logs`: log_id, user_id, action, timestamp | planned `audit_logs` | extra hash-chain columns |
-| `consultation_sessions`: session_id, clinician_id, consultation_date, start_time, end_time, status | `sessions` (session_id, created_at, finalized_by, ...) | **no start_time, end_time or status; no consultation_date** |
-| `transcripts`: transcript_id, session_id, transcript_text, language, confidence_score, generated_at | text stored inside `sessions` | **language and confidence_score not stored** |
-| `audio_records`: recording_id, session_id, file_path (NOT NULL), sample_rate, duration_seconds, recorded_at; 1-to-1 | none | audio is not kept by default (ADR-003); the proposal makes a recording mandatory |
-| `soap_notes`: summary_id, session_id, S, O, A, P, model_version (NOT NULL), generated_at | `drafts` and `final_notes` | draft and final are separate; **model_version and generated_at not stored** |
-| `diagnosis_suggestions`: diagnosis_id, summary_id, diagnosis_text, management_strategy, confidence_rank | `suggestions` (session_id, idx, rank, diagnosis, rationale, management, accepted) | rank replaces confidence_rank; rationale and accepted added |
-| All keys are 36-character UUIDv4 | session ids are 32-character hex; composite keys in `suggestions` | align or amend (AMD-34) |
+| `users`: user_id, username, pin_hash, full_name, role, created_at | `users` | `display_name` for full_name; an Argon2id password hash replaces pin_hash; lockout columns and `must_change_password` added |
+| `audit_logs`: log_id, user_id, action, timestamp | `audit_logs` (seq, ts, event, session_id, user_id, prev_hash, entry_hash) | hash-chain columns added (ADR-004) |
+| `consultation_sessions`: session_id, clinician_id, consultation_date, start_time, end_time, status | `sessions` (session_id, created_at, finalized_by, ...) | **open:** no start_time, end_time or status; created_at stands for the date |
+| `transcripts`: transcript_id, session_id, transcript_text, language, confidence_score, generated_at | the approved text inside `sessions`, with `transcript_language` and `asr_confidence` | no separate table; generated_at not stored |
+| `audio_records`: recording_id, session_id, file_path (NOT NULL), sample_rate, duration_seconds, recorded_at; 1-to-1 | none | audio is not kept by default (ADR-003); the proposal makes a recording mandatory (AMD-23) |
+| `soap_notes`: summary_id, session_id, S, O, A, P, model_version (NOT NULL), generated_at | `notes`, one row of kind `model_draft` and one of kind `clinician_final` | draft and final kept side by side; `sessions.model_version` and `sessions.asr_model` record the models used (empty for a note written by hand or a typed transcript, so not NOT NULL); generated_at not stored |
+| `diagnosis_suggestions`: diagnosis_id, summary_id, diagnosis_text, management_strategy, confidence_rank | `suggestions` (session_id, position, rank, diagnosis, rationale, management, accepted) | rank replaces confidence_rank; rationale and accepted added |
+| All keys are 36-character UUIDv4 | session ids are 32-character hex; composite keys in `notes` and `suggestions` | **open:** align or amend (AMD-34) |
 | "PBKDF2 key derivation" (4.8 text) | Argon2id and an envelope key | AMD-22 |
 
 ## 5. Wireframe (Figure 4.8) as a checklist for the interface
@@ -114,29 +112,36 @@ confirmation, the recovery code at setup. The "Air-Gapped" label must reflect a 
 (NFR-01, NFR-02), not a fixed string. "ASR Conf" needs a stated definition. "Export / Save" is not
 defined anywhere in the text.
 
+How the build meets it today: the same three panels and the SOAP and Diagnostics tabs (ADR-009,
+AMD-42); the header shows what the network check found; navigation depends on the role (AMD-41);
+the session id is shown as its first 8 characters, not `SESS-YYYYMMDD-NN`; the speech confidence
+is defined and labelled as a hint (AMD-28); "Export / Save" is a PDF export of one finalized note
+(AMD-36); finalizing saves the session; the panel shows "Model: medgemma:4b (quantized, runs on this computer)".
+
 ## 6. Findings not recorded before this cross-check
-| # | Where in the proposal | What it says | What we know | Action |
+| # | Where in the proposal | What it says | What we found | Status today |
 |---|---|---|---|---|
-| F1 | 1.3.1, 1.6, 2.6, UC-05, Diagnostics tab | The core output is a list of probable diseases with management strategies | the generator has suggestions **off by default** because they cost latency | turn on, measure, evaluate (AMD-32) |
-| F2 | Figure 4.1, 4.3 | Four administrator functions | only "reserved" in the traceability matrix | FR-10a to FR-10d, AMD-25 |
-| F3 | Figure 3.2, 4.3, 4.8 | Login by "Local PIN" and `pin_hash` | a short PIN is brute-forceable; a password with lockout is planned | AMD-26 |
-| F4 | UC-06 | Unparseable output goes to a fallback viewer | the implementation shows a failure state and offers retry or manual entry | decision needed (AMD-27) |
-| F5 | UC-05, wireframe | "low confidence" segments are highlighted; "ASR Conf" shown | an LLM has no calibrated confidence; flags are heuristics | AMD-28 |
-| F6 | UC-01, 2.6, Figure 3.2 | UC-01: audio stays in memory. 2.6 and Figure 3.2: written to temporary storage (a "Temporary WAV File") | the proposal contradicts itself; design is memory only | AMD-23 |
-| F7 | 3.6, 3.3, 3.2.5 | Pre-recorded synthetic audio scripted and validated by medical professionals; a plausibility rubric made with domain experts; clinician interviews; benchmarking on representative machines | no audio scripts yet; no clinician validation yet; one test machine | AMD-30 |
-| F8 | 3.2.5 | Deliverables: proposal, System Design Documentation (UML), Test Cases Documentation, proof of concept | no test-case document planned | AMD-31 |
-| F9 | Appendix 1 | Gantt: submission at the end of week 24 (December 2026); implementation to about week 19; verification weeks 18 to 22 | today is about week 14; storage, controller and generator are built, recorder, ASR, UI are not | re-plan (AMD-31) |
-| F10 | 3.7 | "a minimum of 4 to 6 GB of RAM" | model uses 2.68 GB; ran on an 8 GB PC with 0.7 to 3.6 GB free | AMD-33 |
-| F11 | Figure 4.5 | The LLM engine sits inside the application boundary | Ollama is a separate process listening on 127.0.0.1:11434 | AMD-10 |
-| F12 | wireframe | "Lang: English (en)"; `transcripts.language` | no mention of Swahili or mixed speech | AMD-35 |
-| F13 | wireframe | "Export / Save" | writing a file outside the vault leaves the encryption; 1.6 excludes EHR writing | decision needed (AMD-36) |
-| F14 | UC-06, Figure 4.3 | Saving is optional ("opt" in the sequence, "extend" in the use cases) | finalizing a session saves it; not saving means discarding | confirm in text (AMD-24) |
-| F15 | 3.5, Figure 4.5 | GUI "Tkinter or PyQt6"; Figure 4.5 says PyQt6 | PyQt6 (or PySide6) planned | AMD-09 |
-| F16 | 2.4.2 | local models run on laptops "with 16 GB of RAM" | reference PC has 8 GB | state tested hardware (AMD-33) |
-| F17 | References | Davis (1989), Dettmers (QLoRA), MedGemma and Whisper are cited in text but not listed; Kedi and Zhang each listed twice; Su (2022) cited for Whisper, QLoRA and "autonomous diagnostic companion" | | AMD-13 |
+| F1 | 1.3.1, 1.6, 2.6, UC-05, Diagnostics tab | The core output is a list of probable diseases with management strategies | suggestions were off by default for latency | on by default, measured (ADR-013); on PriMock57 the clinician's diagnosis is among the suggestions in 38 of 48 (ADR-016, AMD-32) |
+| F2 | Figure 4.1, 4.3 | Four administrator functions | only "reserved" at the time | all four built (FR-10a to FR-10d, AMD-25) |
+| F3 | Figure 3.2, 4.3, 4.8 | Login by "Local PIN" and `pin_hash` | a short PIN is brute-forceable | password with Argon2id and lockout (AMD-26) |
+| F4 | UC-06 | Unparseable output goes to a fallback viewer | a failure state with retry or manual entry | kept: no raw-output viewer (AMD-27) |
+| F5 | UC-05, wireframe | "low confidence" segments highlighted; "ASR Conf" shown | an LLM has no calibrated confidence | advisory flags, and a defined speech confidence labelled as a hint (AMD-28) |
+| F6 | UC-01, 2.6, Figure 3.2 | Audio in memory (UC-01) but also a temporary WAV file (2.6, Figure 3.2) | the proposal contradicts itself | memory only (AMD-23) |
+| F7 | 3.6, 3.3, 3.2.5 | Synthetic audio validated by professionals; a rubric made with experts; clinician interviews; representative machines | none of these existed | synthetic audio (ADR-011), then public datasets with real voices and clinicians' notes instead of clinician scoring (ADR-016); **open:** a second PC (AMD-30) |
+| F8 | 3.2.5 | Deliverables include System Design and Test Cases documentation | no test-case document planned | **open:** at the final update (AMD-31, NFR-08) |
+| F9 | Appendix 1 | Gantt: implementation to about week 19, submission end of week 24 | re-plan needed | implementation complete by about week 16 (AMD-31) |
+| F10 | 3.7 | "a minimum of 4 to 6 GB of RAM" | model uses 2.68 GB on an 8 GB PC | measured (AMD-33) |
+| F11 | Figure 4.5 | The LLM engine sits inside the application boundary | Ollama is a separate process on 127.0.0.1:11434 | firewall rules cover it (AMD-10, ADR-010) |
+| F12 | wireframe | "Lang: English (en)" | Swahili and mixed speech not covered | **open:** untested (AMD-35) |
+| F13 | wireframe | "Export / Save" | writing outside the vault leaves the encryption | one finalized note as a PDF, audited (AMD-36) |
+| F14 | UC-06, Figure 4.3 | Saving is optional | finalizing saves; not saving means discarding | **open:** confirm in the text (AMD-24) |
+| F15 | 3.5, Figure 4.5 | GUI "Tkinter or PyQt6" | | PySide6 (AMD-09) |
+| F16 | 2.4.2 | local models run on laptops "with 16 GB of RAM" | reference PC has 8 GB | measured on 8 GB (AMD-33) |
+| F17 | References | Missing and duplicated references | | **open:** at the final update (AMD-13) |
 
 ## 7. Timeline (Appendix 1) against today
 24 weeks, July to December 2026. Phase 4 implementation roughly weeks 11 to 19, Phase 5
-verification weeks 18 to 22, deliverables weeks 21 to 24, submission at the end of week 24. 4 October
-2026 falls in week 14. The Gantt is the plan in the proposal and the defense date is not stated
-there; confirm both dates with the supervisor.
+verification weeks 18 to 22, deliverables weeks 21 to 24, submission at the end of week 24. On
+16 October 2026 (about week 16) implementation is complete; verification with people (clinician scoring,
+real voices, a second PC) and the deliverable documents remain. The defence date is not stated in
+the proposal; confirm it with the supervisor.

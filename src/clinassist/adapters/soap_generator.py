@@ -42,6 +42,10 @@ SYSTEM_PROMPT = (
     "- plan: the clinician's advice, orders, prescriptions and follow-up as stated, including "
     "return precautions. The clinician's advice is never patient-reported.\n"
     "- Be concise. Do not repeat sentences.\n"
+)
+# The last line of the instructions: the exact keys of the reply. Kept in one place, so the
+# model is never told "exactly these keys" and then asked for one more (ADR-016).
+FORMAT_NOTE = (
     "Reply with JSON only, with exactly these keys, each a string: "
     '{"subjective": "", "objective": "", "assessment": "", "plan": ""}'
 )
@@ -49,10 +53,12 @@ SYSTEM_PROMPT = (
 # conditions a test ruled out) was tried and was worse: the model listed symptoms such as "Fever;
 # Headache" instead of conditions, and drafting took 55% longer (ADR-013). Non-diagnoses are
 # removed in code instead (`_NOT_A_DIAGNOSIS`).
-SUGGESTIONS_PROMPT = (
-    '\nAlso add a key "suggestions": up to 3 objects ordered most likely first, each '
-    '{"diagnosis": "", "rationale": "", "management": ""}. These are suggestions for the '
-    "clinician and never go in assessment."
+FORMAT_WITH_SUGGESTIONS = (
+    "Reply with JSON only, with exactly these keys: "
+    '{"subjective": "", "objective": "", "assessment": "", "plan": "", '
+    '"suggestions": [{"diagnosis": "", "rationale": "", "management": ""}]}. '
+    "The four note sections are strings. suggestions holds up to 3 possible diagnoses for the "
+    "clinician, ordered most likely first; they never go in assessment."
 )
 # Words that mark a suggestion as something other than a condition: the model sometimes lists the
 # patient's allergy, an exposure or a preventive measure as a "diagnosis" (ADR-013).
@@ -88,6 +94,11 @@ class GeneratorSettings:
     seed: int | None = 42  # fixed, so the same input gives the same output when testing
     num_predict: int = 1100  # hard cap on generated tokens
     retry_repeat_penalty: float = 1.1  # used from the second attempt (ADR-002)
+    # How far back the penalty looks on the second attempt. Ollama's default is 64 tokens (about
+    # 50 words), so a sentence repeated from a paragraph earlier was not penalised. On the 9
+    # PriMock57 consultations that failed, 256 gave a note in 8, against 5 with the default, at
+    # the same speed (ADR-016).
+    retry_repeat_last_n: int = 256
     long_input_words: int = 500  # from this many words the first attempt already uses the penalty
     max_seconds: float = 420.0  # overall deadline for one attempt
     read_timeout: float = 300.0  # longest silent wait; the model reads the transcript first
@@ -100,7 +111,7 @@ def build_messages(
     transcript: str, include_suggestions: bool = False, canary: str | None = None
 ) -> list[dict]:
     safe = _TRANSCRIPT_TAG.sub("[tag removed]", transcript)  # keep the data inside its tags
-    system = SYSTEM_PROMPT + (SUGGESTIONS_PROMPT if include_suggestions else "")
+    system = SYSTEM_PROMPT + (FORMAT_WITH_SUGGESTIONS if include_suggestions else FORMAT_NOTE)
     if canary:
         system += f"\nConfidential marker, never write it anywhere: {canary}"
     return [
@@ -117,8 +128,16 @@ def parse_draft(content: str, transcript: str, include_suggestions: bool = False
     except json.JSONDecodeError as exc:
         raise GenerationFailed("invalid_output", content) from exc
     # Step 2: it must have all four SOAP sections, each as text. A reply missing a section is
-    # rejected rather than shown half-finished.
-    if not isinstance(data, dict) or not all(isinstance(data.get(k), str) for k in SECTIONS):
+    # rejected rather than shown half-finished. A section written as a list of short points
+    # (the model sometimes does this for the plan) is joined into lines: the content is the same
+    # and rejecting it threw away a usable note (ADR-016). Anything else is still rejected.
+    if not isinstance(data, dict):
+        raise GenerationFailed("invalid_output", content)
+    for key in SECTIONS:
+        value = data.get(key)
+        if isinstance(value, list) and value and all(isinstance(v, str) for v in value):
+            data[key] = "\n".join(v.strip() for v in value)
+    if not all(isinstance(data.get(k), str) for k in SECTIONS):
         raise GenerationFailed("invalid_output", content)
 
     # Step 3 (only when suggestions are switched on): each suggestion needs a diagnosis, a
@@ -166,6 +185,11 @@ class SoapGenerator:
         self._client = client or OllamaClient(self.settings.host, self.settings.read_timeout)
         self._progress = progress
 
+    @property
+    def model_name(self) -> str:
+        """Which language model drafts the notes, for the stored record."""
+        return self.settings.model
+
     def options_for(self, attempt: int, words: int = 0) -> dict:
         """Without the penalty, long consultations looped in 9 of 9 runs, so long input starts
         with it. Short input starts without it, since the penalty may cost word spacing."""
@@ -179,6 +203,8 @@ class SoapGenerator:
             options["seed"] = s.seed
         if attempt >= 2 or words >= s.long_input_words:
             options["repeat_penalty"] = s.retry_repeat_penalty
+        if attempt >= 2:
+            options["repeat_last_n"] = s.retry_repeat_last_n
         return options
 
     def generate(self, text: str, attempt: int) -> Draft:

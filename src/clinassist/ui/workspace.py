@@ -40,6 +40,7 @@ from clinassist.controller import State
 from clinassist.domain import Draft, HistoryChecklist, SoapNote
 from clinassist.medcheck import suspect_medicines
 from clinassist.ui.messages import message_for
+from clinassist.ui.theme import mark
 from clinassist.ui.workers import error_code, run_in_background
 
 AI_LABEL = "AI-generated. Not part of your note unless you copy it."
@@ -261,6 +262,12 @@ class ConsultationWorkspace(QWidget):
 
         output = QGroupBox("3. Clinical output")
         o = QVBoxLayout(output)
+        # The wireframe's model label: which language model drafts the note, and that it runs
+        # on this computer.
+        model = getattr(getattr(self._services, "config", None), "llm_model", "") or "unknown"
+        self.model_label = QLabel(f"Model: {model} (quantized, runs on this computer)")
+        self.model_label.setStyleSheet("color: gray;")
+        o.addWidget(self.model_label)
         o.addWidget(self.progress_bar)
         o.addWidget(self.progress_label)
         o.addWidget(self.error_label)
@@ -278,7 +285,12 @@ class ConsultationWorkspace(QWidget):
         splitter.setStretchFactor(0, 1)
         splitter.setStretchFactor(1, 3)
         splitter.setStretchFactor(2, 4)
+        # The main step on each panel stands out; discarding is marked as destructive.
+        for button in (self.start_button, self.approve_button, self.finalize_button):
+            mark(button, "primary")
+        mark(self.discard_button, "danger")
         layout = QHBoxLayout(self)
+        layout.setContentsMargins(4, 4, 4, 4)
         layout.addWidget(splitter)
 
     # ----- the steps -----

@@ -42,3 +42,7 @@ Thumbs.db
 *.docx
 docs/proposal/PROPOSAL.md
 docs/proposal/media/
+
+# Public evaluation datasets (ADR-016): downloaded locally, never committed. Their licences
+# allow use, and the scores are committed in docs/eval/public/ instead.
+datasets/
