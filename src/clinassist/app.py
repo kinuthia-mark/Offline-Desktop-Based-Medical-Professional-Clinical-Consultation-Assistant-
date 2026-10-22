@@ -234,6 +234,26 @@ class DatabaseInspector:
         return text if len(text) <= self.MAX_CHARS else text[: self.MAX_CHARS - 1] + "\u2026"
 
 
+class Reports:
+    """System reports for the admin "Reports" tab: counts and times only, never patient text
+    (reports.py). Saving one as a CSV file is written to the audit log."""
+
+    def __init__(self, vault, auditor) -> None:
+        self._vault, self._auditor = vault, auditor
+
+    def build(self, period: str):
+        from clinassist.reports import build_report
+
+        return build_report(self._vault, period)
+
+    def save_csv(self, report, path: str, user_id: str) -> None:
+        from clinassist.reports import to_csv
+
+        # utf-8-sig so Excel on Windows reads names with accents correctly.
+        Path(path).write_text(to_csv(report), encoding="utf-8-sig", newline="")
+        self._auditor.record("report_exported", "", user_id)
+
+
 class ProgressRelay:
     """Passes the generator's progress (a growing count of pieces received) to whoever is
     listening, usually the interface's progress bar."""
@@ -263,6 +283,7 @@ class Services:
     backups: Backups | None = None  # backup and restore, for the admin screen (FR-10c)
     models: ModelUpdates | None = None  # offline model update, for the admin screen (FR-10b)
     database: DatabaseInspector | None = None  # read-only view for the Database tab
+    reports: Reports | None = None  # usage counts for the Reports tab
 
     def new_controller(self) -> ConsultationController:
         """A fresh controller for each consultation."""
@@ -320,6 +341,7 @@ def build(config: AppConfig, vault, *, recorder=None, transcriber=None, generato
         backups=Backups(vault, auditor),
         models=ModelUpdates(config, auditor, generator),
         database=DatabaseInspector(vault, auditor),
+        reports=Reports(vault, auditor),
     )
 
 
