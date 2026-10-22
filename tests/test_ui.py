@@ -892,3 +892,30 @@ def test_only_an_admin_can_update_the_model(qapp, services):
     view = _update_view(services, session, models)
     view.update_button.click()
     assert models.applied == [] and view.update_message.text() == MESSAGES["forbidden"]
+
+
+# ----- the look (ui/theme.py) -----
+def test_theme_has_a_light_and_a_dark_version_with_the_brand_colour():
+    from clinassist.ui.theme import DARK, LIGHT, stylesheet
+
+    for colours in (LIGHT, DARK):
+        sheet = stylesheet(colours)
+        assert colours["primary"] in sheet and 'QPushButton[kind="primary"]' in sheet
+        assert "#appHeader" in sheet
+
+
+def test_the_main_step_on_each_screen_is_marked(qapp, services):
+    ws = workspace(services)
+    for button in (ws.start_button, ws.approve_button, ws.finalize_button):
+        assert button.property("kind") == "primary"
+    assert ws.discard_button.property("kind") == "danger"
+
+
+def test_applying_the_theme_styles_the_whole_program(qapp):
+    from clinassist.ui.theme import apply_theme
+
+    apply_theme(qapp)
+    try:
+        assert "QGroupBox" in qapp.styleSheet()
+    finally:
+        qapp.setStyleSheet("")  # leave the other tests unstyled, as before
