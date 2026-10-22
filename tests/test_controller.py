@@ -450,3 +450,45 @@ def test_typed_transcript_only_starts_a_new_consultation():
     rig.controller.start_recording()
     with pytest.raises(WorkflowError):
         rig.controller.start_typed_transcript()
+
+
+# ----- which models produced the record -----
+class _Info:
+    language, confidence = "en", 0.91
+
+
+class NamedASR(FakeASR):
+    model_name = "faster-whisper-small"
+    last_info = _Info()
+
+
+class NamedGenerator(FakeGenerator):
+    model_name = "medgemma:4b"
+
+
+def _named_rig() -> tuple[Rig, ConsultationController]:
+    rig = Rig()
+    rig.generator = NamedGenerator()
+    c = ConsultationController(
+        rig.recorder, NamedASR(), rig.guard, rig.generator, rig.store, rig.auditor
+    )
+    return rig, c
+
+
+def test_the_record_says_which_models_wrote_it():
+    rig, c = _named_rig()
+    to_finalized(c)
+    saved = rig.store.saved[0]
+    assert (saved.asr_model, saved.model_version) == ("faster-whisper-small", "medgemma:4b")
+    assert (saved.transcript_language, saved.asr_confidence) == ("en", 0.91)
+
+
+def test_a_typed_transcript_has_no_speech_model_and_a_hand_written_note_no_language_model():
+    rig, c = _named_rig()
+    c.start_typed_transcript()
+    c.approve_transcript("Doctor: typed text", "dr1")
+    c.start_manual_note()
+    c.finalize(NOTE, "dr1", FULL)
+    saved = rig.store.saved[0]
+    assert saved.asr_model == "" and saved.asr_confidence is None
+    assert saved.model_version == ""  # written by hand

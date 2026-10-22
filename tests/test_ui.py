@@ -919,3 +919,23 @@ def test_applying_the_theme_styles_the_whole_program(qapp):
         assert "QGroupBox" in qapp.styleSheet()
     finally:
         qapp.setStyleSheet("")  # leave the other tests unstyled, as before
+
+
+def test_the_consultation_screen_names_the_model(qapp, services):
+    ws = workspace(services)
+    assert ws.model_label.text().startswith("Model: medgemma:4b")
+
+
+def test_records_and_pdf_say_which_models_were_used():
+    from clinassist.domain import Draft, HistoryChecklist, SessionRecord, SoapNote
+    from clinassist.ui.records import describe, models_used
+
+    record = SessionRecord(
+        "s1", "t", "u", "u", Draft(), SoapNote("s", "o", "a", "p"), (), "clinician_manual",
+        HistoryChecklist(True, True, True), 1, asr_model="faster-whisper-small",
+        model_version="medgemma:4b", transcript_language="en", asr_confidence=0.91,
+    )  # fmt: skip
+    assert models_used(record) == (
+        "speech: faster-whisper-small (en, 91% confidence); note: medgemma:4b"
+    )
+    assert "Models used: speech: faster-whisper-small" in describe(record)
