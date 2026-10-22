@@ -215,13 +215,13 @@ is recorded.
 | Input check (prompt injection, personal data) and checks on the model's reply | FR-05, AMD-11 | built and tested |
 | Microphone recorder | FR-01 | built and tested, including on the real microphone |
 | Speech-to-text (Faster-Whisper small, offline) | FR-02 | built and measured with synthetic speech |
-| Desktop interface (PySide6): consultation screen, records, audit and accounts, one look in light and dark; colours meet WCAG 2.1 AA contrast, visible keyboard focus ([ADR-018](docs/ADR/018-accessibility.md)); shortcuts for the main steps (Ctrl+R record or stop, Ctrl+T type, Ctrl+Enter approve and draft, Ctrl+S save); the status line says what is still needed to save; elapsed time while transcribing and drafting; records newest first with date and clinician, searchable; closing with an unsaved consultation asks first | FR-03, FR-06, FR-16, AMD-42, AMD-44 | built and tested |
+| Desktop interface (PySide6): consultation screen, records, audit and accounts, one look in light and dark; colours meet WCAG 2.1 AA contrast, visible keyboard focus ([ADR-018](docs/ADR/018-accessibility.md)); shortcuts for the main steps (Ctrl+R record or stop, Ctrl+T type, Ctrl+Enter approve and draft, Ctrl+S save); the status line says what is still needed to save; elapsed time while transcribing and drafting; records newest first with date and clinician, searchable; closing with an unsaved consultation asks first; "Logged in as ..." in the header, a corner notice at login and a "logged out" notice in the login window | FR-03, FR-06, FR-16, AMD-42, AMD-44 | built and tested |
 | Wiring of all parts, memory plan, startup checks | NFR-04, NFR-07 | built and run end to end |
 | Air-gap enforcement: in-app network guard, firewall rules, checks shown on screen | NFR-01, NFR-02, FR-18 | built and tested; the installer applies the firewall rules, confirmed on the reference PC and in the clean-machine installer test |
 | Evaluation: 8 scripted consultations with key facts and traps, scored end to end | FR-05, NFR-03, NFR-06 | built and run; public datasets with clinicians' notes replace clinician scoring (ADR-016) |
 | Windows installer and offline model bundle (Ollama included, pinned and checked), with a self-test | release, AMD-15 | built and installed on the reference PC; a second PC is still to do |
 
-724 tests run on every push, on Windows with Python 3.11 and 3.12, together with
+727 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
 
 **Still to do:** installing on a second, clean PC, and applying the amendments to the

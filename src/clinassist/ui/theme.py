@@ -77,7 +77,15 @@ QMainWindow, QDialog {{ background: {c["bg"]}; }}
 
 #appHeader {{ background: {c["surface"]}; border-bottom: 3px solid {c["primary"]}; }}
 #appTitle {{ font-size: 13pt; font-weight: 700; color: {c["primary"]}; }}
-#appUser {{ color: {c["muted"]}; }}
+#appUser {{
+    color: {c["text"]}; background: {c["bg"]}; border: 1px solid {c["control_border"]};
+    border-radius: 11px; padding: 3px 10px;
+}}
+#toast, #notice {{
+    color: {c["text"]}; background: {c["surface"]}; border: 1px solid {c["primary"]};
+    border-left: 5px solid {c["primary"]}; border-radius: 6px; padding: 10px 14px;
+    font-weight: 600;
+}}
 
 QGroupBox {{
     background: {c["surface"]}; border: 1px solid {c["border"]}; border-radius: 8px;
