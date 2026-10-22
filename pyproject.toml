@@ -14,7 +14,9 @@ dependencies = ["pyspellchecker>=0.8", "psutil>=6"]
 dev = ["pytest>=8", "ruff>=0.6", "pre-commit>=3.7", "psutil>=6"]
 storage = ["sqlcipher3>=0.5", "argon2-cffi>=23.1", "cryptography>=42"]
 audio = ["sounddevice>=0.5"]
-asr = ["faster-whisper>=1.1"]
+# PyAV 19 removed an argument faster-whisper 1.2.1 still passes when it reads audio files, so
+# CI on a fresh machine broke; 18.1 is the version tested on the reference PC (ADR-016).
+asr = ["faster-whisper>=1.1", "av<19"]
 ui = ["PySide6>=6.7"]
 
 [tool.setuptools.packages.find]
