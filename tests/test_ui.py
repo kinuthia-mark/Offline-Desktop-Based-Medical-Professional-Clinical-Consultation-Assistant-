@@ -8,6 +8,7 @@ import ast
 import json
 import os
 import time
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
@@ -18,7 +19,7 @@ pytest.importorskip("sqlcipher3")
 
 from fake_ollama import FakeOllama, Script, stream_text  # noqa: E402
 from model_outputs import GOOD_SHORT  # noqa: E402
-from PySide6.QtCore import QThreadPool  # noqa: E402
+from PySide6.QtCore import QThreadPool, QTimer  # noqa: E402
 from PySide6.QtWidgets import QApplication  # noqa: E402
 
 from clinassist.app import build  # noqa: E402
@@ -261,8 +262,8 @@ def test_records_show_the_clinicians_note_before_the_models(qapp, services):
     ws.finalize_button.click()
     view = RecordsView(services.store)
     view.reload()
-    assert view.session_list.count() == 1
-    view.session_list.setCurrentRow(0)
+    assert view.session_table.rowCount() == 1
+    view.session_table.setCurrentCell(0, 0)
     text = view.detail.toPlainText()
     assert text.index("CLINICIAN'S NOTE") < text.index("MODEL'S DRAFT (AI-generated)")
     assert "Assessment: Clinician view." in text
@@ -706,7 +707,7 @@ def test_export_a_saved_note_as_pdf_from_the_records_screen(qapp, services, tmp_
     target.parent.mkdir()
     window.records._ask_pdf_path = lambda suggested: str(target)
     window.records.reload()
-    window.records.session_list.setCurrentRow(0)
+    window.records.session_table.setCurrentCell(0, 0)
     window.records.export_button.click()
     assert target.read_bytes().startswith(b"%PDF")
     assert "Saved" in window.records.message.text()
@@ -1033,3 +1034,129 @@ def test_reports_tab_is_only_for_admins(qapp, services):
     window = MainWindow(services, doctor, login_again=lambda n: None)
     assert not window.tabs.isTabVisible(window.reports_index)
     window.close()
+
+
+# ----- quality of life and the lock screen (code review, design critique) -----
+def test_the_locked_screen_opens_one_login_dialog_not_one_every_15_seconds(qapp, services):
+    from PySide6.QtCore import QEventLoop
+
+    doctor = _clinician(services)
+    calls = []
+
+    def login_again(notice):
+        calls.append(notice)
+        if len(calls) == 1:  # stands in for the modal dialog's own event loop
+            loop = QEventLoop()
+            QTimer.singleShot(500, loop.quit)
+            loop.exec()
+        return None
+
+    window = MainWindow(services, doctor, login_again=login_again)
+    window.idle_timer.setInterval(50)  # 15 s in the program
+    window.lock_screen("")
+    assert len(calls) == 1
+
+
+def test_a_draft_still_running_for_the_last_clinician_never_reaches_the_next(qapp, services):
+    import threading
+
+    ws = workspace(services)
+    ws.type_button.click()
+    ws.transcript_box.setPlainText("Doctor: Cough for three days.")
+    ws.controller.approve_transcript(ws.transcript_box.toPlainText(), "dr-a")
+    release = threading.Event()
+
+    def slow_draft():
+        release.wait(5)
+        return ws_old.generate_draft()
+
+    ws_old = ws.controller
+    ws._run("Drafting the note...", slow_draft, ws._show_draft)
+    ws.abandon()  # the screen locked and another clinician logged in
+    release.set()
+    QThreadPool.globalInstance().waitForDone(10_000)
+    QApplication.processEvents()
+    assert ws.controller is not ws_old and ws.controller.state is State.IDLE
+    assert ws.subjective_box.toPlainText() == "" and not ws._busy
+    assert "session_discarded" in [e[2] for e in services.auditor.events(5)]
+
+
+def test_recording_hands_free_is_not_locked_by_the_idle_timeout(qapp, services):
+    doctor = _clinician(services)
+    locked = []
+    window = MainWindow(services, doctor, login_again=lambda n: locked.append(n))
+    window.workspace.start_button.click()
+    doctor.last_active -= timedelta(minutes=11)
+    window.check_idle()
+    assert not locked and window.workspace.controller.state is State.RECORDING
+    window.workspace.stop_button.click()
+    wait_until(lambda: not window.workspace._busy)
+    window._closing = True
+    window.close()
+
+
+def test_closing_with_an_unsaved_consultation_asks_first(qapp, services):
+    doctor = _clinician(services)
+    answers = [False, True]
+    window = MainWindow(
+        services, doctor, login_again=lambda n: None, confirm_close=lambda q: answers.pop(0)
+    )
+    window.show()
+    window.workspace.type_button.click()
+    assert not window.close() and window.isVisible()  # "No": the consultation stays
+    assert window.close()  # "Yes": discarded and audited
+    assert services.auditor.events(1)[0][2] == "session_discarded"
+
+
+def test_keyboard_shortcuts_run_the_main_steps(qapp, services):
+    from PySide6.QtGui import QKeySequence
+
+    ws = workspace(services)
+    assert ws.start_button.shortcut() == QKeySequence("Ctrl+R")
+    assert ws.stop_button.shortcut() == QKeySequence("Ctrl+R")
+    assert ws.approve_button.shortcut() == QKeySequence("Ctrl+Return")
+    assert ws.finalize_button.shortcut() == QKeySequence("Ctrl+S")
+    assert "(Ctrl+S)" in ws.finalize_button.toolTip()
+
+
+def test_the_status_says_what_is_still_needed_to_save(qapp, services):
+    ws = workspace(services)
+    record_and_draft(ws)
+    assert "write your assessment and tick the three history checks" in ws.status_label.text()
+    ws.assessment_box.setPlainText("Clinician view.")
+    ws.refresh()
+    assert ws.status_label.text() == "Status: To save: tick the three history checks"
+
+
+def test_recording_can_start_straight_after_saving(qapp, services):
+    ws = workspace(services)
+    record_and_draft(ws)
+    ws.assessment_box.setPlainText("Clinician view.")
+    tick_all(ws)
+    ws.finalize_button.click()
+    assert ws.start_button.isEnabled()
+    ws.start_button.click()
+    assert ws.controller.state is State.RECORDING and ws.subjective_box.toPlainText() == ""
+
+
+def test_records_are_newest_first_with_names_and_can_be_searched(qapp, services):
+    from clinassist.ui.records import RecordsView
+
+    ws = workspace(services)
+    for text in ("First.", "Second."):
+        record_and_draft(ws)
+        ws.assessment_box.setPlainText(text)
+        tick_all(ws)
+        ws.finalize_button.click()
+        ws.new_button.click()
+    view = RecordsView(services.store, name_of=lambda uid: "Dr Synthetic")
+    view.reload()
+    assert view.session_table.rowCount() == 2
+    assert view.session_table.item(0, 1).text() == "Dr Synthetic"
+    newest = services.store.summaries()[0][0]
+    assert view.session_table.item(0, 2).text() == newest[:8].upper()
+    view.session_table.setCurrentCell(0, 0)
+    assert "Finalized by: Dr Synthetic" in view.detail.toPlainText()
+    view.search.setText(newest[:6])
+    hidden = [view.session_table.isRowHidden(r) for r in range(2)]
+    assert hidden == [False, True]

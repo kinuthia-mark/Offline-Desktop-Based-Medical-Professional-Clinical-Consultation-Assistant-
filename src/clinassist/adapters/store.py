@@ -180,6 +180,18 @@ class VaultSessionStore:
             raise StoreError("session_not_found")
         return row[0]
 
+    def summaries(self) -> list[tuple[str, str, str]]:
+        """(session id, saved at in UTC, finalized by) for every saved consultation, newest
+        first: what the records list shows. No clinical text."""
+        with self._vault.connect() as conn:
+            return [
+                tuple(r)
+                for r in conn.execute(
+                    "SELECT session_id, created_at, finalized_by FROM sessions"
+                    " ORDER BY created_at DESC, rowid DESC"
+                )
+            ]
+
     def session_ids(self) -> list[str]:
         with self._vault.connect() as conn:
             return [r[0] for r in conn.execute("SELECT session_id FROM sessions ORDER BY rowid")]
