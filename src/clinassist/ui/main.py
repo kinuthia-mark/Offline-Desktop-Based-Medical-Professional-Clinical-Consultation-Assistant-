@@ -22,6 +22,7 @@ from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QApplication,
+    QComboBox,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -33,6 +34,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from clinassist.ui import theme
 from clinassist.ui.admin import AdminView
 from clinassist.ui.database import DatabaseView
 from clinassist.ui.dialogs import (
@@ -107,6 +109,14 @@ class MainWindow(QMainWindow):
         logout.clicked.connect(self.log_out)
         self.password_button = QPushButton("Change password")
         self.password_button.clicked.connect(self.change_password)
+        # Light, dark, or follow Windows; remembered on this PC for everyone (appearance.json).
+        self.theme_box = QComboBox()
+        for key, name in theme.CHOICES.items():
+            self.theme_box.addItem(name, key)
+        self.theme_box.setCurrentIndex(list(theme.CHOICES).index(theme.current_choice()))
+        self.theme_box.setToolTip("Appearance: light, dark, or the same as Windows")
+        self.theme_box.setAccessibleName("Appearance")
+        self.theme_box.currentIndexChanged.connect(self._theme_chosen)
         # The header bar: icon and title on the left; network status, user and account buttons
         # on the right. Styled by ui/theme.py through its object names.
         header_bar = QFrame()
@@ -126,6 +136,7 @@ class MainWindow(QMainWindow):
         header.addWidget(self.network_label)
         header.addWidget(self.status_label)
         header.addWidget(self.user_label)
+        header.addWidget(self.theme_box)
         header.addWidget(self.password_button)
         header.addWidget(logout)
 
@@ -236,6 +247,14 @@ class MainWindow(QMainWindow):
         # The login window that opens says the logout worked, so a clinician leaving the PC
         # can see they are no longer logged in.
         self.lock_screen(f"{self.session.display_name} logged out. Log in to continue.")
+
+    def _theme_chosen(self, _index: int) -> None:
+        choice = self.theme_box.currentData()
+        theme.set_choice(choice)
+        try:
+            theme.save_choice(self._services.config.data_dir, choice)
+        except OSError:
+            self.show_toast("The look changed, but could not be saved for next time.")
 
     def show_toast(self, text: str, milliseconds: int = 4000) -> None:
         """A short notice in the bottom-right corner that closes by itself, so it never
@@ -412,12 +431,13 @@ def main() -> int:
 
     app = QApplication(sys.argv)
     app.setApplicationName(APP_TITLE)
-    apply_theme(app)
     icon = window_icon_path()
     if icon.is_file():
         app.setWindowIcon(QIcon(str(icon)))
     data_dir = Path(AppConfig().data_dir)
     config = AppConfig.load(data_dir / "settings.json")
+    # The saved look applies from the first window (start-up checks, unlock, login).
+    apply_theme(app, theme.load_choice(config.data_dir))
 
     checks = run_checks(config)
     latest = {"checks": checks}
