@@ -87,6 +87,7 @@ MESSAGES: dict[str, str] = {
     "sample_rates_differ": "The two recordings have different sample rates; they cannot be mixed.",
     # database tab
     "unknown_table": "That table is not in the database.",
+    "unknown_period": "That report period is not one the program offers.",
     # accounts
     "invalid_credentials": "Username or password is not correct.",
     "account_locked": "Too many wrong attempts. The account is locked for 15 minutes.",

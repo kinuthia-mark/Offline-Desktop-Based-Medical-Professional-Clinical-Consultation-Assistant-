@@ -756,7 +756,7 @@ def test_admin_lands_on_the_overview_and_sees_no_patient_work(qapp, services):
     admin = _admin(services)
     window = MainWindow(services, admin, login_again=lambda n: None)
     assert window.tabs.currentWidget() is window.overview
-    assert _visible(window) == ["Overview", "Audit and accounts", "Database"]
+    assert _visible(window) == ["Overview", "Audit and accounts", "Database", "Reports"]
     assert "1 administrator" in window.overview.accounts_label.text()
     assert "Intact" in window.overview.audit_label.text()
     assert "No backup" in window.overview.backup_label.text()
@@ -790,7 +790,7 @@ def test_switching_user_switches_the_landing_page(qapp, services):
     window = MainWindow(services, doctor, login_again=lambda n: admin)
     window.lock_screen("")
     assert window.tabs.currentWidget() is window.overview
-    assert _visible(window) == ["Overview", "Audit and accounts", "Database"]
+    assert _visible(window) == ["Overview", "Audit and accounts", "Database", "Reports"]
     window.close()
 
 
@@ -996,3 +996,40 @@ def test_keyboard_focus_is_visible():
 def test_the_next_step_wraps_instead_of_being_cut_off(qapp, services):
     ws = workspace(services)
     assert ws.status_label.wordWrap() and ws.medicine_label.wordWrap()
+
+
+# ----- the Reports tab (admin, counts only) -----
+def test_reports_tab_shows_counts_and_saves_a_csv(qapp, services, tmp_path):
+    from clinassist.ui.reports import ReportsView
+
+    admin = _admin(services)
+    target = tmp_path / "report.csv"
+    view = ReportsView(
+        services.reports,
+        services.auth,
+        admin_session=lambda: admin,
+        ask_save_path=lambda s: str(target),
+    )
+    view.reload()
+    measures = {
+        view.table.item(r, 1).text(): view.table.item(r, 2).text()
+        for r in range(view.table.rowCount())
+    }
+    assert measures["Notes finalized and saved"] == "0"
+    assert measures["Failed logins"] == "0"
+    assert "Last 30 days" in view.period_label.text()
+    view.save_button.click()
+    assert target.read_text(encoding="utf-8-sig").splitlines()[3] == "Section,Measure,Value"
+    assert services.auditor.events(1)[0][2] == "report_exported"
+
+
+def test_reports_tab_is_only_for_admins(qapp, services):
+    from clinassist.ui.reports import ReportsView
+
+    doctor = _clinician(services)
+    view = ReportsView(services.reports, services.auth, admin_session=lambda: doctor)
+    view.reload()
+    assert view.message.text() == MESSAGES["forbidden"] and view.table.rowCount() == 0
+    window = MainWindow(services, doctor, login_again=lambda n: None)
+    assert not window.tabs.isTabVisible(window.reports_index)
+    window.close()

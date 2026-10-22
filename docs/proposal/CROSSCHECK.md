@@ -113,7 +113,7 @@ confirmation, the recovery code at setup. The "Air-Gapped" label must reflect a 
 defined anywhere in the text.
 
 How the build meets it today: the same three panels and the SOAP and Diagnostics tabs (ADR-009,
-AMD-42); the header shows what the network check found; navigation depends on the role (AMD-41);
+AMD-42); the header shows what the network check found; navigation depends on the role (AMD-41), and administrators have a Reports tab of counts and times (AMD-43, ADR-019);
 the session id is shown as its first 8 characters, not `SESS-YYYYMMDD-NN`; the speech confidence
 is defined and labelled as a hint (AMD-28); "Export / Save" is a PDF export of one finalized note
 (AMD-36); finalizing saves the session; the panel shows "Model: medgemma:4b (quantized, runs on this computer)".
