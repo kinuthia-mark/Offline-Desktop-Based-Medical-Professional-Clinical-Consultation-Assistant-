@@ -385,7 +385,7 @@ def test_header_shows_what_the_network_check_found(qapp, services):
         network=("warn", "Offline: firewall rule not set"),
     )
     assert window.network_label.text() == "Offline: firewall rule not set"
-    assert "#c98a00" in window.network_label.styleSheet()
+    assert window.network_label.property("tone") == "warn"
     window.close()
 
 
@@ -939,3 +939,60 @@ def test_records_and_pdf_say_which_models_were_used():
         "speech: faster-whisper-small (en, 91% confidence); note: medgemma:4b"
     )
     assert "Models used: speech: faster-whisper-small" in describe(record)
+
+
+# ----- accessibility (WCAG 2.1 AA, ADR-018) -----
+def _contrast(a: str, b: str) -> float:
+    def lum(h: str) -> float:
+        r, g, b_ = (int(h.lstrip("#")[i : i + 2], 16) / 255 for i in (0, 2, 4))
+        f = lambda c: c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4  # noqa: E731
+        return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b_)
+
+    hi, lo = sorted((lum(a), lum(b)), reverse=True)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+@pytest.mark.parametrize("name", ["LIGHT", "DARK"])
+def test_every_text_colour_meets_wcag_aa_contrast(name):
+    """At least 4.5:1 for text and 3:1 for control outlines, on every background used."""
+    from clinassist.ui import theme
+
+    c = getattr(theme, name)
+    backgrounds = [c["bg"], c["surface"], c["input"]]
+    for key in ("text", "muted", *theme.TONES):
+        for bg in backgrounds:
+            assert _contrast(c[key], bg) >= 4.5, (name, key, bg)
+    for bg in (c["bg"], c["surface"]):  # panel titles and the selected tab
+        assert _contrast(c["primary"], bg) >= 4.5, (name, bg)
+    assert _contrast(c["primary_text"], c["primary_button"]) >= 4.5, name
+    assert _contrast(c["danger"], c["surface"]) >= 4.5, name
+    for bg in backgrounds:
+        assert _contrast(c["control_border"], bg) >= 3.0, (name, bg)
+
+
+def test_meaning_colours_come_from_the_theme(qapp, services):
+    ws = workspace(services)
+    assert ws.error_label.property("tone") == "error"
+    assert ws.medicine_label.property("tone") == "ai"
+    assert ws.model_label.property("tone") == "quiet"
+
+
+def test_unknown_tone_is_refused(qapp):
+    from PySide6.QtWidgets import QLabel
+
+    from clinassist.ui.theme import tone
+
+    with pytest.raises(ValueError):
+        tone(QLabel(), "purple")
+
+
+def test_keyboard_focus_is_visible():
+    from clinassist.ui.theme import LIGHT, stylesheet
+
+    sheet = stylesheet(LIGHT)
+    assert "QPushButton:focus" in sheet and "QCheckBox:focus" in sheet
+
+
+def test_the_next_step_wraps_instead_of_being_cut_off(qapp, services):
+    ws = workspace(services)
+    assert ws.status_label.wordWrap() and ws.medicine_label.wordWrap()
