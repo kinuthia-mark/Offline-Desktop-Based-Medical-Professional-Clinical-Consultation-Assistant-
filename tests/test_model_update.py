@@ -47,6 +47,12 @@ def setup(tmp_path, monkeypatch):
     (whisper / "model.bin").write_bytes(b"speech")
     monkeypatch.setenv("OLLAMA_MODELS", str(newer))
     build_bundle(tmp_path / "bundle", source=project)
+    # Approve this stand-in model, as a new program version would approve an evaluated one.
+    from clinassist import model_update
+    from clinassist.model_files import sha256_of
+
+    digest = sha256_of(tmp_path / "bundle" / "ollama-models" / MANIFEST)
+    monkeypatch.setitem(model_update.EVALUATED_MODELS, LLM, frozenset({digest}))
     return tmp_path / "bundle", installed
 
 
@@ -109,3 +115,24 @@ def test_a_bundle_missing_a_model_file_is_refused(setup):
     with pytest.raises(UpdateError) as info:
         check_update(bundle, LLM, installed)
     assert info.value.code == "update_bundle_damaged"
+
+
+def test_a_model_that_was_not_evaluated_is_refused(setup, monkeypatch):
+    """A bundle that agrees with itself is not enough: any weights could be packed that way."""
+    from clinassist import model_update
+
+    bundle, installed = setup
+    monkeypatch.setitem(model_update.EVALUATED_MODELS, LLM, frozenset({"0" * 64}))
+    old = (installed / MANIFEST).read_bytes()
+    with pytest.raises(UpdateError) as info:
+        apply_update(bundle, LLM, installed)
+    assert info.value.code == "update_model_not_evaluated"
+    assert (installed / MANIFEST).read_bytes() == old
+
+
+def test_the_evaluated_model_is_pinned():
+    from clinassist.model_update import EVALUATED_MODELS
+
+    assert EVALUATED_MODELS["medgemma:4b"] == {
+        "9fe4e9a6c9bda2d007bb595515550eafbc8e226622adff9257f3241eba334c4d"
+    }

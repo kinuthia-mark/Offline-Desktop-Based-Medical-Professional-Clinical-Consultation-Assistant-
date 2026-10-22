@@ -156,7 +156,7 @@ class AdminView(QWidget):
         about = QLabel(
             "Install a new copy of the language model from a model bundle, for example on a USB "
             "drive. Every file is checked before anything is copied. Only the model this "
-            "program was evaluated with is accepted."
+            "program was evaluated with is accepted, recognised by its fingerprint."
         )
         about.setWordWrap(True)
         u.addWidget(about)

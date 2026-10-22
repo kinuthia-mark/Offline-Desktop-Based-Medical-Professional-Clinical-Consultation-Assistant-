@@ -36,7 +36,12 @@ only:
    - the bundle must hold the same model the program uses (`medgemma:4b`). A different model
      needs the measurements and the evaluation redone first (ADR-002, ADR-011), so it is refused;
    - every file the model's Ollama manifest refers to must be present. A `manifest.json` that
-     simply leaves a file out is caught here.
+     simply leaves a file out is caught here;
+   - the model must be one that was evaluated: the SHA-256 of its Ollama manifest must be in
+     `model_update.EVALUATED_MODELS`. The manifest names every model file by its SHA-256 and each
+     file is checked against its name, so this one fingerprint fixes the whole model. Added after
+     a security review (2026-10-22) found that the checks above only prove a bundle agrees with
+     itself: a crafted bundle could have installed any weights under the name `medgemma:4b`.
 2. **Show what will change** (size, number of files new to the PC), or say that the model is
    already installed, and ask for confirmation.
 3. **Install:** the model is first freed from memory. The check is run again rather than trusted
@@ -52,7 +57,8 @@ only:
 - one flipped bit, a different model, a folder that is not a bundle, and a bundle whose
   `manifest.json` leaves out a model file are each refused with the installed model unchanged.
 
-Removing the missing-file check makes a test fail. The UI tests cover:
+Removing the missing-file check makes a test fail; so does removing the evaluated-model check
+(`test_a_model_that_was_not_evaluated_is_refused`). The UI tests cover:
 - the confirmation showing size and new files;
 - declining;
 - an already-installed model;
@@ -65,5 +71,8 @@ Removing the missing-file check makes a test fail. The UI tests cover:
 - Ollama may later remove model files no manifest refers to any more, so going back needs the
   earlier bundle itself, not just the PC.
 - The speech model is updated only with a new program version (see option 3).
-- A new copy of the model is checked for integrity, not for quality. A genuinely new model
-  release should be evaluated again before it is bundled.
+- Only copies already listed in `EVALUATED_MODELS` can be installed, so in practice the update
+  repairs or re-installs the evaluated model. A newer model is approved by evaluating it
+  (ADR-016) and adding its fingerprint in a new version of the program.
+- The installer's own bundle check (ADR-012) still trusts the bundle it is shipped with; the
+  pin applies to updates brought in later.
