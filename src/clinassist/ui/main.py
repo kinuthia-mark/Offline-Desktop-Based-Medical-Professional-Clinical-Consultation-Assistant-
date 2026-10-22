@@ -18,7 +18,7 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-from PySide6.QtCore import QEvent, QObject, QTimer
+from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QApplication,
@@ -86,6 +86,15 @@ class MainWindow(QMainWindow):
         auth = services.auth
 
         self.user_label = QLabel()
+        # The toast: a notice over the bottom-right corner of the window (show_toast).
+        self.toast = QLabel(self)
+        self.toast.setObjectName("toast")
+        # Clicks pass through it, so it never covers a button the clinician needs.
+        self.toast.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        self.toast.hide()
+        self._toast_timer = QTimer(self)
+        self._toast_timer.setSingleShot(True)
+        self._toast_timer.timeout.connect(self.toast.hide)
         self.status_label = QLabel(checks_summary)
         # FR-18: the network label says only what the start-up check found (ADR-010).
         status, label = network
@@ -224,7 +233,30 @@ class MainWindow(QMainWindow):
         self.idle_timer.start()
 
     def log_out(self) -> None:
-        self.lock_screen("")
+        # The login window that opens says the logout worked, so a clinician leaving the PC
+        # can see they are no longer logged in.
+        self.lock_screen(f"{self.session.display_name} logged out. Log in to continue.")
+
+    def show_toast(self, text: str, milliseconds: int = 4000) -> None:
+        """A short notice in the bottom-right corner that closes by itself, so it never
+        stops the clinician (for example "Logged in as Dr A (clinician)")."""
+        self.toast.setText(text)
+        self.toast.adjustSize()
+        self._place_toast()
+        self.toast.raise_()
+        self.toast.show()
+        self._toast_timer.start(milliseconds)
+
+    def _place_toast(self) -> None:
+        margin = 20
+        self.toast.move(
+            self.width() - self.toast.width() - margin,
+            self.height() - self.toast.height() - margin,
+        )
+
+    def resizeEvent(self, event) -> None:  # noqa: N802 - Qt's name
+        super().resizeEvent(event)
+        self._place_toast()
 
     def export_note(self, session_id: str, path: str, include_transcript: bool) -> str:
         """Write one saved consultation as a PDF (FR-17) and record the export in the audit
@@ -252,7 +284,9 @@ class MainWindow(QMainWindow):
 
     def _show_user(self) -> None:
         """Show the tabs of the logged-in role and open its landing page."""
-        self.user_label.setText(f"{self.session.display_name} ({self.session.role})")
+        who = f"{self.session.display_name} ({self.session.role})"
+        self.user_label.setText(f"Logged in as {who}")
+        self.show_toast(f"Logged in as {who}")
         is_admin = self.session.role == "admin"
         for index in (
             self.overview_index,
