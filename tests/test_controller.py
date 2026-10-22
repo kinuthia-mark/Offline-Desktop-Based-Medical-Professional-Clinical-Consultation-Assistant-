@@ -492,3 +492,12 @@ def test_a_typed_transcript_has_no_speech_model_and_a_hand_written_note_no_langu
     saved = rig.store.saved[0]
     assert saved.asr_model == "" and saved.asr_confidence is None
     assert saved.model_version == ""  # written by hand
+
+
+def test_can_retry_follows_the_attempt_limit():
+    """The screen asks the controller instead of keeping its own copy of the limit."""
+    c = Rig().build(max_attempts=1)
+    to_approved(c)
+    assert c.can_retry
+    c.generate_draft()
+    assert not c.can_retry

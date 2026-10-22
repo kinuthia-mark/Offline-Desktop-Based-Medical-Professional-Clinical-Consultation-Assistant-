@@ -14,10 +14,12 @@ controller's state, so a button can only be pressed when the controller would ac
 
 from __future__ import annotations
 
+import time
 from collections.abc import Callable
 from datetime import date
 
 from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QKeySequence
 from PySide6.QtWidgets import (
     QCheckBox,
     QGroupBox,
@@ -113,6 +115,9 @@ class ConsultationWorkspace(QWidget):
         self._confirm = confirm or self._ask
         self.controller = services.new_controller()
         self._busy = ""  # what is running in the background, or "" when idle
+        # Raised each time the consultation is abandoned, so a transcription or draft that was
+        # still running for it is ignored when it finishes (see abandon()).
+        self._generation = 0
         self._last_error = ""
         self._build()
         services.progress.listener = self._on_progress_from_worker
@@ -290,6 +295,18 @@ class ConsultationWorkspace(QWidget):
         for button in (self.start_button, self.approve_button, self.finalize_button):
             mark(button, "primary")
         mark(self.discard_button, "danger")
+        # Keyboard shortcuts for the main steps, so a clinician need not reach for the mouse.
+        # Qt ignores the shortcut of a disabled button, so Ctrl+R starts or stops recording,
+        # whichever is possible at the time.
+        for button, keys in (
+            (self.start_button, "Ctrl+R"),
+            (self.stop_button, "Ctrl+R"),
+            (self.type_button, "Ctrl+T"),
+            (self.approve_button, "Ctrl+Return"),
+            (self.finalize_button, "Ctrl+S"),
+        ):
+            button.setShortcut(QKeySequence(keys))
+            button.setToolTip(f"{button.text()} ({keys.replace('Return', 'Enter')})")
         layout = QHBoxLayout(self)
         layout.setContentsMargins(4, 4, 4, 4)
         layout.addWidget(splitter)
@@ -298,6 +315,7 @@ class ConsultationWorkspace(QWidget):
     def start_recording(self) -> None:
         if not self._step():
             return
+        self._leave_saved()
         try:
             self.controller.start_recording()
         except Exception as exc:
@@ -317,6 +335,7 @@ class ConsultationWorkspace(QWidget):
         """Start without recording. The typed text is approved and screened like spoken text."""
         if not self._step():
             return
+        self._leave_saved()
         try:
             self.controller.start_typed_transcript()
         except Exception as exc:
@@ -376,7 +395,11 @@ class ConsultationWorkspace(QWidget):
     def reopen_transcript(self) -> None:
         if not self._step():
             return
-        self.controller.reopen_transcript()
+        try:
+            self.controller.reopen_transcript()
+        except Exception as exc:
+            self._show_error(exc)
+            return
         self._clear_note()
         self.refresh()
 
@@ -424,6 +447,45 @@ class ConsultationWorkspace(QWidget):
         self._clear_all()
         self.refresh()
 
+    def _leave_saved(self) -> None:
+        """After a note is saved, recording or typing starts the next consultation at once,
+        without pressing "New consultation" first."""
+        if self.controller.state is State.FINALIZED:
+            self.new_consultation()
+
+    @property
+    def in_progress(self) -> bool:
+        """True while there is work on screen that would be lost: a recording, a transcript or
+        a note not yet saved, or a job running in the background."""
+        return bool(self._busy) or self.controller.state not in (State.IDLE, State.FINALIZED)
+
+    @property
+    def keeps_session_alive(self) -> bool:
+        """Recording, transcribing and drafting count as activity for the idle timeout: a
+        consultation recorded hands-free is not locked half-way (main.check_idle)."""
+        return bool(self._busy) or self.controller.state is State.RECORDING
+
+    def abandon(self) -> None:
+        """Drop the consultation without asking, for example when another clinician logs in.
+
+        If a transcription or draft is still running for it, its result arrives later on the
+        old controller and is ignored, so it can never appear on the next user's screen. The
+        microphone is released and the discard is written to the audit log."""
+        self._generation += 1
+        if self._busy:
+            self._finish()
+        self._meter.stop()
+        old, self.controller = self.controller, self._services.new_controller()
+        try:
+            if old.state is not State.FINALIZED:
+                old.discard()
+        except Exception:
+            # The microphone may already be stopped (a transcription was running); the old
+            # controller is dropped either way.
+            pass
+        self._clear_all()
+        self.refresh()
+
     # ----- drawing -----
     def refresh(self) -> None:
         """Enable exactly the buttons the controller would accept in its current state."""
@@ -431,8 +493,9 @@ class ConsultationWorkspace(QWidget):
         idle_or_done = state in (State.IDLE, State.FINALIZED)
         self.session_label.setText("Session: " + (self.controller.session_id or "-")[:8].upper())
         self.status_label.setText("Status: " + (self._busy or _STATUS[state]))
-        self.start_button.setEnabled(not busy and state is State.IDLE)
-        self.type_button.setEnabled(not busy and state is State.IDLE)
+        can_start = not busy and state in (State.IDLE, State.FINALIZED)
+        self.start_button.setEnabled(can_start)
+        self.type_button.setEnabled(can_start)
         self.stop_button.setEnabled(not busy and state is State.RECORDING)
         self.discard_button.setEnabled(not busy and not idle_or_done)
         self.new_button.setEnabled(not busy and state is State.FINALIZED)
@@ -449,7 +512,7 @@ class ConsultationWorkspace(QWidget):
 
         failed = state is State.GENERATION_FAILED
         self.retry_button.setVisible(failed)
-        self.retry_button.setEnabled(not busy and self.controller.attempts < 2)
+        self.retry_button.setEnabled(not busy and self.controller.can_retry)
         self.error_label.setVisible(bool(self._last_error))
         self.progress_bar.setVisible(busy)
         self.progress_label.setVisible(busy)
@@ -468,6 +531,8 @@ class ConsultationWorkspace(QWidget):
             and self.negatives_check.isChecked()
         )
         self.finalize_button.setEnabled(ready)
+        if drafted and not ready and not self._busy:
+            self.status_label.setText("Status: " + _still_needed(self))
 
     def _show_draft(self, draft: Draft) -> None:
         self._last_error = ""
@@ -520,22 +585,34 @@ class ConsultationWorkspace(QWidget):
         self._last_error = ""
         self.error_label.clear()
         self.progress_label.setText(label)
+        started = time.monotonic()
+        generation = self._generation
+
+        def tick() -> None:
+            # Elapsed time, so a long draft does not look stuck; drafting takes from about
+            # 30 seconds to 3 minutes on the reference PC (ADR-017).
+            elapsed = int(time.monotonic() - started)
+            text = f"{label} {elapsed // 60}:{elapsed % 60:02d}"
+            if self._pieces:
+                text += f" ({self._pieces} pieces received)"
+            self.progress_label.setText(text)
+
         self._progress_timer = QTimer(self)
         self._progress_timer.setInterval(250)
-        self._progress_timer.timeout.connect(
-            lambda: self.progress_label.setText(
-                f"{label} ({self._pieces} pieces received)" if self._pieces else label
-            )
-        )
+        self._progress_timer.timeout.connect(tick)
         self._progress_timer.start()
         self.refresh()
 
         def done(result) -> None:
+            if generation != self._generation:
+                return  # the consultation was abandoned while this ran
             self._finish()
             on_done(result)
             self.refresh()
 
         def failed(exc: Exception) -> None:
+            if generation != self._generation:
+                return
             self._finish()
             self._show_error(exc)
 
@@ -588,6 +665,20 @@ class ConsultationWorkspace(QWidget):
     def _ask(self, question: str) -> bool:
         answer = QMessageBox.question(self, "Please confirm", question)
         return answer == QMessageBox.StandardButton.Yes
+
+
+def _still_needed(ws) -> str:
+    """What is still missing before the note can be saved, in the order the screen shows it."""
+    missing = []
+    if not ws.assessment_box.toPlainText().strip():
+        missing.append("write your assessment")
+    if not (
+        ws.allergies_check.isChecked()
+        and ws.medications_check.isChecked()
+        and ws.negatives_check.isChecked()
+    ):
+        missing.append("tick the three history checks")
+    return "To save: " + " and ".join(missing)
 
 
 _STATUS = {

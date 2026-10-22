@@ -34,7 +34,14 @@ For the audit log:
 - Lockout: 5 failures in a row lock the account for 15 minutes; an admin can unlock it early.
   While locked, even the correct password is refused.
 - Idle timeout: 10 minutes without activity ends the session (`AuthService.require` is called
-  before every protected action and refreshes the timer).
+  before every protected action and refreshes the timer). Recording, transcribing and drafting
+  count as activity (AMD-44, 2026-10-22): a consultation recorded hands-free for more than 10
+  minutes used to lock the screen half-way while the microphone kept recording behind it. The
+  timeout starts once the recording stops and the draft is on screen.
+- While the login dialog is open the idle check is paused, so a locked screen shows one login
+  dialog (it used to open another every 15 seconds). When a different user logs in, the
+  consultation on screen is dropped, including a draft still being written for the previous
+  user, whose result is then ignored (`ConsultationWorkspace.abandon`).
 - No username discovery: an unknown username and a wrong password give the same error
   (`invalid_credentials`) and the same cost (one hash check). An inactive account is reported as
   such only after the correct password.
@@ -67,6 +74,9 @@ skipped; free text accepted as an event; anchor ignored.
   it does not protect a copied database (ADR-003 covers that with the passphrase).
 - Lockout of 5 attempts and 15 minutes and an idle timeout of 10 minutes are reasonable defaults,
   not measured values. Confirm them with the supervisor; a busy clinic may want a longer timeout.
+- A recording left running keeps the session open until it is stopped. Someone who walks away
+  from a running recording leaves the consultation screen unlocked; the microphone level meter
+  and the running clock show that it is still recording.
 - Timestamps come from the PC clock, which a local administrator can change.
 
 ## Consequences
