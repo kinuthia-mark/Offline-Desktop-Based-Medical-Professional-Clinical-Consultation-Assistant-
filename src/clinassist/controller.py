@@ -101,6 +101,12 @@ class ConsultationController:
     def attempts(self) -> int:
         return self._attempts
 
+    @property
+    def can_retry(self) -> bool:
+        """Whether another drafting attempt is allowed, so the screen never offers one the
+        controller would refuse."""
+        return self._attempts < self._max_attempts
+
     # ----- workflow -----
     def start_recording(self) -> None:
         self._require(State.IDLE)
