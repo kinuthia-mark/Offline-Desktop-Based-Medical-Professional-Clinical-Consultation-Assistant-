@@ -211,16 +211,17 @@ is recorded.
 | Offline update of the language model from a checked model bundle, from the admin screen | FR-10b | built and tested (ADR-015) |
 | Database tab for administrators: encryption shown on the real file, tables, rules and rows (read-only; clinical text never shown) | AMD-40 | built and tested |
 | Separate roles: clinicians land on the consultation screen; administrators land on an overview and never see patient notes | AMD-41 | built and tested |
+| Reports tab for administrators: consultations, how notes were written, how often AI text was kept, suggestions accepted, median drafting time, notes per clinician and per day, failed logins; saved as CSV; counts and times only, never patient text ([screenshot](docs/screenshots/reports.png), synthetic) | AMD-43 | built and tested ([ADR-019](docs/ADR/019-system-reports.md)) |
 | Input check (prompt injection, personal data) and checks on the model's reply | FR-05, AMD-11 | built and tested |
 | Microphone recorder | FR-01 | built and tested, including on the real microphone |
 | Speech-to-text (Faster-Whisper small, offline) | FR-02 | built and measured with synthetic speech |
 | Desktop interface (PySide6): consultation screen, records, audit and accounts, one look in light and dark; colours meet WCAG 2.1 AA contrast, visible keyboard focus ([ADR-018](docs/ADR/018-accessibility.md)) | FR-03, FR-06, FR-16, AMD-42 | built and tested |
 | Wiring of all parts, memory plan, startup checks | NFR-04, NFR-07 | built and run end to end |
 | Air-gap enforcement: in-app network guard, firewall rules, checks shown on screen | NFR-01, NFR-02, FR-18 | built and tested; the installer applies the firewall rules, confirmed on the reference PC and in the clean-machine installer test |
-| Evaluation: 8 scripted consultations with key facts and traps, scored end to end | FR-05, NFR-03, NFR-06 | built and run; clinician scoring pending |
+| Evaluation: 8 scripted consultations with key facts and traps, scored end to end | FR-05, NFR-03, NFR-06 | built and run; public datasets with clinicians' notes replace clinician scoring (ADR-016) |
 | Windows installer and offline model bundle (Ollama included, pinned and checked), with a self-test | release, AMD-15 | built and installed on the reference PC; a second PC is still to do |
 
-704 tests run on every push, on Windows with Python 3.11 and 3.12, together with
+714 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
 
 **Still to do:** installing on a second, clean PC, and applying the amendments to the
@@ -526,8 +527,9 @@ src/clinassist/
   config.py          the settings file, with the reason for each default
   startup.py         checks this PC is ready: models, Ollama, memory, microphone, data folder
   ui/                the desktop screens: consultation workspace, records, audit and accounts,
-                     the read-only Database tab, PDF export of a note, the admin
-                     overview, dialogs
+                     the read-only Database tab, the Reports tab, PDF export of a note,
+                     the admin overview, dialogs
+  reports.py         usage counts and times for the Reports tab, never patient text
   vocabulary.py      common medicine names in Kenyan primary care, and accepted other spellings
   medcheck.py        flags transcript words that look like a misheard medicine name
   evaluation.py      scores a note against a consultation's key facts, denied symptoms and traps
@@ -603,7 +605,7 @@ code, then the tests and measurements that check that requirement, before moving
 | [`docs/traceability.md`](docs/traceability.md) | every requirement, the branch that builds it, the test that checks it, and its status |
 | [`docs/AMENDMENTS.md`](docs/AMENDMENTS.md) | every change from the approved proposal, with the reason |
 | [`docs/proposal/CROSSCHECK.md`](docs/proposal/CROSSCHECK.md) | how the code maps onto the proposal's use cases, diagrams, schema and wireframe |
-| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012), suggestions and medicine names (013), backup and restore (014), offline model update (015), public-dataset evaluation (016), targets for speed, memory and speech accuracy (017), accessibility (018) |
+| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012), suggestions and medicine names (013), backup and restore (014), offline model update (015), public-dataset evaluation (016), targets for speed, memory and speech accuracy (017), accessibility (018), system reports (019) |
 | [`docs/spikes/`](docs/spikes/) | raw measurement results from the reference PC |
 | [`docs/PRIOR_ART.md`](docs/PRIOR_ART.md) | what was reused from the earlier MedgemmaV2 prototype and what was left out |
 
