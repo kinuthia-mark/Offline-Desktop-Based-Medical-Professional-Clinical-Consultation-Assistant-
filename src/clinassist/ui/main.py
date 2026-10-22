@@ -48,7 +48,7 @@ from clinassist.ui.dialogs import (
 from clinassist.ui.messages import message_for
 from clinassist.ui.overview import OverviewView
 from clinassist.ui.records import RecordsView
-from clinassist.ui.theme import apply_theme
+from clinassist.ui.theme import apply_theme, tone
 from clinassist.ui.workspace import ConsultationWorkspace
 
 APP_TITLE = "Offline Clinical Consultation Assistant"
@@ -83,8 +83,9 @@ class MainWindow(QMainWindow):
         status, label = network
         self.network_label = QLabel(label)
         # Readable on light and dark Windows themes.
-        colour = {"ok": "#2e9e44", "warn": "#c98a00", "fail": "#e0484d"}.get(status, "#888")
-        self.network_label.setStyleSheet(f"color: {colour}; font-weight: bold;")
+        # The words say what the check found; the colour repeats it (WCAG 1.4.1).
+        tone(self.network_label, {"ok": "ok", "warn": "warn", "fail": "error"}.get(status, "quiet"))
+        self.network_label.setStyleSheet("font-weight: bold;")
         logout = QPushButton("Log out")
         logout.clicked.connect(self.log_out)
         self.password_button = QPushButton("Change password")
