@@ -48,6 +48,7 @@ from clinassist.ui.dialogs import (
 from clinassist.ui.messages import message_for
 from clinassist.ui.overview import OverviewView
 from clinassist.ui.records import RecordsView
+from clinassist.ui.reports import ReportsView
 from clinassist.ui.theme import apply_theme, tone
 from clinassist.ui.workspace import ConsultationWorkspace
 
@@ -146,6 +147,8 @@ class MainWindow(QMainWindow):
         self.admin_index = self.tabs.addTab(self.admin, "Audit and accounts")
         self.database = DatabaseView(services.database, auth, admin_session=lambda: self.session)
         self.database_index = self.tabs.addTab(self.database, "Database")
+        self.reports = ReportsView(services.reports, auth, admin_session=lambda: self.session)
+        self.reports_index = self.tabs.addTab(self.reports, "Reports")
         self.tabs.currentChanged.connect(self._tab_opened)
 
         body = QWidget()
@@ -233,7 +236,12 @@ class MainWindow(QMainWindow):
         """Show the tabs of the logged-in role and open its landing page."""
         self.user_label.setText(f"{self.session.display_name} ({self.session.role})")
         is_admin = self.session.role == "admin"
-        for index in (self.overview_index, self.admin_index, self.database_index):
+        for index in (
+            self.overview_index,
+            self.admin_index,
+            self.database_index,
+            self.reports_index,
+        ):
             self.tabs.setTabVisible(index, is_admin)
         for index in (self.workspace_index, self.records_index):
             self.tabs.setTabVisible(index, not is_admin)
@@ -257,6 +265,8 @@ class MainWindow(QMainWindow):
             self.admin.reload()
         elif self.tabs.widget(index) is self.database and self.session.role == "admin":
             self.database.reload()
+        elif self.tabs.widget(index) is self.reports and self.session.role == "admin":
+            self.reports.reload()
 
     def _restored(self) -> None:
         """After a restore the open vault no longer matches the files on disk, so the program
