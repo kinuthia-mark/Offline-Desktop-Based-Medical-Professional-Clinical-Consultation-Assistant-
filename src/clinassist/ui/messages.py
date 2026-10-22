@@ -74,6 +74,10 @@ MESSAGES: dict[str, str] = {
         "That bundle holds a different language model from the one this program uses. A "
         "different model needs to be evaluated first, so it was not installed."
     ),
+    "update_model_not_evaluated": (
+        "That bundle's model is not one this program was evaluated with, so it was not "
+        "installed. A newer model is approved in a new version of the program."
+    ),
     "update_copy_failed": (
         "Copying the model failed (the drive may be full or was removed). The model in use was "
         "not changed."

@@ -8,7 +8,11 @@ example on a USB drive. Nothing is downloaded. Before anything is copied:
   2. the bundle must hold the same model the program uses (`medgemma:4b`). Switching to a
      different model would need the measurements and the evaluation to be redone (ADR-002,
      ADR-011), so it is refused rather than done quietly;
-  3. every file the model's Ollama manifest refers to must be in the bundle.
+  3. every file the model's Ollama manifest refers to must be in the bundle;
+  4. the model must be one that was evaluated: its Ollama manifest's SHA-256 must be listed in
+     EVALUATED_MODELS. The manifest names every model file by its SHA-256, and each file is
+     checked against its name, so this one fingerprint fixes the whole model. Without it, a
+     bundle that only agrees with itself could install any weights under the model's name.
 
 Then the model files are copied into Ollama's model folder (files that are already there are
 identical, because they are named by their SHA-256, so they are skipped), each copy is checked
@@ -33,6 +37,14 @@ from pathlib import Path
 
 from clinassist.bundle import OLLAMA_REGISTRY, ollama_models_dir, verify_bundle
 from clinassist.model_files import sha256_of
+
+# The language models that were measured and evaluated, by the SHA-256 of their Ollama manifest.
+# 9fe4e9a6... is the medgemma:4b (Q4_K_M) used in every measurement (ADR-002, ADR-011, ADR-016).
+# To approve a newer copy: evaluate it (eval/run_public.py), then add its manifest's SHA-256 here
+# in a new version of the program.
+EVALUATED_MODELS: dict[str, frozenset[str]] = {
+    "medgemma:4b": frozenset({"9fe4e9a6c9bda2d007bb595515550eafbc8e226622adff9257f3241eba334c4d"}),
+}
 
 
 class UpdateError(RuntimeError):
@@ -70,6 +82,8 @@ def check_update(bundle: Path | str, llm: str, models_dir: Path | None = None) -
     model_manifest = bundle / "ollama-models" / _manifest_rel(llm)
     if not model_manifest.is_file():
         raise UpdateError("update_bundle_damaged")
+    if sha256_of(model_manifest) not in EVALUATED_MODELS.get(llm, frozenset()):
+        raise UpdateError("update_model_not_evaluated")
     blobs = _blob_names(model_manifest)
     if any(not (bundle / "ollama-models" / "blobs" / b).is_file() for b in blobs):
         raise UpdateError("update_bundle_damaged")
