@@ -33,7 +33,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from clinassist.controller import State
 from clinassist.ui.admin import AdminView
 from clinassist.ui.database import DatabaseView
 from clinassist.ui.dialogs import (
@@ -70,12 +69,20 @@ class _ActivityFilter(QObject):
 
 class MainWindow(QMainWindow):
     def __init__(
-        self, services, session, login_again, checks_summary: str = "", network=("warn", "")
+        self,
+        services,
+        session,
+        login_again,
+        checks_summary: str = "",
+        network=("warn", ""),
+        confirm_close=None,
     ) -> None:
         """`login_again(notice)` shows the login dialog and returns a session or None."""
         super().__init__()
         self.setWindowTitle(APP_TITLE)
         self._services, self.session, self._login_again = services, session, login_again
+        self._confirm_close = confirm_close or self._ask_close  # tests replace the dialog
+        self._closing = False  # set when the program closes itself and must not ask
         auth = services.auth
 
         self.user_label = QLabel()
@@ -130,7 +137,10 @@ class MainWindow(QMainWindow):
             services, user_id=lambda: self.session.user_id, before_action=self.require_clinician
         )
         self.records = RecordsView(
-            services.store, before_action=self.require_clinician, export=self.export_note
+            services.store,
+            before_action=self.require_clinician,
+            export=self.export_note,
+            name_of=lambda user_id: auth.display_name(self.session, user_id),
         )
         self.tabs = QTabWidget()
         self.overview_index = self.tabs.addTab(self.overview, "Overview")
@@ -184,26 +194,34 @@ class MainWindow(QMainWindow):
             self.session.last_active = datetime.now(UTC)
 
     def check_idle(self) -> None:
+        if self.workspace.keeps_session_alive and not self.session.ended:
+            # Recording, transcribing or drafting: the clinician is working even without
+            # touching the keyboard, so a hands-free consultation is not locked half-way.
+            self.session.last_active = datetime.now(UTC)
+            return
         if self.session.expired(datetime.now(UTC)):
             self.lock_screen(message_for("session_expired"))
 
     def lock_screen(self, notice: str) -> None:
+        # The idle check is paused while the login dialog is open: the ended session counts
+        # as expired, and the timer would otherwise open another login dialog every 15 s.
+        self.idle_timer.stop()
         self._services.auth.logout(self.session)
         previous = self.session.user_id
         self.hide()
         session = self._login_again(notice)
         if session is None:
+            self._closing = True  # nobody is logged in: close without asking
             self.close()
             return
-        if session.user_id != previous and self.workspace.controller.state not in (
-            State.IDLE,
-            State.FINALIZED,
-        ):
-            self.workspace.controller.discard()  # never show one clinician another's notes
-            self.workspace.new_consultation()
+        if session.user_id != previous and self.workspace.in_progress:
+            # Never show one clinician another's consultation, including a draft that was
+            # still being written when the screen locked.
+            self.workspace.abandon()
         self.session = session
         self._show_user()
         self.show()
+        self.idle_timer.start()
 
     def log_out(self) -> None:
         self.lock_screen("")
@@ -281,8 +299,25 @@ class MainWindow(QMainWindow):
         QApplication.instance().quit()
 
     def closeEvent(self, event) -> None:  # noqa: N802 - Qt's name
+        # Closing the window with a consultation on screen would lose it without a word.
+        if (
+            not self._closing
+            and self.workspace.in_progress
+            and not self._confirm_close(
+                "A consultation is not saved yet. Close the program and discard it?"
+            )
+        ):
+            event.ignore()
+            return
+        if self.workspace.in_progress:
+            self.workspace.abandon()  # releases the microphone and audits the discard
+        self.idle_timer.stop()
         QApplication.instance().removeEventFilter(self._activity)
         super().closeEvent(event)
+
+    def _ask_close(self, question: str) -> bool:
+        answer = QMessageBox.question(self, "Please confirm", question)
+        return answer == QMessageBox.StandardButton.Yes
 
 
 def window_icon_path() -> Path:

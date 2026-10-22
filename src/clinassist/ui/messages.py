@@ -22,13 +22,20 @@ MESSAGES: dict[str, str] = {
     ),
     # note generation
     "timeout": "The model took too long. Try again, or write the note by hand.",
-    "repetition_detected": "The model started repeating itself and was stopped. Try again.",
+    "repetition_detected": (
+        "The model started repeating itself and was stopped. Try again, or write the note by hand."
+    ),
     "output_truncated": "The model's note was cut off. Try again, or write the note by hand.",
-    "invalid_output": "The model's reply was not a usable note. Try again.",
+    "invalid_output": (
+        "The model's reply was not a usable note. Try again, or write the note by hand."
+    ),
     "ollama_unreachable": "The local model service (Ollama) is not running. Start it and retry.",
-    "model_not_available": "The language model is not installed in Ollama.",
+    "model_not_available": (
+        "The language model is not installed. Write the note by hand, and ask the administrator "
+        "to install it (Audit and accounts, Update the language model)."
+    ),
     "ollama_error": "The local model service reported an error. Try again.",
-    "bad_stream": "The model's reply was garbled. Try again.",
+    "bad_stream": "The model's reply was garbled. Try again, or write the note by hand.",
     "prompt_leak": "The model's reply was rejected as unsafe. Try again or write by hand.",
     "link_in_output": "The model's reply contained a web link and was rejected. Try again.",
     # microphone

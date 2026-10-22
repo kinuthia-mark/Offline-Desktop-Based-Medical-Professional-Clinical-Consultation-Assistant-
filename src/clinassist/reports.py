@@ -78,11 +78,13 @@ def _percent(part: int, whole: int) -> str:
     return f"{100 * part / whole:.0f}%" if whole else "-"
 
 
-def build_report(vault, period: str, now: datetime | None = None) -> Report:
-    """Count what happened in `period` (a key of PERIODS), up to `now`."""
+def build_report(vault, period: str, now: datetime | None = None, tz=None) -> Report:
+    """Count what happened in `period` (a key of PERIODS), up to `now`. Days are counted in
+    `tz`, by default this computer's time zone (Nairobi time on a clinic PC), so the counts
+    per day match the clinic's own register."""
     if period not in PERIODS:
         raise ValueError("unknown_period")
-    end = now or datetime.now(UTC)
+    end = (now or datetime.now(UTC)).astimezone(tz)
     days = PERIODS[period]
     start = end - timedelta(days=days) if days else None
 
@@ -124,7 +126,7 @@ def build_report(vault, period: str, now: datetime | None = None) -> Report:
         if n_flags:
             counts["notes_with_flags"] += 1
             counts["flags_total"] += n_flags
-        per_day[_parse(created).date().isoformat()] += 1
+        per_day[_parse(created).astimezone(tz).date().isoformat()] += 1
         per_clinician[names.get(by, "(account removed)")] += 1
         models[f"{asr or 'typed'} / {llm or 'written by hand'}"] += 1
 
@@ -237,7 +239,7 @@ def period_text(r: Report) -> str:
         return d.isoformat()
 
     since = "the first record" if r.start is None else day(r.start.date())
-    return f"{r.period}: from {since} to {day(r.end.date())} (UTC)"
+    return f"{r.period}: from {since} to {day(r.end.date())} (this computer's time)"
 
 
 def to_csv(r: Report) -> str:
