@@ -1201,3 +1201,37 @@ def test_switching_user_greets_the_new_user(qapp, services):
     window.log_out()
     assert window.toast.text() == "Logged in as Synthetic Admin (admin)"
     window.close()
+
+
+# ----- choosing light or dark -----
+def test_the_theme_choice_is_saved_and_a_damaged_file_is_ignored(tmp_path):
+    from clinassist.ui import theme
+
+    assert theme.load_choice(tmp_path) == "system"  # nothing saved yet
+    theme.save_choice(tmp_path, "dark")
+    assert theme.load_choice(tmp_path) == "dark"
+    (tmp_path / theme.APPEARANCE_FILE).write_text("{not json", encoding="utf-8")
+    assert theme.load_choice(tmp_path) == "system"
+    (tmp_path / theme.APPEARANCE_FILE).write_text('{"theme": "purple"}', encoding="utf-8")
+    assert theme.load_choice(tmp_path) == "system"
+    with pytest.raises(ValueError):
+        theme.save_choice(tmp_path, "purple")
+
+
+def test_the_header_switches_light_and_dark_at_once_and_remembers(qapp, services):
+    from clinassist.ui import theme
+
+    before = qapp.styleSheet()
+    theme.apply_theme(qapp, "light")
+    try:
+        doctor = _clinician(services)
+        window = MainWindow(services, doctor, login_again=lambda n: None)
+        assert window.theme_box.currentData() == "light"
+        assert theme.LIGHT["bg"] in qapp.styleSheet()
+        window.theme_box.setCurrentIndex(list(theme.CHOICES).index("dark"))
+        assert theme.is_dark() and theme.DARK["bg"] in qapp.styleSheet()
+        assert theme.load_choice(services.config.data_dir) == "dark"
+        window.close()
+    finally:
+        theme.set_choice("system")
+        qapp.setStyleSheet(before)
