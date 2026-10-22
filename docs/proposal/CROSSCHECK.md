@@ -62,7 +62,7 @@ Not numbered: Authenticate / Log In, and four administrator use cases.
 | `User` (abstract), `Clinician`, `SystemAdmin` | userId, username, pinHash, role; authenticate(pin); manageUsers, updateModelWeights, backupDatabase, viewAuditLogs | `security/auth.py`: `AuthService` and `UserSession`, roles clinician and admin, passwords instead of a PIN (AMD-26). manageUsers is `create_user`, `set_active`, `unlock_account`, `reset_password`; updateModelWeights is `model_update.py`; backupDatabase is `security/backup.py`; viewAuditLogs is the admin screen with `HashChainAuditor.verify` |
 | `ConsultationSession` | sessionId, startTime, endTime, status | `SessionRecord` (domain.py) plus the controller's state. **open:** start time, end time and status are not stored |
 | `AudioRecord` | recordingId, filePath, durationSeconds | `adapters/audio_store.py` (optional, off by default, ADR-003). No metadata table |
-| `Transcript` | transcriptId, rawText, confidenceScore | the approved text, stored in `sessions`. Language and confidence are shown at review. **open:** they are not stored |
+| `Transcript` | transcriptId, rawText, confidenceScore | the approved text, stored in `sessions` with `transcript_language` and `asr_confidence` (schema v4) |
 | `SOAPNote` | summaryId, S, O, A, P; toDict(), validate() | `SoapNote` (the clinician's) and `Draft` (the model's); validation in `soap_generator.parse_draft` |
 | `ConsultationController` | currentSession; orchestrate() | `controller.ConsultationController`: explicit steps and a state machine, no single orchestrate() |
 | `AudioRecorder` | sampleRate, isRecording, audioBuffer, device; start(), stop() | `adapters/recorder.py` (16 kHz mono, in memory, ADR-006) |
@@ -88,9 +88,9 @@ transcript, discard, and login. The diagrams must show them (AMD-11, AMD-14).
 | `users`: user_id, username, pin_hash, full_name, role, created_at | `users` | `display_name` for full_name; an Argon2id password hash replaces pin_hash; lockout columns and `must_change_password` added |
 | `audit_logs`: log_id, user_id, action, timestamp | `audit_logs` (seq, ts, event, session_id, user_id, prev_hash, entry_hash) | hash-chain columns added (ADR-004) |
 | `consultation_sessions`: session_id, clinician_id, consultation_date, start_time, end_time, status | `sessions` (session_id, created_at, finalized_by, ...) | **open:** no start_time, end_time or status; created_at stands for the date |
-| `transcripts`: transcript_id, session_id, transcript_text, language, confidence_score, generated_at | the approved text inside `sessions` | **open:** language and confidence_score not stored |
+| `transcripts`: transcript_id, session_id, transcript_text, language, confidence_score, generated_at | the approved text inside `sessions`, with `transcript_language` and `asr_confidence` | no separate table; generated_at not stored |
 | `audio_records`: recording_id, session_id, file_path (NOT NULL), sample_rate, duration_seconds, recorded_at; 1-to-1 | none | audio is not kept by default (ADR-003); the proposal makes a recording mandatory (AMD-23) |
-| `soap_notes`: summary_id, session_id, S, O, A, P, model_version (NOT NULL), generated_at | `notes`, one row of kind `model_draft` and one of kind `clinician_final` | draft and final kept side by side. **open:** `sessions.asr_model` and `sessions.model_version` exist but are not filled yet |
+| `soap_notes`: summary_id, session_id, S, O, A, P, model_version (NOT NULL), generated_at | `notes`, one row of kind `model_draft` and one of kind `clinician_final` | draft and final kept side by side; `sessions.model_version` and `sessions.asr_model` record the models used (empty for a note written by hand or a typed transcript, so not NOT NULL); generated_at not stored |
 | `diagnosis_suggestions`: diagnosis_id, summary_id, diagnosis_text, management_strategy, confidence_rank | `suggestions` (session_id, position, rank, diagnosis, rationale, management, accepted) | rank replaces confidence_rank; rationale and accepted added |
 | All keys are 36-character UUIDv4 | session ids are 32-character hex; composite keys in `notes` and `suggestions` | **open:** align or amend (AMD-34) |
 | "PBKDF2 key derivation" (4.8 text) | Argon2id and an envelope key | AMD-22 |
@@ -116,7 +116,7 @@ How the build meets it today: the same three panels and the SOAP and Diagnostics
 AMD-42); the header shows what the network check found; navigation depends on the role (AMD-41);
 the session id is shown as its first 8 characters, not `SESS-YYYYMMDD-NN`; the speech confidence
 is defined and labelled as a hint (AMD-28); "Export / Save" is a PDF export of one finalized note
-(AMD-36); finalizing saves the session. **open:** the "Model: MedGemma 4B-IT" label is not shown.
+(AMD-36); finalizing saves the session; the panel shows "Model: medgemma:4b (quantized, runs on this computer)".
 
 ## 6. Findings not recorded before this cross-check
 | # | Where in the proposal | What it says | What we found | Status today |
