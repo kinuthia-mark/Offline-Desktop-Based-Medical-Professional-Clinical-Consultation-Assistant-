@@ -192,8 +192,8 @@ These apply to every file, and the tests check them.
 ## 6. What is built so far
 
 **Status: 25 of 29 requirements verified; all 29 are built.** The other four need something
-other than code: a target set from the measurements (NFR-03, NFR-04), measurements with real
-voices (NFR-06), and the System Design and Test Cases documents (NFR-08).
+other than code: a target set from the measurements for speed, memory and speech accuracy
+(NFR-03, NFR-04, NFR-06), and the System Design and Test Cases documents (NFR-08).
 
 Status is kept up to date in [`docs/traceability.md`](docs/traceability.md). A requirement counts
 as **verified** only when its tests pass on Windows in GitHub Actions and any measurement it needs
@@ -220,12 +220,11 @@ is recorded.
 | Evaluation: 8 scripted consultations with key facts and traps, scored end to end | FR-05, NFR-03, NFR-06 | built and run; clinician scoring pending |
 | Windows installer and offline model bundle (Ollama included, pinned and checked), with a self-test | release, AMD-15 | built and installed on the reference PC; a second PC is still to do |
 
-650 tests run on every push, on Windows with Python 3.11 and 3.12, together with
+696 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
 
-**Still to do:** clinicians scoring a set of notes with the scoring sheet in `docs/eval/`,
-recordings with real voices, installing on a second, clean PC, targets for speed and memory, and
-applying the amendments to the proposal document.
+**Still to do:** installing on a second, clean PC, targets for speed, memory and word error
+rate set from the measurements, and applying the amendments to the proposal document.
 
 ---
 
@@ -345,15 +344,43 @@ the clinician gates exist. The automatic flags caught some of these errors (a mi
 merged word, a pronoun) but not most. These first notes came before the prompt was tightened and
 before the scripted evaluation above (ADR-011).
 
+**On public datasets: real voices and clinicians' notes**
+([ADR-016](docs/ADR/016-public-dataset-evaluation.md), [results](docs/eval/public/)).
+Three public datasets, none with real patients' data (they are recorded with actors or read
+aloud): PriMock57 (57 mock GP consultations with audio and the clinician's own note,
+CC BY 4.0), ACI-Bench (dialogues with expert notes, CC BY 4.0) and AfriSpeech-200 (accented
+clinical speech, CC BY-NC-SA 4.0; 631 clips from Kenyan speakers). The datasets are not in
+this repository; only the scores are.
+
+| What | Result |
+|---|---|
+| PriMock57, real voices through the whole system: notes produced | 56 of 57 |
+| ... the clinician's diagnosis among the AI's suggestions | 38 of 48 (79%), 35 as the first |
+| ... the clinician's highlighted points in the note | 54% |
+| ... words wrong in speech-to-text (natural conversation) | 14.6% |
+| ACI-Bench, 40 dialogues: notes produced; ROUGE-1 against the expert note | 40 of 40; 0.43 |
+| AfriSpeech-200, Kenyan speakers: words wrong, Whisper small / medium | 20.0% / 16.2% |
+
+These are after three fixes the first round showed were needed: the instructions told the
+model "exactly these keys" before asking for one more (11 of 48 notes had no suggestions),
+a plan written as a list was rejected, and the retry did not look far enough back for
+repeated sentences. Before them: 48 of 57 notes, and the diagnosis among the suggestions in
+21 of 41. Whisper medium makes a fifth fewer errors on Kenyan accents but is 3.4 times
+slower, so small stays the default. ROUGE counts shared words, not meaning, and the matching
+is automatic; every item is listed in the reports.
+
 ---
 
 ## 8. Known limits
 
 - **One machine.** Every measurement comes from one laptop, usually with only 0.7 to 3.6 GB of free
   memory because other programs were open.
-- **Not validated with clinicians yet.** Note quality has been measured with a structured
-  evaluation on 8 synthetic consultations (ADR-011), not by practising clinicians or with real
-  patients' speech.
+- **Not validated with clinicians or real patients.** Note quality is measured on synthetic
+  consultations (ADR-011) and on public datasets with real voices and clinicians' notes
+  (ADR-016), automatically. Kenyan accents are measured on read speech, not on conversation.
+- **Kenyan-accented speech is harder.** Whisper small gets about 1 word in 5 wrong on Kenyan
+  speakers (AfriSpeech-200), against about 1 in 7 on PriMock57's British voices. The
+  clinician's transcript check is what catches these errors.
 - **English only so far.** Swahili and mixed Swahili-English speech are untested.
 - **The flags are hints.** Advisory flags (numbers that do not match the transcript, merged words,
   pronouns) are simple checks, not a measure of whether a note is faithful.
@@ -450,6 +477,14 @@ python eval/run_eval.py --label my-pc --source script # the labelled script stra
 
 Results, a readable report and a clinician scoring sheet are written to `docs/eval/`.
 
+**Run the public-dataset evaluation** (the datasets are downloaded into the git-ignored
+`datasets/` folder first, see ADR-016; several hours):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File eval\run_public_all.ps1 -Label my-pc
+python eval/run_public.py afrispeech --label my-pc --whisper medium  # compare a model
+```
+
 **Repeat the measurements** on another machine:
 
 ```powershell
@@ -481,6 +516,8 @@ src/clinassist/
   vocabulary.py      common medicine names in Kenyan primary care, and accepted other spellings
   medcheck.py        flags transcript words that look like a misheard medicine name
   evaluation.py      scores a note against a consultation's key facts, denied symptoms and traps
+  public_data.py     reads the public evaluation datasets (PriMock57, AfriSpeech-200, ACI-Bench)
+  public_scoring.py  ROUGE, clinicians' highlights and diagnoses, for the public datasets
   bundle.py          builds and checks the offline model bundle shipped beside the installer
   model_update.py    installs a newer copy of the language model from a checked bundle
   selftest.py        uses every heavy part once, to prove an installed copy works
@@ -551,7 +588,7 @@ code, then the tests and measurements that check that requirement, before moving
 | [`docs/traceability.md`](docs/traceability.md) | every requirement, the branch that builds it, the test that checks it, and its status |
 | [`docs/AMENDMENTS.md`](docs/AMENDMENTS.md) | every change from the approved proposal, with the reason |
 | [`docs/proposal/CROSSCHECK.md`](docs/proposal/CROSSCHECK.md) | how the code maps onto the proposal's use cases, diagrams, schema and wireframe |
-| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012), suggestions and medicine names (013), backup and restore (014), offline model update (015) |
+| [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012), suggestions and medicine names (013), backup and restore (014), offline model update (015), public-dataset evaluation (016) |
 | [`docs/spikes/`](docs/spikes/) | raw measurement results from the reference PC |
 | [`docs/PRIOR_ART.md`](docs/PRIOR_ART.md) | what was reused from the earlier MedgemmaV2 prototype and what was left out |
 

@@ -78,6 +78,9 @@ MESSAGES: dict[str, str] = {
         "Copying the model failed (the drive may be full or was removed). The model in use was "
         "not changed."
     ),
+    # evaluation tools (public datasets)
+    "expected_16bit_mono": "The recording is not 16-bit mono audio, so it cannot be mixed.",
+    "sample_rates_differ": "The two recordings have different sample rates; they cannot be mixed.",
     # database tab
     "unknown_table": "That table is not in the database.",
     # accounts

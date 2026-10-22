@@ -295,3 +295,51 @@ def test_allergies_exposures_and_prevention_are_not_kept_as_suggestions():
         (1, "Urinary tract infection"),
         (2, "Cystitis"),
     ]
+
+
+# ----- long real consultations (ADR-016) -----
+def test_the_format_line_names_every_key_once():
+    """The model must never be told "exactly these keys" and then asked for one more."""
+    from clinassist.adapters.soap_generator import build_messages
+
+    with_s = build_messages("Doctor: hi", include_suggestions=True)[0]["content"]
+    without = build_messages("Doctor: hi", include_suggestions=False)[0]["content"]
+    assert with_s.count("exactly these keys") == 1 and without.count("exactly these keys") == 1
+    line = next(x for x in with_s.splitlines() if "exactly these keys" in x)
+    assert '"suggestions"' in line and '"plan"' in line
+    assert "suggestions" not in without
+
+
+def test_a_section_written_as_a_list_of_points_is_kept():
+    import json
+
+    from clinassist.adapters.soap_generator import parse_draft
+
+    reply = {
+        "subjective": "Cough for 3 days.",
+        "objective": "Not stated",
+        "assessment": "Not stated",
+        "plan": ["Rest and fluids.", "Return if breathless."],
+    }
+    draft = parse_draft(json.dumps(reply), "Cough for 3 days.")
+    assert draft.plan == "Rest and fluids.\nReturn if breathless."
+
+
+@pytest.mark.parametrize("plan", [[], [1, 2], {"a": "b"}, 5])
+def test_other_section_shapes_are_still_refused(plan):
+    import json
+
+    from clinassist.adapters.soap_generator import parse_draft
+
+    reply = {"subjective": "s", "objective": "o", "assessment": "a", "plan": plan}
+    with pytest.raises(GenerationFailed):
+        parse_draft(json.dumps(reply), "s")
+
+
+def test_the_second_attempt_looks_further_back_for_repetition():
+    from clinassist.adapters.soap_generator import SoapGenerator
+
+    gen = SoapGenerator()
+    assert "repeat_last_n" not in gen.options_for(1, words=1500)
+    second = gen.options_for(2, words=1500)
+    assert second["repeat_last_n"] == 256 and second["repeat_penalty"] == 1.1
