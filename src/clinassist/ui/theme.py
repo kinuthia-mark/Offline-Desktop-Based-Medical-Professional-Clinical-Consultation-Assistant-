@@ -22,6 +22,9 @@ this from the colour tables, so a change that breaks it fails a test.
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QGuiApplication
 
@@ -172,19 +175,64 @@ QToolTip {{
 """
 
 
+# The user's choice of look, shown in the header: follow Windows, or always light or dark.
+CHOICES = {"system": "Follow Windows", "light": "Light", "dark": "Dark"}
+APPEARANCE_FILE = "appearance.json"  # beside settings.json in the data folder
+_current = {"choice": "system", "app": None}
+
+
 def is_dark() -> bool:
+    """Whether the dark version is showing: the user's choice, or Windows' own setting."""
+    choice = _current["choice"]
+    if choice != "system":
+        return choice == "dark"
     hints = QGuiApplication.styleHints()
     return hints.colorScheme() == Qt.ColorScheme.Dark
 
 
-def apply_theme(app) -> None:
-    """Style the whole program now, and again whenever Windows switches light or dark mode."""
-
-    def restyle(*_) -> None:
+def _restyle(*_) -> None:
+    app = _current["app"]
+    if app is not None:
         app.setStyleSheet(stylesheet(DARK if is_dark() else LIGHT))
 
-    restyle()
-    QGuiApplication.styleHints().colorSchemeChanged.connect(restyle)
+
+def apply_theme(app, choice: str = "system") -> None:
+    """Style the whole program now, and again whenever Windows switches light or dark mode
+    (which matters only while the choice is "system")."""
+    _current["app"] = app
+    _current["choice"] = choice if choice in CHOICES else "system"
+    _restyle()
+    QGuiApplication.styleHints().colorSchemeChanged.connect(_restyle)
+
+
+def set_choice(choice: str) -> None:
+    """Switch the look at once, for every open window."""
+    if choice not in CHOICES:
+        raise ValueError("unknown_theme")
+    _current["choice"] = choice
+    _restyle()
+
+
+def current_choice() -> str:
+    return _current["choice"]
+
+
+def load_choice(folder) -> str:
+    """The saved choice, or "system" if there is none or the file cannot be read. A look is
+    not worth refusing to start over, so a damaged file is ignored."""
+    try:
+        data = json.loads((Path(folder) / APPEARANCE_FILE).read_text(encoding="utf-8"))
+        choice = data.get("theme", "system")
+    except (OSError, ValueError, AttributeError):
+        return "system"
+    return choice if choice in CHOICES else "system"
+
+
+def save_choice(folder, choice: str) -> None:
+    if choice not in CHOICES:
+        raise ValueError("unknown_theme")
+    path = Path(folder) / APPEARANCE_FILE
+    path.write_text(json.dumps({"theme": choice}) + "\n", encoding="utf-8")
 
 
 def tone(label, name: str) -> None:
