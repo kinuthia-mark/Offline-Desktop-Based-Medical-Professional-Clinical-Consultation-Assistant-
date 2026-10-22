@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
 )
 
 from clinassist.ui.messages import message_for
+from clinassist.ui.theme import tone
 from clinassist.ui.workers import error_code
 
 
@@ -112,13 +113,13 @@ class DatabaseView(QWidget):
         )
         if info["readable_without_key"]:
             self.encryption_label.setText("WARNING: the file starts like an unencrypted database.")
-            self.encryption_label.setStyleSheet("color: #e0484d; font-weight: bold;")
+            tone(self.encryption_label, "error")
         else:
             self.encryption_label.setText(
                 "Encrypted: the file does not start like a normal database, and opening it in a "
                 "database tool without the key fails."
             )
-            self.encryption_label.setStyleSheet("color: #2e9e44; font-weight: bold;")
+            tone(self.encryption_label, "ok")
         self.table_list.setRowCount(len(self._tables))
         for row, t in enumerate(self._tables):
             self.table_list.setItem(row, 0, QTableWidgetItem(t["name"]))

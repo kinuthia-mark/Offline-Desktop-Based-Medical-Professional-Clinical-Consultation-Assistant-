@@ -28,10 +28,9 @@ from PySide6.QtWidgets import (
 )
 
 from clinassist.ui.messages import message_for
-from clinassist.ui.theme import mark
+from clinassist.ui.theme import mark, tone
 from clinassist.ui.workers import error_code
 
-OK, WARN, FAIL = "#2e9e44", "#c98a00", "#e0484d"  # readable on light and dark themes
 BACKUP_REMINDER = timedelta(days=1)  # a clinic should back up at the end of each day
 
 
@@ -55,7 +54,7 @@ class OverviewView(QWidget):
         self.system_label = _label()
         status, text = network
         self.system_label.setText(f"{text}\n{checks_summary}".strip())
-        self.system_label.setStyleSheet(f"color: {_colour(status)};")
+        tone(self.system_label, _tone(status))
         self.accounts_label = _label()
         self.audit_label = _label()
         self.backup_label = _label()
@@ -126,28 +125,28 @@ class OverviewView(QWidget):
         if locked:
             lines.append("Locked after wrong passwords: " + ", ".join(locked))
         self.accounts_label.setText("\n".join(lines))
-        self.accounts_label.setStyleSheet(f"color: {WARN if locked else OK};")
+        tone(self.accounts_label, "warn" if locked else "ok")
 
         if result.ok:
             self.audit_label.setText(f"Intact: all {result.checked} entries check out.")
-            self.audit_label.setStyleSheet(f"color: {OK};")
+            tone(self.audit_label, "ok")
         else:
             self.audit_label.setText(
                 f"Changed at entry {result.first_bad_seq} ({result.problem.replace('_', ' ')})."
             )
-            self.audit_label.setStyleSheet(f"color: {FAIL};")
+            tone(self.audit_label, "error")
 
         last = next((ts for _, ts, event, _, _ in events if event == "backup_created"), None)
         if last is None:
             self.backup_label.setText("No backup has been made yet. Make one today.")
-            self.backup_label.setStyleSheet(f"color: {WARN};")
+            tone(self.backup_label, "warn")
         else:
             age = self._clock() - datetime.fromisoformat(last)
             text = f"Last backup: {last[:16].replace('T', ' ')} UTC"
             if age > BACKUP_REMINDER:
                 text += f"\n{age.days} day(s) ago. Make a new one."
             self.backup_label.setText(text)
-            self.backup_label.setStyleSheet(f"color: {WARN if age > BACKUP_REMINDER else OK};")
+            tone(self.backup_label, "warn" if age > BACKUP_REMINDER else "ok")
 
         self.records_label.setText(
             f"{stored} saved consultation(s), encrypted. Their content is only shown to clinicians."
@@ -160,5 +159,5 @@ def _label() -> QLabel:
     return label
 
 
-def _colour(status: str) -> str:
-    return {"ok": OK, "warn": WARN, "fail": FAIL}.get(status, WARN)
+def _tone(status: str) -> str:
+    return {"ok": "ok", "warn": "warn", "fail": "error"}.get(status, "warn")

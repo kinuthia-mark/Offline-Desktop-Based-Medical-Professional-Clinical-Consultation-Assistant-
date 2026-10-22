@@ -9,8 +9,15 @@ Buttons mark their role with a property instead of their own styles:
     kind = "danger"    an action that throws work away (Discard consultation)
 Everything else is a normal button. `mark(button, kind)` sets it.
 
-Text colours with a meaning (AI-generated amber, error red, network status) stay on the labels
-that use them; they were chosen to be readable on both versions.
+Labels whose colour carries a meaning say which one with `tone(label, name)`:
+    "ai"      AI-generated text (amber)       "error"   something needs attention (red)
+    "ok"      a check passed (green)          "warn"    a check needs a look (amber)
+    "quiet"   secondary information (grey)
+Each has its own shade in each version, so it stays readable on both (ADR-018).
+
+Every text colour here meets WCAG 2.1 AA contrast (at least 4.5:1) on the backgrounds it is
+used on, and the outline of text boxes and buttons at least 3:1; `tests/test_ui.py` measures
+this from the colour tables, so a change that breaks it fails a test.
 """
 
 from __future__ import annotations
@@ -30,6 +37,13 @@ LIGHT = {
     "primary_text": "#ffffff",
     "danger": "#b3261e",
     "selection": "#cfe8e6",
+    "control_border": "#6f8584",  # outline of text boxes and buttons: at least 3:1 (WCAG 1.4.11)
+    "primary_button": "#0f6e6e",  # behind white button text: at least 4.5:1
+    "ai": "#8a5a00",
+    "error": "#b3261e",
+    "ok": "#1e7a33",
+    "warn": "#8a5a00",
+    "quiet": "#5f7070",
 }
 DARK = {
     "bg": "#161d1f",
@@ -43,7 +57,17 @@ DARK = {
     "primary_text": "#ffffff",
     "danger": "#ef6b64",
     "selection": "#264845",
+    "control_border": "#6f8583",
+    # The brand teal is too light behind white text in the dark version (3.3:1), so buttons use
+    # a deeper teal (5.5:1); titles and tabs keep the brand teal, which passes as text.
+    "primary_button": "#1c756b",
+    "ai": "#e0a33a",
+    "error": "#f07a73",
+    "ok": "#4cc26a",
+    "warn": "#e0a33a",
+    "quiet": "#93a6a6",
 }
+TONES = ("ai", "error", "ok", "warn", "quiet")
 
 
 def stylesheet(c: dict) -> str:
@@ -65,15 +89,15 @@ QGroupBox::title {{
 QGroupBox QLabel {{ font-weight: normal; }}
 
 QPushButton {{
-    background: {c["surface"]}; border: 1px solid {c["border"]}; border-radius: 6px;
+    background: {c["surface"]}; border: 1px solid {c["control_border"]}; border-radius: 6px;
     padding: 6px 14px; min-height: 18px;
 }}
 QPushButton:hover {{ border-color: {c["primary"]}; }}
 QPushButton:pressed {{ background: {c["selection"]}; }}
 QPushButton:disabled {{ color: {c["muted"]}; background: {c["bg"]}; border-color: {c["border"]}; }}
 QPushButton[kind="primary"] {{
-    background: {c["primary"]}; color: {c["primary_text"]}; border: 1px solid {c["primary"]};
-    font-weight: 600;
+    background: {c["primary_button"]}; color: {c["primary_text"]};
+    border: 1px solid {c["primary_button"]}; font-weight: 600;
 }}
 QPushButton[kind="primary"]:hover {{ background: {c["primary_hover"]}; }}
 QPushButton[kind="primary"]:disabled {{
@@ -97,12 +121,21 @@ QTabBar::tab:selected {{
 QTabBar::tab:hover:!selected {{ color: {c["text"]}; }}
 
 QPlainTextEdit, QTextEdit, QLineEdit, QListWidget, QTableWidget, QComboBox {{
-    background: {c["input"]}; border: 1px solid {c["border"]}; border-radius: 6px;
+    background: {c["input"]}; border: 1px solid {c["control_border"]}; border-radius: 6px;
     padding: 4px; selection-background-color: {c["selection"]}; selection-color: {c["text"]};
 }}
-QPlainTextEdit:focus, QTextEdit:focus, QLineEdit:focus, QComboBox:focus {{
-    border: 1px solid {c["primary"]};
+QPlainTextEdit:focus, QTextEdit:focus, QLineEdit:focus, QComboBox:focus,
+QListWidget:focus, QTableWidget:focus {{
+    border: 2px solid {c["primary"]};
 }}
+QPushButton:focus {{ border: 2px solid {c["primary"]}; }}
+QPushButton[kind="primary"]:focus {{ border: 2px solid {c["text"]}; }}
+QCheckBox:focus, QTabBar::tab:focus {{ outline: 2px solid {c["primary"]}; }}
+QLabel[tone="ai"] {{ color: {c["ai"]}; font-weight: 600; }}
+QLabel[tone="error"] {{ color: {c["error"]}; }}
+QLabel[tone="ok"] {{ color: {c["ok"]}; }}
+QLabel[tone="warn"] {{ color: {c["warn"]}; }}
+QLabel[tone="quiet"] {{ color: {c["quiet"]}; }}
 QPlainTextEdit[readOnly="true"] {{ background: {c["bg"]}; }}
 QHeaderView::section {{
     background: {c["bg"]}; color: {c["muted"]}; padding: 5px; border: none;
@@ -144,6 +177,16 @@ def apply_theme(app) -> None:
 
     restyle()
     QGuiApplication.styleHints().colorSchemeChanged.connect(restyle)
+
+
+def tone(label, name: str) -> None:
+    """Give a label a meaning colour ("ai", "error", "ok", "warn", "quiet"); "" removes it. The
+    stylesheet picks the shade for the light or dark version."""
+    if name and name not in TONES:
+        raise ValueError("unknown_tone")
+    label.setProperty("tone", name)
+    label.style().unpolish(label)  # re-apply the stylesheet now that the property changed
+    label.style().polish(label)
 
 
 def mark(button, kind: str) -> None:

@@ -40,13 +40,11 @@ from clinassist.controller import State
 from clinassist.domain import Draft, HistoryChecklist, SoapNote
 from clinassist.medcheck import suspect_medicines
 from clinassist.ui.messages import message_for
-from clinassist.ui.theme import mark
+from clinassist.ui.theme import mark, tone
 from clinassist.ui.workers import error_code, run_in_background
 
 AI_LABEL = "AI-generated. Not part of your note unless you copy it."
 # Colours that stay readable on both light and dark Windows themes.
-AI_COLOUR = "#c98a00"  # amber: AI-generated content
-ERROR_COLOUR = "#e0484d"  # red: something needs attention
 # Shown when the model leaves the diagnosis to the clinician, which the prompt asks it to do
 # unless the clinician said one aloud (ADR-002).
 NO_AI_ASSESSMENT = (
@@ -131,6 +129,9 @@ class ConsultationWorkspace(QWidget):
         self.session_label = QLabel()
         self.date_label = QLabel(f"Date: {date.today().isoformat()}")
         self.status_label = QLabel()
+        # The status says what to do next, so it wraps instead of being cut off in a narrow
+        # panel or at a large text size (WCAG 1.4.10).
+        self.status_label.setWordWrap(True)
         self.duration_label = QLabel("Duration: 00:00:00")
         self.level_bar = QProgressBar()
         self.level_bar.setRange(0, 100)
@@ -170,7 +171,7 @@ class ConsultationWorkspace(QWidget):
         # Medicine names that may have been misheard (AMD-38), refreshed as the clinician edits.
         self.medicine_label = QLabel()
         self.medicine_label.setWordWrap(True)
-        self.medicine_label.setStyleSheet(f"color: {AI_COLOUR}; font-weight: bold;")
+        tone(self.medicine_label, "ai")
         self._medicine_timer = QTimer(self)
         self._medicine_timer.setSingleShot(True)
         self._medicine_timer.setInterval(400)
@@ -199,7 +200,7 @@ class ConsultationWorkspace(QWidget):
         self.progress_label = QLabel()
         self.error_label = QLabel()
         self.error_label.setWordWrap(True)
-        self.error_label.setStyleSheet(f"color: {ERROR_COLOUR};")
+        tone(self.error_label, "error")
         self.retry_button = QPushButton("Try the model again")
         self.retry_button.clicked.connect(self.approve_and_draft)
         self.subjective_box = _text_box("Subjective")
@@ -237,7 +238,7 @@ class ConsultationWorkspace(QWidget):
         ai = QGroupBox("Model's assessment")
         ai_layout = QVBoxLayout(ai)
         ai_label = QLabel(AI_LABEL)
-        ai_label.setStyleSheet(f"color: {AI_COLOUR}; font-weight: bold;")
+        tone(ai_label, "ai")
         self.ai_assessment_box.setMinimumHeight(60)
         ai_layout.addWidget(ai_label)
         ai_layout.addWidget(self.ai_assessment_box)
@@ -251,7 +252,7 @@ class ConsultationWorkspace(QWidget):
         diagnostics = QWidget()
         d = QVBoxLayout(diagnostics)
         diagnostics_label = QLabel(AI_LABEL + " Tick the ones you agree with.")
-        diagnostics_label.setStyleSheet(f"color: {AI_COLOUR}; font-weight: bold;")
+        tone(diagnostics_label, "ai")
         diagnostics_label.setWordWrap(True)
         d.addWidget(diagnostics_label)
         d.addWidget(self.suggestions_list)
@@ -266,7 +267,7 @@ class ConsultationWorkspace(QWidget):
         # on this computer.
         model = getattr(getattr(self._services, "config", None), "llm_model", "") or "unknown"
         self.model_label = QLabel(f"Model: {model} (quantized, runs on this computer)")
-        self.model_label.setStyleSheet("color: gray;")
+        tone(self.model_label, "quiet")
         o.addWidget(self.model_label)
         o.addWidget(self.progress_bar)
         o.addWidget(self.progress_label)
