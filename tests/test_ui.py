@@ -1160,3 +1160,44 @@ def test_records_are_newest_first_with_names_and_can_be_searched(qapp, services)
     view.search.setText(newest[:6])
     hidden = [view.session_table.isRowHidden(r) for r in range(2)]
     assert hidden == [False, True]
+
+
+# ----- login and logout notices -----
+def test_login_shows_who_is_logged_in_in_the_corner_and_the_header(qapp, services):
+    doctor = _clinician(services)
+    window = MainWindow(services, doctor, login_again=lambda n: None)
+    window.resize(1200, 800)
+    window.show()
+    assert window.user_label.text() == "Logged in as dr.one (clinician)"
+    assert window.toast.isVisible() and window.toast.text() == "Logged in as dr.one (clinician)"
+    # bottom-right corner, inside the window
+    assert window.toast.x() > window.width() / 2 and window.toast.y() > window.height() / 2
+    from PySide6.QtCore import Qt
+
+    assert window.toast.testAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+    window._toast_timer.timeout.emit()  # the timer ran out
+    assert not window.toast.isVisible()
+    window.close()
+
+
+def test_logging_out_says_so_in_the_login_window(qapp, services):
+    from clinassist.ui.dialogs import LoginDialog
+
+    doctor = _clinician(services)
+    notices = []
+    window = MainWindow(services, doctor, login_again=lambda n: notices.append(n))
+    window.log_out()
+    assert notices == ["dr.one logged out. Log in to continue."]
+    dialog = LoginDialog(lambda u, p: None, notices[0])
+    assert dialog.notice.text() == notices[0] and not dialog.notice.isHidden()
+    assert dialog.message.text() == ""  # typing problems are shown apart from the notice
+    assert LoginDialog(lambda u, p: None).notice.isHidden()
+
+
+def test_switching_user_greets_the_new_user(qapp, services):
+    doctor = _clinician(services)
+    admin = services.auth.login("admin", "admin synthetic password 1")
+    window = MainWindow(services, doctor, login_again=lambda n: admin)
+    window.log_out()
+    assert window.toast.text() == "Logged in as Synthetic Admin (admin)"
+    window.close()

@@ -238,13 +238,20 @@ class LoginDialog(QDialog):
         self.session = None
         self.username = QLineEdit()
         self.password = _password_field()
-        self.message = QLabel(notice)
+        # A notice from the program (logged out, timed out) stands out at the top; problems
+        # with what was typed appear at the bottom.
+        self.notice = QLabel(notice)
+        self.notice.setObjectName("notice")
+        self.notice.setWordWrap(True)
+        self.notice.setVisible(bool(notice))
+        self.message = QLabel()
         self.message.setWordWrap(True)
         button = QPushButton("Log in")
         mark(button, "primary")
         button.clicked.connect(self.submit)
         self.password.returnPressed.connect(self.submit)
         form = QFormLayout(self)
+        form.addRow(self.notice)
         form.addRow("Username", self.username)
         form.addRow("Password", self.password)
         form.addRow(button)
