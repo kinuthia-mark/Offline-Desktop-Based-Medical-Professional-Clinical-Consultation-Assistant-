@@ -9,6 +9,9 @@ The tables in sections 3, 4 and 6 now describe the build as it is today: all 29 
 built and 25 are verified (`../traceability.md`). The original check of 2026-10-02 is kept in
 sections 0, 1, 2 and 5. Gaps that remain are marked **open** below.
 
+## Update, 2026-10-23
+The final report draft redraws Figures 2.1, 3.1, 3.2 and 4.1 to 4.7 and the Gantt chart in draw.io from the build (`../design/`). Figure 4.2 uses the implemented class names (sections 3 and 6 below), Figure 4.3 shows the guard, the gates, the failure path and the save, and Figure 4.7 shows the implemented tables, so AMD-24 and AMD-34 are applied in the document. F14 is settled in the text: finalizing saves, and closing an unsaved consultation asks before discarding it (use case UC-08). The wireframe (Figure 4.8) is kept as approved.
+
 ## 0. How this was checked, and what was not
 - Read: every chapter, the references, the abbreviations, the abstract.
 - Looked at as images: Figure 3.2 (architecture), 4.1 (use cases), 4.2 (class diagram), 4.3
@@ -134,7 +137,7 @@ is defined and labelled as a hint (AMD-28); "Export / Save" is a PDF export of o
 | F11 | Figure 4.5 | The LLM engine sits inside the application boundary | Ollama is a separate process on 127.0.0.1:11434 | firewall rules cover it (AMD-10, ADR-010) |
 | F12 | wireframe | "Lang: English (en)" | Swahili and mixed speech not covered | **open:** untested (AMD-35) |
 | F13 | wireframe | "Export / Save" | writing outside the vault leaves the encryption | one finalized note as a PDF, audited (AMD-36) |
-| F14 | UC-06, Figure 4.3 | Saving is optional | finalizing saves; not saving means discarding | **open:** confirm in the text (AMD-24) |
+| F14 | UC-06, Figure 4.3 | Saving is optional | finalizing saves; not saving means discarding | settled in the final report text (UC-08, AMD-24) |
 | F15 | 3.5, Figure 4.5 | GUI "Tkinter or PyQt6" | | PySide6 (AMD-09) |
 | F16 | 2.4.2 | local models run on laptops "with 16 GB of RAM" | reference PC has 8 GB | measured on 8 GB (AMD-33) |
 | F17 | References | Missing and duplicated references | | **open:** at the final update (AMD-13) |
