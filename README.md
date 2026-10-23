@@ -606,6 +606,7 @@ code, then the tests and measurements that check that requirement, before moving
 | [`docs/AMENDMENTS.md`](docs/AMENDMENTS.md) | every change from the approved proposal, with the reason |
 | [`docs/proposal/CROSSCHECK.md`](docs/proposal/CROSSCHECK.md) | how the code maps onto the proposal's use cases, diagrams, schema and wireframe |
 | [`docs/ADR/`](docs/ADR/) | decisions: storage (001), model and runtime (002), keys and audio (003), login and audit (004), input guard (005), microphone (006), speech-to-text (007), wiring and startup checks (008), desktop interface (009), air gap (010), evaluation (011), installer (012), suggestions and medicine names (013), backup and restore (014), offline model update (015), public-dataset evaluation (016), targets for speed, memory and speech accuracy (017), accessibility (018), system reports (019) |
+| [`docs/design/`](docs/design/) | the report's design figures as draw.io files, drawn from the code, the schema and the repository history: conceptual framework, V-Model, architecture, use cases, classes, sequence, system sequence, deployment, entity-relationship diagram, schema and Gantt chart; open them at app.diagrams.net |
 | [`docs/spikes/`](docs/spikes/) | raw measurement results from the reference PC |
 | [`docs/PRIOR_ART.md`](docs/PRIOR_ART.md) | what was reused from the earlier MedgemmaV2 prototype and what was left out |
 
