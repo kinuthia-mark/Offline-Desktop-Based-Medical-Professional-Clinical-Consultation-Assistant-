@@ -110,7 +110,7 @@ Left to right: the recording controls, the transcript the clinician corrects and
 drafted note. A clinician who does not want to record can choose "Type the transcript instead" and
 type it; the typed text goes through the same approval and checks as a spoken one (AMD-39). The
 clinician's own assessment is separate from the model's text, which is labelled as AI-generated. "Finalize and save" stays disabled until the assessment is written and all three
-history boxes are ticked; here none are ticked yet. The main step on each panel is shown in the
+history boxes are ticked; here one is ticked and two are still to do. The main step on each panel is shown in the
 brand colour, and the program follows the Windows light or dark setting.
 
 Administrators land on their own overview instead (AMD-41), and never see patient notes:
@@ -221,7 +221,7 @@ is recorded.
 | Evaluation: 8 scripted consultations with key facts and traps, scored end to end | FR-05, NFR-03, NFR-06 | built and run; public datasets with clinicians' notes replace clinician scoring (ADR-016) |
 | Windows installer and offline model bundle (Ollama included, pinned and checked), with a self-test | release, AMD-15 | built and installed on the reference PC; a second PC is still to do |
 
-729 tests run on every push, on Windows with Python 3.11 and 3.12, together with
+731 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
 
 **Still to do:** installing on a second, clean PC, and applying the amendments to the
