@@ -432,6 +432,9 @@ powershell -ExecutionPolicy Bypass -File release\build_release.ps1
 
 It runs the tests, packages the program, builds and checks the bundle, self-tests the built
 program and compiles the installer, stopping at the first failure. Output: `build\`.
+The last build, on 29 October 2026 from `main`, ran 731 tests (730 passed, the microphone test
+skipped), passed the bundle checks and the self-test, and produced a 113 MB installer beside a
+5.1 GB bundle. Copy both together; the installer will not run without the bundle.
 
 **From source:**
 
