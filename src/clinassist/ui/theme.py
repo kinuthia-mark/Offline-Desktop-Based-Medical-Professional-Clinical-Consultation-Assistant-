@@ -142,6 +142,20 @@ QListWidget:focus, QTableWidget:focus {{
 QPushButton:focus {{ border: 2px solid {c["primary"]}; }}
 QPushButton[kind="primary"]:focus {{ border: 2px solid {c["text"]}; }}
 QCheckBox:focus, QTabBar::tab:focus {{ outline: 2px solid {c["primary"]}; }}
+/* The history checklist is the second clinician gate, so its boxes must be easy to see: the
+   default box was a pale outline on the panel. The outline uses the control colour (at least
+   3:1, WCAG 1.4.11) and a ticked box fills with the brand teal, which stays at least 3:1 against
+   the panel in both versions (the darker button teal does not in the dark one). */
+QCheckBox {{ spacing: 8px; }}
+QCheckBox::indicator {{
+    width: 16px; height: 16px; border: 2px solid {c["control_border"]}; border-radius: 3px;
+    background: {c["input"]};
+}}
+QCheckBox::indicator:hover {{ border-color: {c["primary"]}; }}
+QCheckBox::indicator:checked {{
+    background: {c["primary"]}; border-color: {c["primary"]};
+}}
+QCheckBox::indicator:disabled {{ border-color: {c["border"]}; background: {c["bg"]}; }}
 QLabel[tone="ai"] {{ color: {c["ai"]}; font-weight: 600; }}
 QLabel[tone="error"] {{ color: {c["error"]}; }}
 QLabel[tone="ok"] {{ color: {c["ok"]}; }}

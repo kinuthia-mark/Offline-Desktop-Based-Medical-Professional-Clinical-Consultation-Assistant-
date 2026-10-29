@@ -905,6 +905,20 @@ def test_theme_has_a_light_and_a_dark_version_with_the_brand_colour():
         assert "#appHeader" in sheet
 
 
+@pytest.mark.parametrize("name", ["LIGHT", "DARK"])
+def test_checkboxes_have_a_visible_outline_and_a_filled_tick(name):
+    """The history checklist (gate 2) must be visible: an outline of at least 3:1 against the
+    panel and the box, and a ticked box filled with a colour that stands out from the panel."""
+    from clinassist.ui import theme
+
+    c = getattr(theme, name)
+    sheet = theme.stylesheet(c)
+    assert "QCheckBox::indicator" in sheet and "QCheckBox::indicator:checked" in sheet
+    for background in (c["surface"], c["input"]):
+        assert _contrast(c["control_border"], background) >= 3.0
+    assert _contrast(c["primary"], c["surface"]) >= 3.0
+
+
 def test_the_main_step_on_each_screen_is_marked(qapp, services):
     ws = workspace(services)
     for button in (ws.start_button, ws.approve_button, ws.finalize_button):
