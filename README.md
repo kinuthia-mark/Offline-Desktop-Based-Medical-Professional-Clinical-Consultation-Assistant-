@@ -193,7 +193,8 @@ These apply to every file, and the tests check them.
 
 **Status: 27 of 29 requirements verified; all 29 are built.** The other two: speech accuracy
 on Kenyan-accented clinical speech misses its target with the default model (NFR-06, below),
-and the System Design and Test Cases documents come at the final update (NFR-08).
+and the System Design and Test Cases documents, drafted as Chapters 4 and 5 of the final report,
+count as verified once the report is submitted (NFR-08).
 
 Status is kept up to date in [`docs/traceability.md`](docs/traceability.md). A requirement counts
 as **verified** only when its tests pass on Windows in GitHub Actions and any measurement it needs
@@ -224,8 +225,9 @@ is recorded.
 731 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
 
-**Still to do:** installing on a second, clean PC, and applying the amendments to the
-proposal document with the System Design and Test Cases documents.
+**Still to do:** installing on a second, clean PC, and submitting the final report. The report
+applies the amendments and holds the System Design and Test Cases documents (Chapters 4 and 5);
+its Turnitin page and the author's read-through are still to come.
 
 ---
 
