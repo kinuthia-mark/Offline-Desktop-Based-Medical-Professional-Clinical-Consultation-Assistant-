@@ -288,6 +288,8 @@ def test_admin_screen_checks_the_log_and_manages_accounts(qapp, services):
     view = AdminView(services.auditor, services.auth, admin_session=lambda: session)
     view.reload()
     assert view.table.rowCount() >= 2  # first_admin_created, login_succeeded
+    # The audit log shows who acted by username; the stored entries hold only ids.
+    assert view.table.item(0, 4).text() == "admin"
     view.verify()
     assert view.verify_result.text().startswith("The log is intact")
     view.username.setText("dr.wanjiru")
@@ -305,6 +307,9 @@ def test_readiness_dialog_blocks_start_on_a_failure(qapp):
     failed = ok + [Check("speech_model", "fail", "whisper_missing_files")]
     assert ReadinessDialog(ok, True).continue_button.isEnabled()
     assert not ReadinessDialog(failed, False).continue_button.isEnabled()
+    # Whole sentences wrap instead of being cut off behind a sideways scroll bar (hand test).
+    dialog = ReadinessDialog(failed, False)
+    assert dialog.items.wordWrap() and dialog.minimumWidth() >= 560
 
 
 def test_recovery_code_needs_a_tick_before_closing(qapp):
@@ -435,6 +440,14 @@ def test_suggestions_fill_the_diagnostics_tab_and_the_ai_impression(qapp, servic
     record_and_draft(ws)
     assert ws.suggestions_list.count() == 2
     assert ws.tabs.tabText(1) == "Diagnostics (2)"
+    # Each suggestion wraps, with its reason and management on their own lines (hand test).
+    assert ws.suggestions_list.wordWrap()
+    first = ws.suggestions_list.item(0).text()
+    assert first.splitlines() == [
+        "1. Malaria",
+        "Reason: fever",
+        "Management: test, treat if positive",
+    ]
     # No diagnosis was said aloud, so the box shows the AI's own impression, not "not stated".
     shown = ws.ai_assessment_box.toPlainText()
     assert shown.startswith("AI impression") and "Most likely: Malaria" in shown
@@ -1239,6 +1252,8 @@ def test_records_are_newest_first_with_names_and_can_be_searched(qapp, services)
     view = RecordsView(services.store, name_of=lambda uid: "Dr Synthetic")
     view.reload()
     assert view.session_table.rowCount() == 2
+    # A long message (a saved file's path) wraps instead of widening the window (hand test).
+    assert view.message.wordWrap()
     assert view.session_table.item(0, 1).text() == "Dr Synthetic"
     newest = services.store.summaries()[0][0]
     assert view.session_table.item(0, 2).text() == newest[:8].upper()

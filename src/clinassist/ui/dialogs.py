@@ -46,6 +46,9 @@ class ReadinessDialog(QDialog):
         self.setWindowTitle("Checking this computer")
         self._recheck, self._fix_network = recheck, fix_network
         self.items = QListWidget()
+        # Whole sentences, not cut off mid-word behind a sideways scroll bar.
+        self.items.setWordWrap(True)
+        self.setMinimumWidth(560)
         self.note = QLabel()
         self.note.setWordWrap(True)
         self.fix_button = QPushButton("Turn on offline protection")

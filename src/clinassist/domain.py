@@ -80,6 +80,13 @@ class Draft:
     source: str = "model"  # "model" or "manual"
     flags: tuple[str, ...] = ()  # advisory checks for the clinician to look at; never blocking
 
+    @property
+    def has_ai_assessment(self) -> bool:
+        """Whether the model wrote an assessment. It is told to write 'not stated' when the
+        clinician gave no diagnosis, which counts as none."""
+        stated = self.ai_assessment.strip()
+        return bool(stated) and stated.lower().rstrip(".") != "not stated"
+
     def clinician_scaffold(self) -> SoapNote:
         """Starting point for the clinician's note. The assessment is deliberately blank."""
         # Subjective, objective and plan are copied in for the clinician to edit. The

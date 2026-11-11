@@ -62,9 +62,8 @@ def ai_impression(draft: Draft) -> str:
     note's assessment stays empty (the model must not put a diagnosis nobody made into the note,
     ADR-002), and the box shows the model's own impression from its suggestions instead, so the
     clinician can see what the AI thinks without it entering the note unless they copy it."""
-    stated = draft.ai_assessment.strip()
-    if stated and stated.lower().rstrip(".") != "not stated":
-        return stated
+    if draft.has_ai_assessment:
+        return draft.ai_assessment.strip()
     if not draft.suggestions:
         return ""
     top, others = draft.suggestions[0], draft.suggestions[1:]
@@ -254,6 +253,8 @@ class ConsultationWorkspace(QWidget):
         soap.setWidget(soap_inner)
 
         self.suggestions_list = QListWidget()
+        # Each suggestion wraps, so its reason and management are readable without side-scrolling.
+        self.suggestions_list.setWordWrap(True)
         diagnostics = QWidget()
         d = QVBoxLayout(diagnostics)
         diagnostics_label = QLabel(AI_LABEL + " Tick the ones you agree with.")
@@ -559,7 +560,9 @@ class ConsultationWorkspace(QWidget):
             )
         self.suggestions_list.clear()
         for s in draft.suggestions:
-            item = QListWidgetItem(f"{s.rank}. {s.diagnosis}  ({s.rationale}; {s.management})")
+            item = QListWidgetItem(
+                f"{s.rank}. {s.diagnosis}\nReason: {s.rationale}\nManagement: {s.management}"
+            )
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             item.setCheckState(Qt.CheckState.Unchecked)
             self.suggestions_list.addItem(item)

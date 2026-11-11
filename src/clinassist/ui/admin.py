@@ -113,6 +113,7 @@ class AdminView(QWidget):
         self.users.horizontalHeader().setStretchLastSection(True)
         self.users.setMinimumHeight(150)  # the list must stay readable however full the column
         self._user_ids: list[str] = []
+        self._usernames: dict[str, str] = {}  # user id -> username, for the audit log
         disable = QPushButton("Turn account off")
         enable = QPushButton("Turn account on")
         unlock = QPushButton("Unlock after wrong passwords")
@@ -221,7 +222,10 @@ class AdminView(QWidget):
         events = self._auditor.events(500)
         self.table.setRowCount(len(events))
         for row, (seq, ts, event, session_id, user_id) in enumerate(events):
-            for col, value in enumerate((seq, ts, event, session_id, user_id or "")):
+            # The audit log stores ids only (no names in the hash chain); the screen shows the
+            # username so an administrator can see who did what.
+            user = self._usernames.get(user_id, user_id) if user_id else ""
+            for col, value in enumerate((seq, ts, event, session_id, user)):
                 self.table.setItem(row, col, QTableWidgetItem(str(value)))
 
     def verify(self) -> None:
@@ -246,6 +250,7 @@ class AdminView(QWidget):
             self.account_message.setText(message_for(error_code(exc)))
             return
         self._user_ids = [u["user_id"] for u in users]
+        self._usernames = {u["user_id"]: u["username"] for u in users}
         self.users.setRowCount(len(users))
         for row, u in enumerate(users):
             values = (

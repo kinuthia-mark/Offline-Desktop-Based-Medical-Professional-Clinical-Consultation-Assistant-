@@ -235,7 +235,9 @@ class ConsultationController:
 
         # Record where the assessment came from, so a later reader can tell whether the
         # clinician wrote it, edited the model's text, or accepted the model's words unchanged.
-        if self._draft.source == "manual":
+        # A model draft with no assessment of its own (empty, or "not stated") leaves nothing to
+        # edit, so the clinician's text is their own writing, the same as a note written by hand.
+        if self._draft.source == "manual" or not self._draft.has_ai_assessment:
             origin = "clinician_manual"
         elif final_note.assessment.strip() == self._draft.ai_assessment.strip():
             origin = "ai_text_accepted_verbatim"
