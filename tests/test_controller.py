@@ -329,6 +329,17 @@ def test_assessment_origin_is_recorded(assessment, expected):
     assert record.assessment_origin == expected
 
 
+@pytest.mark.parametrize("model_assessment", ["", "not stated", "Not stated."])
+def test_an_assessment_written_when_the_model_gave_none_is_the_clinicians(model_assessment):
+    """Seen in a hand test: the model wrote 'not stated', the clinician wrote their own, and the
+    record said 'clinician_edited'. There was nothing to edit."""
+    rig = Rig()
+    rig.generator.draft = Draft("s", "o", "p", ai_assessment=model_assessment)
+    to_drafted(rig.controller)
+    record = rig.controller.finalize(SoapNote("s", "o", "Pneumonia.", "p"), "dr1", FULL)
+    assert record.assessment_origin == "clinician_manual"
+
+
 def test_accepted_suggestions_are_validated_and_stored():
     rig = Rig()
     rig.generator.draft = Draft(

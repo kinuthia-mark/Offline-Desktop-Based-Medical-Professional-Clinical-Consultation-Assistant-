@@ -123,6 +123,9 @@ class RecordsView(QWidget):
         self.detail.setReadOnly(True)
         self.detail.setPlaceholderText("Choose a consultation on the left to read it here.")
         self.message = QLabel()
+        # Wrap long messages (a saved file's full path): unwrapped, they widened the whole window
+        # past the screen edge.
+        self.message.setWordWrap(True)
         refresh = QPushButton("Refresh")
         refresh.clicked.connect(self.reload)
         left = QWidget()
