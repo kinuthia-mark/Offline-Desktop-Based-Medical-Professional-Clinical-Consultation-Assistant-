@@ -80,7 +80,8 @@ The prompt change is the smallest that removes the contradiction; ADR-013 showed
 prompt made the suggestions worse.
 
 ## Round 2 results (after the changes)
-The same datasets on the same PC, with the three changes above (`*-mark-pc-v2*`):
+The same datasets on the same PC, with the three changes above (`*-mark-pc-v2*`), run by
+`eval/run_public_v2.ps1`, which also runs Whisper medium on the Kenyan clips:
 
 | Measure | Round 1 | Round 2 |
 |---|---|---|

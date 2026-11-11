@@ -4,7 +4,7 @@
 - Date: 2026-10-04
 - Requirement IDs: FR-07, NFR-05
 - Evidence: `tests/test_crypto.py`, `tests/test_vault.py`, `tests/test_store.py`,
-  `tests/test_audio_store.py`, `docs/spikes/vault-timing-mark-pc.json`, `spikes/vault_timing.py`
+  `docs/spikes/vault-timing-mark-pc.json`, `spikes/vault_timing.py`
 
 ## Context
 ADR-001 confirmed that SQLCipher, Argon2id and AES-GCM work on the reference PC and left five
@@ -29,7 +29,7 @@ Option 2.
   each slot (passphrase, recovery) a 16-byte salt and the wrapped master key. Each wrap binds its
   slot name as associated data.
 - **Sub-keys** with HKDF-SHA256: `db` keys SQLCipher (as a raw key, so SQLCipher's own PBKDF2 is
-  not run a second time); `audio` keys the audio files.
+  not run a second time). (An `audio` sub-key for audio files was removed with the audio store.)
 - **Argon2id default**: time 3, memory 128 MiB, parallelism 2, stored in each keyring so later
   vaults can use stronger settings without breaking older ones. This is above RFC 9106's second
   recommended option (time 3, 64 MiB) in memory.
@@ -44,9 +44,10 @@ Option 2.
   transaction. CHECK constraints repeat the clinician gates (history confirmed, non-blank
   clinician assessment, allowed assessment origins), so a bug that bypassed the controller could
   still not store an unconfirmed note. The model draft and the clinician's note are separate rows.
-- **Audio: not kept by default.** When retention is switched on, each recording is one
-  AES-256-GCM file bound to its session id (a file renamed to another session fails to decrypt).
-  Files stay outside the database because recordings are many megabytes.
+- **Audio: never stored.** The recording stays in memory until it is transcribed, then is
+  dropped. An optional encrypted audio store (one AES-256-GCM file per session, bound to its
+  session id) was built and tested but never connected to the app, so it was removed on
+  2026-11-11 (see the update at the end). Only the clinician-approved transcript is kept.
 
 ## Evidence (reference PC: Ryzen 5 5625U, 8 GB RAM, Windows, Python 3.11.9; about 1 GB free)
 | Measurement (default settings, 7 runs) | Result |
@@ -72,8 +73,6 @@ retention on by default; audio not bound to its session.
   only as strong as the passphrase, which is why the policy below matters.
 - **Memory.** While unlocked, keys and decrypted rows are in process memory. Python cannot
   reliably wipe them. `lock()` drops the references only.
-- **Deletion.** Deleting an audio file is an ordinary file delete; the ciphertext can remain on
-  disk until overwritten, but is unreadable without the key.
 - **No lockout on the vault itself.** Attempt counting needs a store that exists before unlock;
   login lockout is part of `feature/auth-audit` (FR-08). An attacker with the files bypasses any
   application lockout anyway, so the passphrase strength is the real control.
@@ -97,3 +96,10 @@ retention on by default; audio not bound to its session.
 - AMD-12 partly applied in code; AMD-22 (recovery code) and AMD-23 (audio off by default) added.
 - Proposal section 4.8: replace `pin_hash` with the keyring description; the audio path column is
   replaced by an encrypted file named by session id.
+
+## Update, 2026-11-11: audio store removed
+The audio store (`adapters/audio_store.py`), the vault's audio key and the `keep_audio` setting
+were removed. Nothing in the app created the store, so the setting was accepted and then ignored,
+which the project's own rule on honest claims does not allow. Not storing audio is also the
+smaller risk: the transcript the clinician approves is the record. A settings file that still
+names `keep_audio` is refused with `unknown_setting:keep_audio`, like any other unknown setting.

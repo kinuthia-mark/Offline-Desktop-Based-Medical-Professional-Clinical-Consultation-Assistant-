@@ -184,8 +184,8 @@ class Vault:
         or replace a file with an open handle)."""
         from sqlcipher3 import dbapi2
 
-        # The database has its own key, derived from the master key, so the audio key and the
-        # database key are never the same.
+        # The database has its own key, derived from the master key, so the master key itself
+        # never serves as a database key.
         key = crypto.subkey(self._require_master(), "db")
         conn = dbapi2.connect(str(self._dir / DATABASE))
         # "PRAGMA key" hands SQLCipher the key; every page of the file is decrypted with it.
@@ -197,10 +197,6 @@ class Vault:
             yield conn
         finally:
             conn.close()
-
-    @property
-    def audio_key(self) -> bytes:
-        return crypto.subkey(self._require_master(), "audio")
 
     @property
     def directory(self) -> Path:
@@ -226,7 +222,7 @@ class Vault:
         self._set_passphrase(new)
 
     def lock(self) -> None:
-        # Forget the master key. Every later connect() or audio_key use raises vault_locked.
+        # Forget the master key. Every later connect() raises vault_locked.
         self._master = None
 
     @property

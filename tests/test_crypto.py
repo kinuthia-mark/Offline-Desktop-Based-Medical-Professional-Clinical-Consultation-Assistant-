@@ -62,9 +62,9 @@ def test_unwrap_rejects_anything_altered(change):
 
 def test_subkeys_differ_by_purpose_and_from_the_master():
     master = crypto.new_master_key()
-    db, audio = crypto.subkey(master, "db"), crypto.subkey(master, "audio")
-    assert len(db) == len(audio) == 32
-    assert len({db, audio, master}) == 3
+    db, other = crypto.subkey(master, "db"), crypto.subkey(master, "other")
+    assert len(db) == len(other) == 32
+    assert len({db, other, master}) == 3
     assert db == crypto.subkey(master, "db")
 
 

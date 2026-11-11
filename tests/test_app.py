@@ -173,7 +173,7 @@ def test_wav_file_recorder_returns_the_file(tmp_path):
 def test_missing_settings_file_means_defaults(tmp_path):
     config = AppConfig.load(tmp_path / "settings.json")
     assert config == AppConfig()
-    assert config.whisper_model == "small" and config.keep_audio is False
+    assert config.whisper_model == "small" and config.ai_suggestions is True
 
 
 def test_settings_file_overrides_and_round_trips(tmp_path):
@@ -190,9 +190,10 @@ def test_settings_file_overrides_and_round_trips(tmp_path):
     [
         ("not json", "settings_unreadable"),
         ("[1, 2]", "settings_unreadable"),
-        ('{"keep_audios": true}', "unknown_setting:keep_audios"),  # a typo must not be ignored
-        ('{"keep_audio": "no"}', "wrong_type:keep_audio"),  # "no" is not False
-        ('{"keep_audio": 0}', "wrong_type:keep_audio"),
+        ('{"ai_suggestion": true}', "unknown_setting:ai_suggestion"),  # a typo must not be ignored
+        ('{"keep_audio": false}', "unknown_setting:keep_audio"),  # removed: audio is never kept
+        ('{"ai_suggestions": "no"}', "wrong_type:ai_suggestions"),  # "no" is not False
+        ('{"ai_suggestions": 0}', "wrong_type:ai_suggestions"),
         ('{"microphone": "1"}', "wrong_type:microphone"),
         ('{"whisper_model": "large"}', "unknown_whisper_model"),
     ],

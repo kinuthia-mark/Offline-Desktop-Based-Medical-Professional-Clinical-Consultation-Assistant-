@@ -1,8 +1,8 @@
 """Microphone recorder (FR-01, UC-01): implements the controller's Recorder port.
 
 Audio is captured at 16 kHz, mono, 16-bit, which is what Whisper works with, and kept in memory
-only. Nothing is written to disk here; keeping a recording is a separate, optional step that is
-off by default (adapters/audio_store.py, ADR-003). `stop()` returns the recording as WAV bytes,
+only. Nothing is written to disk: the recording is transcribed and then dropped, and raw audio is
+never stored (ADR-003, AMD-23). `stop()` returns the recording as WAV bytes,
 so the next step can read the format from the data itself.
 
 Errors are short codes for the interface to explain:
