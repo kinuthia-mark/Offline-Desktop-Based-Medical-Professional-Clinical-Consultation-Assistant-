@@ -307,6 +307,16 @@ def test_request_asks_windows_to_run_as_administrator():
     assert request_firewall_rules(lambda *a: 5) is False  # 5: access denied / user said No
 
 
+def test_turning_protection_off_asks_windows_to_remove_the_rules():
+    from clinassist.airgap import elevation_command, firewall_script, request_firewall_rules
+
+    program, args = elevation_command(remove=True)
+    assert program == "powershell.exe" and args.endswith(f'-File "{firewall_script()}" -Remove')
+    calls = []
+    assert request_firewall_rules(lambda *a: calls.append(a[3]) or 42, remove=True) is True
+    assert calls == [args]
+
+
 def test_a_rule_only_counts_for_the_program_it_blocks():
     """A rule for python.exe must not make ClinAssist.exe look protected (found on the first
     packaged build)."""

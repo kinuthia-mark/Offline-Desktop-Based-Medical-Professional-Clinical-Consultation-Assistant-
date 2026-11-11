@@ -895,6 +895,79 @@ def test_only_an_admin_can_update_the_model(qapp, services):
     assert models.applied == [] and view.update_message.text() == MESSAGES["forbidden"]
 
 
+# ----- offline protection off and on (app.OfflineProtection) -----
+class _FakeRules:
+    def __init__(self, on=True):
+        self.on, self.requests = on, []
+
+    def read(self):
+        return ("ClinAssist block outbound - python.exe",) if self.on else ()
+
+    def request(self, remove):
+        self.requests.append("remove" if remove else "apply")
+        return True
+
+
+def _protection_view(services, session, rules, confirm=lambda q: True):
+    from clinassist.app import OfflineProtection
+
+    protection = OfflineProtection(services.auditor, request=rules.request, read_rules=rules.read)
+    view = AdminView(
+        services.auditor,
+        services.auth,
+        admin_session=lambda: session,
+        protection=protection,
+        confirm=confirm,
+    )
+    view.reload()
+    wait_until(lambda: view.protection_button.text() != "")
+    return view
+
+
+def test_admin_turns_offline_protection_off_after_confirming_and_it_is_audited(qapp, services):
+    admin = _admin(services)
+    rules = _FakeRules(on=True)
+    questions = []
+    view = _protection_view(services, admin, rules, confirm=lambda q: questions.append(q) or True)
+    assert view.protection_button.text() == "Turn offline protection off..."
+    view.protection_button.click()
+    assert rules.requests == ["remove"] and "internet" in questions[0]
+    events = [e[2] for e in services.auditor.events(5)]
+    assert "offline_protection_off_requested" in events
+
+
+def test_a_refused_switch_is_audited_as_refused(qapp, services):
+    from clinassist.app import OfflineProtection
+
+    protection = OfflineProtection(services.auditor, request=lambda remove: False)
+    assert protection.switch(False, "admin-id") is False
+    assert services.auditor.events(1)[0][2] == "offline_protection_off_refused"
+
+
+def test_turning_protection_off_stops_when_declined(qapp, services):
+    rules = _FakeRules(on=True)
+    view = _protection_view(services, _admin(services), rules, confirm=lambda q: False)
+    view.protection_button.click()
+    assert rules.requests == []
+
+
+def test_admin_turns_offline_protection_back_on_without_a_question(qapp, services):
+    rules = _FakeRules(on=False)
+    view = _protection_view(services, _admin(services), rules, confirm=lambda q: False)
+    assert "Status: off" in view.protection_status.text()
+    view.protection_button.click()
+    assert rules.requests == ["apply"]
+
+
+def test_only_an_admin_can_switch_offline_protection(qapp, services):
+    session = _admin(services)
+    session.role = "clinician"
+    rules = _FakeRules(on=True)
+    view = _protection_view(services, session, rules)
+    view.protection_button.click()
+    assert rules.requests == [] and view.protection_message.text() == MESSAGES["forbidden"]
+
+
 # ----- the look (ui/theme.py) -----
 def test_theme_has_a_light_and_a_dark_version_with_the_brand_colour():
     from clinassist.ui.theme import DARK, LIGHT, stylesheet

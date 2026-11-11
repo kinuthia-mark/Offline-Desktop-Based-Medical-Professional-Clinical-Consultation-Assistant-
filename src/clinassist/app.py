@@ -266,6 +266,33 @@ class ProgressRelay:
             self.listener(pieces)
 
 
+class OfflineProtection:
+    """The Windows Firewall rules, switched off and on from the admin screen (NFR-01, ADR-010).
+
+    Turning them off lets other programs on the PC use the internet, for example to install
+    software. The application's own network guard is not affected, so the app stays offline
+    either way. Each request is audited; Windows asks the administrator to confirm."""
+
+    def __init__(self, auditor, request=None, read_rules=None) -> None:
+        from clinassist.airgap import firewall_rules, request_firewall_rules
+
+        self._auditor = auditor
+        self._request = request or request_firewall_rules
+        self._read = read_rules or firewall_rules
+
+    def is_on(self) -> bool:
+        """Whether the rule for this program is set (the Ollama rules are not checked here)."""
+        return bool(self._read())
+
+    def switch(self, on: bool, user_id: str) -> bool:
+        """Ask Windows to set (on) or delete (off) the rules. True if Windows took the request.
+        The audit entry says which: requested, or refused (Windows would not run it)."""
+        sent = self._request(remove=not on)
+        outcome = "requested" if sent else "refused"
+        self._auditor.record(f"offline_protection_{'on' if on else 'off'}_{outcome}", "", user_id)
+        return sent
+
+
 @dataclass
 class Services:
     """Everything the interface needs, built once after the vault is unlocked."""
@@ -284,6 +311,7 @@ class Services:
     models: ModelUpdates | None = None  # offline model update, for the admin screen (FR-10b)
     database: DatabaseInspector | None = None  # read-only view for the Database tab
     reports: Reports | None = None  # usage counts for the Reports tab
+    protection: OfflineProtection | None = None  # firewall rules off and on, for the admin screen
 
     def new_controller(self) -> ConsultationController:
         """A fresh controller for each consultation."""
@@ -340,6 +368,7 @@ def build(config: AppConfig, vault, *, recorder=None, transcriber=None, generato
         auth=AuthService(vault, auditor),
         backups=Backups(vault, auditor),
         models=ModelUpdates(config, auditor, generator),
+        protection=OfflineProtection(auditor),
         database=DatabaseInspector(vault, auditor),
         reports=Reports(vault, auditor),
     )

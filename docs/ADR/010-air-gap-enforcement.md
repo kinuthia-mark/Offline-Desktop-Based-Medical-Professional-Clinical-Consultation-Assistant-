@@ -32,7 +32,10 @@ public addresses, which on a connected PC is itself outbound traffic (`docs/PRIO
 - **Firewall rules** (`scripts/airgap_firewall.ps1 -Apply`, run as administrator): one outbound
   block rule each for the Python that runs the app, `ollama.exe` and `ollama app.exe`. Windows does
   not apply firewall rules to loopback traffic, so the app still reaches Ollama on 127.0.0.1. The
-  rules also stop Ollama downloading models or checking for updates.
+  rules also stop Ollama downloading models or checking for updates. An administrator can turn
+  the rules off and on from the Audit and accounts tab (AMD-45), for example while installing
+  software, because the rule on the PC's Python also blocks every other Python program. Each
+  switch is audited and needs Windows' administrator prompt; the in-process guard is unaffected.
 - **Passive checks** (`airgap.take_snapshot`, `assess`), part of the start-up checks: listening
   sockets of the app and of Ollama, the app's open connections, the firewall rules, and whether the
   guard is on. Nothing is sent. The most serious finding wins:

@@ -123,6 +123,9 @@ def test_admin_can_unlock_an_account(rig):
             auth.login("dr.wanjiru", "wrong password attempt")
     auth.unlock_account(admin, doc_id)
     assert auth.login("dr.wanjiru", DOC_PW)
+    with pytest.raises(AuthError) as info:
+        auth.unlock_account(admin, "no-such-user")
+    assert info.value.code == "user_not_found"
 
 
 def test_idle_session_expires(rig):
