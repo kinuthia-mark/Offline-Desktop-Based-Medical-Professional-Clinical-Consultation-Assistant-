@@ -5,12 +5,16 @@
   in a paper register each evening) is what makes deleting the newest entries detectable later.
 - Creating accounts, and turning an account off or back on.
 - Making a backup of the encrypted vault to a file, and restoring one (security/backup.py).
+- Turning the Windows Firewall rules off and on, so other programs on this PC can install
+  things without the rules getting in the way (app.OfflineProtection). The app itself stays
+  offline either way: its own network guard does not depend on the rules.
 """
 
 from __future__ import annotations
 
 from collections.abc import Callable
 
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import (
     QComboBox,
     QFileDialog,
@@ -47,6 +51,7 @@ class AdminView(QWidget):
         ask_temporary_password: Callable[[], str] | None = None,
         models=None,
         ask_folder: Callable[[], str] | None = None,
+        protection=None,
     ) -> None:
         """`backups` (app.Backups) enables backup and restore. `on_restored` is called after a
         restore, when the program must close. The `ask_*` and `confirm` callables show the file
@@ -61,6 +66,8 @@ class AdminView(QWidget):
         self._ask_temporary = ask_temporary_password or self._dialog_temporary_password
         self._models = models  # app.ModelUpdates: offline language-model update (FR-10b)
         self._ask_folder = ask_folder or self._dialog_folder
+        self._protection = protection  # app.OfflineProtection: the firewall rules
+        self._protection_on = True  # read from Windows each time the tab opens
 
         # Audit log
         self.table = QTableWidget(0, 5)
@@ -164,12 +171,35 @@ class AdminView(QWidget):
         u.addWidget(self.update_message)
         updates.setVisible(models is not None)
         right.addWidget(updates, 1)
+
+        # Firewall rules off and on (NFR-01, ADR-010)
+        self.protection_status = QLabel()
+        self.protection_status.setWordWrap(True)
+        self.protection_button = QPushButton()
+        self.protection_button.clicked.connect(self.switch_protection)
+        self.protection_message = QLabel()
+        self.protection_message.setWordWrap(True)
+        offline = QGroupBox("Offline protection")
+        o = QVBoxLayout(offline)
+        about_offline = QLabel(
+            "Windows Firewall rules stop this program and the AI model service from reaching the "
+            "internet. Turn them off only while installing software on this PC, then turn them "
+            "back on. The program refuses network use itself either way."
+        )
+        about_offline.setWordWrap(True)
+        o.addWidget(about_offline)
+        o.addWidget(self.protection_status)
+        o.addWidget(self.protection_button)
+        o.addWidget(self.protection_message)
+        offline.setVisible(protection is not None)
+        right.addWidget(offline, 1)
         layout = QHBoxLayout(self)
         layout.addWidget(audit, 3)
         layout.addLayout(right, 2)
 
     def reload(self) -> None:
         self._reload_users()
+        self._show_protection()
         events = self._auditor.events(500)
         self.table.setRowCount(len(events))
         for row, (seq, ts, event, session_id, user_id) in enumerate(events):
@@ -379,3 +409,41 @@ class AdminView(QWidget):
 
     def _dialog_folder(self) -> str:
         return QFileDialog.getExistingDirectory(self, "Choose the model bundle folder")
+
+    # ----- offline protection (firewall rules) -----
+    def _show_protection(self) -> None:
+        if self._protection is None:
+            return
+        on = self._protection.is_on()
+        self._protection_on = on
+        self.protection_status.setText(
+            "Status: on. Nothing on this PC run by ClinAssist or the AI model can reach the "
+            "internet."
+            if on
+            else "Status: off. Other programs can use the internet. Turn it "
+            "back on when you are finished."
+        )
+        self.protection_button.setText(
+            "Turn offline protection off..." if on else "Turn offline protection on"
+        )
+
+    def switch_protection(self) -> None:
+        try:
+            self._auth.require(self._admin(), "admin")
+            turn_on = not self._protection_on
+            if not turn_on and not self._confirm(
+                "Turn offline protection off? Other programs on this PC will be able to reach "
+                "the internet until you turn it back on. Windows will ask you to confirm."
+            ):
+                return
+            sent = self._protection.switch(turn_on, self._admin().user_id)
+        except Exception as exc:
+            self.protection_message.setText(message_for(error_code(exc)))
+            return
+        self.protection_message.setText(
+            "Windows is asking for permission. When you have answered, the status above updates."
+            if sent
+            else "Windows did not run the change (permission was refused). Nothing changed."
+        )
+        # The elevated script runs on its own; read the rules again once it has had time to run.
+        QTimer.singleShot(4000, self._show_protection)

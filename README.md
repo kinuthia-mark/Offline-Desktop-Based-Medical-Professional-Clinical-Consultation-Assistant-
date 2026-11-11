@@ -222,7 +222,7 @@ is recorded.
 | Evaluation: 8 scripted consultations with key facts and traps, scored end to end | FR-05, NFR-03, NFR-06 | built and run; public datasets with clinicians' notes replace clinician scoring (ADR-016) |
 | Windows installer and offline model bundle (Ollama included, pinned and checked), with a self-test | release, AMD-15 | built and installed on the reference PC; a second PC is still to do |
 
-719 tests run on every push, on Windows with Python 3.11 and 3.12, together with
+724 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
 
 **Still to do:** installing on a second, clean PC, and submitting the final report. The report
@@ -467,7 +467,9 @@ ruff check . ; ruff format --check .
 ```
 
 **Block network access with Windows Firewall.** In a clinic this is done by the installer, and the
-readiness screen has a "Turn on offline protection" button if the rules ever go missing. When
+readiness screen has a "Turn on offline protection" button if the rules ever go missing. An
+administrator can also turn them off and on from the Audit and accounts tab, for example while
+installing software (each switch is audited; the app's own network guard stays on). When
 running from source, do it once in PowerShell opened as administrator (use `-Remove` before
 installing packages, then `-Apply` again):
 

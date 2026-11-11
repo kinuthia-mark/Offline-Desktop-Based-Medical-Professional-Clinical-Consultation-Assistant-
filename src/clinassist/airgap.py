@@ -239,17 +239,23 @@ def firewall_script() -> Path:
     return base / "scripts" / "airgap_firewall.ps1"
 
 
-def elevation_command(program: str | None = None) -> tuple[str, str]:
-    """What to run, and its arguments, to set the rules with administrator rights."""
+def elevation_command(program: str | None = None, remove: bool = False) -> tuple[str, str]:
+    """What to run, and its arguments, to set (or, with `remove`, delete) the rules with
+    administrator rights."""
     script = firewall_script()
+    if remove:
+        return "powershell.exe", f'-NoProfile -ExecutionPolicy Bypass -File "{script}" -Remove'
     target = program or app_program()
     args = f'-NoProfile -ExecutionPolicy Bypass -File "{script}" -Apply -Program "{target}"'
     return "powershell.exe", args
 
 
-def request_firewall_rules(shell_execute=None) -> bool:
+def request_firewall_rules(shell_execute=None, remove: bool = False) -> bool:
     """Ask Windows to run the firewall script as administrator. Windows shows its usual
     "Do you want to allow this app to make changes?" prompt; the user only clicks Yes.
+
+    With `remove`, the rules are deleted instead, so other programs on this PC (Python tools,
+    Ollama downloads) can reach the internet again. The application's own network guard stays on.
 
     Returns True if the request was handed to Windows (not whether the user agreed: the start-up
     check is run again afterwards to see what actually happened)."""
@@ -259,7 +265,7 @@ def request_firewall_rules(shell_execute=None) -> bool:
         import ctypes
 
         shell_execute = ctypes.windll.shell32.ShellExecuteW
-    program, args = elevation_command()
+    program, args = elevation_command(remove=remove)
     # "runas" is the Windows verb for "run as administrator". 0 hides the PowerShell window.
     result = shell_execute(None, "runas", program, args, None, 0)
     return int(result) > 32  # ShellExecute returns a value above 32 on success
