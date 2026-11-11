@@ -58,6 +58,7 @@ Not numbered: Authenticate / Log In, and four administrator use cases.
 | Update Model Weights & Files | administrator | FR-10b |
 | Backup Encrypted Database | administrator | FR-10c |
 | Review Security Audit Logs | administrator | FR-10d |
+| (added) Turn offline protection off and on | administrator | NFR-01, AMD-45: not in the proposal's diagram; Figure 4.1 is unchanged and the report describes the switch in 4.7 |
 
 ## 3. Class diagram (Figure 4.2) against the implementation
 | Proposal class | Members in the proposal | Implementation |
