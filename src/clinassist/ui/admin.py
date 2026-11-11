@@ -33,7 +33,7 @@ from PySide6.QtWidgets import (
 )
 
 from clinassist.ui.messages import message_for
-from clinassist.ui.workers import error_code
+from clinassist.ui.workers import error_code, run_in_background
 
 
 class AdminView(QWidget):
@@ -412,16 +412,17 @@ class AdminView(QWidget):
 
     # ----- offline protection (firewall rules) -----
     def _show_protection(self) -> None:
-        if self._protection is None:
-            return
-        on = self._protection.is_on()
+        # Reading the rules starts PowerShell (about 1.6 s), so it runs off the screen's thread.
+        if self._protection is not None:
+            run_in_background(self._protection.is_on, self._shown_protection, lambda exc: None)
+
+    def _shown_protection(self, on: bool) -> None:
         self._protection_on = on
         self.protection_status.setText(
-            "Status: on. Nothing on this PC run by ClinAssist or the AI model can reach the "
-            "internet."
+            "Status: on. The firewall rule for this program is set."
             if on
-            else "Status: off. Other programs can use the internet. Turn it "
-            "back on when you are finished."
+            else "Status: off. Other programs can use the internet. Turn it back on when you "
+            "are finished."
         )
         self.protection_button.setText(
             "Turn offline protection off..." if on else "Turn offline protection on"
@@ -446,4 +447,4 @@ class AdminView(QWidget):
             else "Windows did not run the change (permission was refused). Nothing changed."
         )
         # The elevated script runs on its own; read the rules again once it has had time to run.
-        QTimer.singleShot(4000, self._show_protection)
+        QTimer.singleShot(4000, self, self._show_protection)  # cancelled if the screen closes
