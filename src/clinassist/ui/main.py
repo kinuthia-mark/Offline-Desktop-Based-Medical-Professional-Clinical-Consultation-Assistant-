@@ -88,7 +88,7 @@ class MainWindow(QMainWindow):
         auth = services.auth
 
         self.user_label = QLabel()
-        # The toast: a notice over the bottom-right corner of the window (show_toast).
+        # The toast: a notice at the top right, beside the tabs (show_toast).
         self.toast = QLabel(self)
         self.toast.setObjectName("toast")
         # Clicks pass through it, so it never covers a button the clinician needs.
@@ -258,21 +258,24 @@ class MainWindow(QMainWindow):
             self.show_toast("The look changed, but could not be saved for next time.")
 
     def show_toast(self, text: str, milliseconds: int = 4000) -> None:
-        """A short notice in the bottom-right corner that closes by itself, so it never
+        """A short notice at the top right, beside the tabs, that closes by itself, so it never
         stops the clinician (for example "Logged in as Dr A (clinician)")."""
         self.toast.setText(text)
         self.toast.adjustSize()
         self._place_toast()
         self.toast.raise_()
         self.toast.show()
+        # At login the window is not laid out yet; place it again once it is.
+        QTimer.singleShot(0, self._place_toast)
         self._toast_timer.start(milliseconds)
 
     def _place_toast(self) -> None:
+        # Level with the tab bar, whose right side is empty: the bottom corner covered
+        # "Finalize and save".
         margin = 20
-        self.toast.move(
-            self.width() - self.toast.width() - margin,
-            self.height() - self.toast.height() - margin,
-        )
+        tabs = getattr(self, "tabs", None)
+        top = tabs.mapTo(self, tabs.rect().topLeft()).y() if tabs is not None else margin
+        self.toast.move(self.width() - self.toast.width() - margin, top)
 
     def resizeEvent(self, event) -> None:  # noqa: N802 - Qt's name
         super().resizeEvent(event)

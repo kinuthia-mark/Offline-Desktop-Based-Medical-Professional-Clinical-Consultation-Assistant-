@@ -1257,8 +1257,8 @@ def test_login_shows_who_is_logged_in_in_the_corner_and_the_header(qapp, service
     window.show()
     assert window.user_label.text() == "Logged in as dr.one (clinician)"
     assert window.toast.isVisible() and window.toast.text() == "Logged in as dr.one (clinician)"
-    # bottom-right corner, inside the window
-    assert window.toast.x() > window.width() / 2 and window.toast.y() > window.height() / 2
+    # top right, level with the tabs, clear of "Finalize and save" at the bottom
+    assert window.toast.x() > window.width() / 2 and window.toast.y() < window.height() / 4
     from PySide6.QtCore import Qt
 
     assert window.toast.testAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)

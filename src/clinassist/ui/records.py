@@ -121,6 +121,7 @@ class RecordsView(QWidget):
         )
         self.detail = QPlainTextEdit()
         self.detail.setReadOnly(True)
+        self.detail.setPlaceholderText("Choose a consultation on the left to read it here.")
         self.message = QLabel()
         refresh = QPushButton("Refresh")
         refresh.clicked.connect(self.reload)
@@ -134,6 +135,7 @@ class RecordsView(QWidget):
         splitter.addWidget(left)
         splitter.addWidget(self.detail)
         splitter.setStretchFactor(1, 3)
+        splitter.setSizes([420, 980])  # wide enough for the date, the clinician and the session id
         layout = QVBoxLayout(self)
         layout.addWidget(splitter, 1)
         self.include_transcript = QCheckBox("Include the transcript")

@@ -19,13 +19,16 @@ from PySide6.QtWidgets import (
     QComboBox,
     QFileDialog,
     QFormLayout,
+    QGridLayout,
     QGroupBox,
     QHBoxLayout,
+    QHeaderView,
     QInputDialog,
     QLabel,
     QLineEdit,
     QMessageBox,
     QPushButton,
+    QScrollArea,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -73,6 +76,10 @@ class AdminView(QWidget):
         self.table = QTableWidget(0, 5)
         self.table.setHorizontalHeaderLabels(["#", "Time (UTC)", "Event", "Session", "User"])
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        # The "#" column already numbers the entries; Qt's row numbers would repeat it.
+        self.table.verticalHeader().setVisible(False)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        self.table.horizontalHeader().setStretchLastSection(True)
         self.verify_result = QLabel()
         self.verify_result.setWordWrap(True)
         reload_button = QPushButton("Refresh")
@@ -101,6 +108,10 @@ class AdminView(QWidget):
         self.users.setHorizontalHeaderLabels(["Username", "Name", "Role", "On", "Locked"])
         self.users.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.users.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.users.verticalHeader().setVisible(False)
+        self.users.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        self.users.horizontalHeader().setStretchLastSection(True)
+        self.users.setMinimumHeight(150)  # the list must stay readable however full the column
         self._user_ids: list[str] = []
         disable = QPushButton("Turn account off")
         enable = QPushButton("Turn account on")
@@ -120,9 +131,10 @@ class AdminView(QWidget):
         form.addRow("Role", self.role)
         form.addRow(create)
         form.addRow(self.users)
-        buttons = QHBoxLayout()
-        for b in (disable, enable, unlock, self.reset_button):
-            buttons.addWidget(b)
+        buttons = QGridLayout()
+        # Two rows of two, so the column never needs scrolling sideways.
+        for i, b in enumerate((disable, enable, unlock, self.reset_button)):
+            buttons.addWidget(b, i // 2, i % 2)
         form.addRow(buttons)
         form.addRow(self.account_message)
 
@@ -193,9 +205,15 @@ class AdminView(QWidget):
         o.addWidget(self.protection_message)
         offline.setVisible(protection is not None)
         right.addWidget(offline, 1)
+        # The right column scrolls, so adding a panel never squeezes the accounts list.
+        column = QWidget()
+        column.setLayout(right)
+        scroll = QScrollArea()
+        scroll.setWidget(column)
+        scroll.setWidgetResizable(True)
         layout = QHBoxLayout(self)
         layout.addWidget(audit, 3)
-        layout.addLayout(right, 2)
+        layout.addWidget(scroll, 2)
 
     def reload(self) -> None:
         self._reload_users()
