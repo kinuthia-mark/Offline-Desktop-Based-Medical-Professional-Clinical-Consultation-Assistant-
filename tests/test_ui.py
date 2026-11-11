@@ -920,6 +920,7 @@ def _protection_view(services, session, rules, confirm=lambda q: True):
         confirm=confirm,
     )
     view.reload()
+    wait_until(lambda: view.protection_button.text() != "")
     return view
 
 
@@ -933,6 +934,14 @@ def test_admin_turns_offline_protection_off_after_confirming_and_it_is_audited(q
     assert rules.requests == ["remove"] and "internet" in questions[0]
     events = [e[2] for e in services.auditor.events(5)]
     assert "offline_protection_off_requested" in events
+
+
+def test_a_refused_switch_is_audited_as_refused(qapp, services):
+    from clinassist.app import OfflineProtection
+
+    protection = OfflineProtection(services.auditor, request=lambda remove: False)
+    assert protection.switch(False, "admin-id") is False
+    assert services.auditor.events(1)[0][2] == "offline_protection_off_refused"
 
 
 def test_turning_protection_off_stops_when_declined(qapp, services):

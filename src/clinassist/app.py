@@ -281,12 +281,16 @@ class OfflineProtection:
         self._read = read_rules or firewall_rules
 
     def is_on(self) -> bool:
+        """Whether the rule for this program is set (the Ollama rules are not checked here)."""
         return bool(self._read())
 
     def switch(self, on: bool, user_id: str) -> bool:
-        """Ask Windows to set (on) or delete (off) the rules. True if Windows took the request."""
-        self._auditor.record(f"offline_protection_{'on' if on else 'off'}_requested", "", user_id)
-        return self._request(remove=not on)
+        """Ask Windows to set (on) or delete (off) the rules. True if Windows took the request.
+        The audit entry says which: requested, or refused (Windows would not run it)."""
+        sent = self._request(remove=not on)
+        outcome = "requested" if sent else "refused"
+        self._auditor.record(f"offline_protection_{'on' if on else 'off'}_{outcome}", "", user_id)
+        return sent
 
 
 @dataclass

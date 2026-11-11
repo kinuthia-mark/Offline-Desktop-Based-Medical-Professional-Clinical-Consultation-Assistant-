@@ -132,10 +132,12 @@ class AuthService:
     def unlock_account(self, admin: UserSession, user_id: str) -> None:
         self.require(admin, "admin")
         with self._vault.connect() as conn, conn:
-            conn.execute(
+            changed = conn.execute(
                 "UPDATE users SET failed_attempts = 0, locked_until = NULL WHERE user_id = ?",
                 (user_id,),
-            )
+            ).rowcount
+        if not changed:
+            raise AuthError("user_not_found")
         self._auditor.record("account_unlocked", NO_SESSION, admin.user_id)
 
     def reset_password(self, admin: UserSession, user_id: str, temporary: str) -> None:
