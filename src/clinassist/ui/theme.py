@@ -167,6 +167,9 @@ QHeaderView::section {{
     border-bottom: 1px solid {c["border"]}; font-weight: 600;
 }}
 QTableWidget {{ gridline-color: {c["border"]}; }}
+/* Row numbers and the corner above them took Qt's default dark fill in both themes. */
+QTableCornerButton::section {{ background: {c["bg"]}; border: none; }}
+QHeaderView::section:vertical {{ border-bottom: none; border-right: 1px solid {c["border"]}; }}
 
 QProgressBar {{
     border: 1px solid {c["border"]}; border-radius: 5px; background: {c["input"]};

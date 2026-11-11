@@ -60,6 +60,8 @@ class DatabaseView(QWidget):
         self.table_list.setHorizontalHeaderLabels(["Table", "Rows"])
         self.table_list.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.table_list.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.table_list.verticalHeader().setVisible(False)
+        self.table_list.horizontalHeader().setStretchLastSection(True)
         self.table_list.currentCellChanged.connect(lambda *_: self._show_structure())
         self.structure = QPlainTextEdit()
         self.structure.setReadOnly(True)

@@ -280,6 +280,9 @@ class ConsultationWorkspace(QWidget):
         o.addWidget(self.retry_button)
         o.addWidget(self.tabs, 1)
         o.addWidget(QLabel("Check these before saving:"))
+        # The note gets the room: on a 768-pixel-high screen an unbounded list squeezed the
+        # SOAP sections to two lines each. The list scrolls past about five flags.
+        self.flags_list.setMaximumHeight(130)
         o.addWidget(self.flags_list)
         for box in (self.allergies_check, self.medications_check, self.negatives_check):
             o.addWidget(box)
