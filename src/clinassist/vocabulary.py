@@ -1,10 +1,9 @@
 """Common medicine names for primary care in Kenya (AMD-38, ADR-013).
 
-Used in two places:
-  - as a vocabulary hint for speech-to-text, so a spoken "clindamycin" is less likely to come out
-    as "Glendamycin" (Whisper's `initial_prompt`);
-  - by the medicine-name check, which flags a word in the transcript that looks like a medicine
-    but is not a known name.
+Used by the medicine-name check, which flags a word in the transcript that looks like a medicine
+but is not a known name. `speech_prompt()` builds a hint for Whisper's `initial_prompt`; it was
+measured in spikes/asr_prompt_spike.py, did not lower the error rate, and the app does not use it
+(ADR-013). It stays so that measurement can be repeated.
 
 The list holds generic (INN) names commonly used in Kenyan primary care, drawn from the
 categories of the Kenya Essential Medicines List: pain and fever, antimalarials, antibiotics,

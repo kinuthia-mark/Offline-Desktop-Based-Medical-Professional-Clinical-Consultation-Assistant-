@@ -174,8 +174,6 @@ def test_locked_vault_refuses_access(made):
     assert vault.locked
     with pytest.raises(VaultError, match="^vault_locked$"), vault.connect():
         pass
-    with pytest.raises(VaultError, match="^vault_locked$"):
-        _ = vault.audio_key
 
 
 def test_failed_create_leaves_nothing_behind(tmp_path, monkeypatch):

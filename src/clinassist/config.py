@@ -39,7 +39,7 @@ class ConfigError(RuntimeError):
 
 @dataclass(frozen=True)
 class AppConfig:
-    # Where the encrypted vault (and optional audio) live. Created on first run.
+    # Where the encrypted vault lives. Created on first run.
     data_dir: str = str(default_data_dir())
     # Where the Whisper models are, next to the program (shipped by the installer).
     models_dir: str = str(app_folder() / "models")
@@ -53,8 +53,6 @@ class AppConfig:
     ollama_host: str = DEFAULT_HOST
     # None: the Windows default microphone.
     microphone: int | None = None
-    # Off: the least data held is no audio (ADR-003, AMD-23).
-    keep_audio: bool = False
     # Free memory below which the startup check warns. Cold model loads took 7.7 to 10.8 s with
     # 2 GB or more free, 10.6 to 14.5 s with 1.0 to 1.4 GB, and 20.1 s with 0.67 GB (ADR-002).
     warn_free_ram_gb: float = 2.0

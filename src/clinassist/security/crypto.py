@@ -7,7 +7,6 @@ Envelope design:
     recovery code --Argon2id--> recovery KEK   --AES-GCM wrap--+
                                                                        |
                                               HKDF-SHA256 ("db")  -----+----> database key
-                                              HKDF-SHA256 ("audio") ---+----> audio key
 
 Changing the passphrase rewraps the master key; the data is not re-encrypted. Errors are codes.
 """
@@ -98,7 +97,7 @@ def unwrap(kek: bytes, blob: bytes, label: bytes) -> bytes:
 
 
 def subkey(master_key: bytes, purpose: str) -> bytes:
-    """A separate key per purpose ("db", "audio"), so one key never serves two uses."""
+    """A separate key per purpose (only "db" today), so one key never serves two uses."""
     return HKDF(
         algorithm=hashes.SHA256(),
         length=KEY_BYTES,
