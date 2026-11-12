@@ -2,7 +2,8 @@
 
 One screen, three panels, left to right in the order of a consultation:
 
-    1. Session and audio     start and stop recording, elapsed time, level meter, discard
+    1. Consultation          type or paste the consultation (the main path); dictation (beta)
+                             with elapsed time and level meter; discard
     2. Transcript            edit the speech-to-text output, then approve it (gate 1)
     3. Clinical output       the drafted note, the clinician's own assessment, the AI's text
                              kept apart and labelled, advisory flags, the history checklist,
@@ -140,10 +141,19 @@ class ConsultationWorkspace(QWidget):
         self.level_bar = QProgressBar()
         self.level_bar.setRange(0, 100)
         self.level_bar.setFormat("Level")
-        self.start_button = QPushButton("Start recording")
-        self.stop_button = QPushButton("Stop recording")
-        # For a consultation without recording: the clinician types the transcript instead.
-        self.type_button = QPushButton("Type the transcript instead")
+        # The main path: the clinician types or pastes the consultation, which is fully under
+        # their control. Dictation is offered beside it as a beta: speech recognition can mishear
+        # words (14.6% of words wrong on real conversations, more with Kenyan accents), so it is
+        # a convenience whose every word the clinician checks, not the main feature.
+        self.type_button = QPushButton("Type or paste the consultation")
+        self.start_button = QPushButton("Dictate (beta)")
+        self.stop_button = QPushButton("Stop dictation")
+        self.beta_note = QLabel(
+            "Beta: dictation can mishear words. Check every word of the transcript before you "
+            "approve it."
+        )
+        self.beta_note.setWordWrap(True)
+        tone(self.beta_note, "quiet")
         self.discard_button = QPushButton("Discard consultation")
         self.new_button = QPushButton("New consultation")
         self.start_button.clicked.connect(self.start_recording)
@@ -151,13 +161,15 @@ class ConsultationWorkspace(QWidget):
         self.type_button.clicked.connect(self.type_transcript)
         self.discard_button.clicked.connect(self.discard)
         self.new_button.clicked.connect(self.new_consultation)
-        audio = QGroupBox("1. Session and audio")
+        audio = QGroupBox("1. Consultation")
         a = QVBoxLayout(audio)
         for w in (self.session_label, self.date_label, QLabel("Sample rate: 16 kHz, mono")):
             a.addWidget(w)
+        a.addWidget(self.type_button)
+        a.addSpacing(8)
         a.addWidget(self.start_button)
         a.addWidget(self.stop_button)
-        a.addWidget(self.type_button)
+        a.addWidget(self.beta_note)
         a.addWidget(self.status_label)
         a.addWidget(self.duration_label)
         a.addWidget(self.level_bar)
@@ -167,9 +179,9 @@ class ConsultationWorkspace(QWidget):
 
         # Panel 2: transcript
         self.transcript_box = _text_box(
-            "The transcript appears here after recording, or type it here after choosing 'Type "
-            "the transcript instead'. Correct any mistakes, and add "
-            "'Doctor:' and 'Patient:' where it helps, before approving."
+            "Choose 'Type or paste the consultation' and write it here, with 'Doctor:' and "
+            "'Patient:' where it helps. A dictated transcript (beta) also appears here: correct "
+            "every mistake before approving."
         )
         self.asr_label = QLabel()
         # Medicine names that may have been misheard (AMD-38), refreshed as the clinician edits.
@@ -296,7 +308,7 @@ class ConsultationWorkspace(QWidget):
         splitter.setStretchFactor(1, 3)
         splitter.setStretchFactor(2, 4)
         # The main step on each panel stands out; discarding is marked as destructive.
-        for button in (self.start_button, self.approve_button, self.finalize_button):
+        for button in (self.type_button, self.approve_button, self.finalize_button):
             mark(button, "primary")
         mark(self.discard_button, "danger")
         # Keyboard shortcuts for the main steps, so a clinician need not reach for the mouse.

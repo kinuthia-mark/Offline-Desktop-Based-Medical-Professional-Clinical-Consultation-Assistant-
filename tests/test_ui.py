@@ -1028,8 +1028,11 @@ def test_checkboxes_have_a_visible_outline_and_a_filled_tick(name):
 
 def test_the_main_step_on_each_screen_is_marked(qapp, services):
     ws = workspace(services)
-    for button in (ws.start_button, ws.approve_button, ws.finalize_button):
+    # Typing the consultation is the main path; dictation is a labelled beta beside it.
+    for button in (ws.type_button, ws.approve_button, ws.finalize_button):
         assert button.property("kind") == "primary"
+    assert ws.start_button.property("kind") != "primary" and "beta" in ws.start_button.text()
+    assert "Check every word" in ws.beta_note.text()
     assert ws.discard_button.property("kind") == "danger"
 
 

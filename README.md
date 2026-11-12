@@ -76,7 +76,7 @@ The application is a step-by-step process. The software will not let a step happ
 stateDiagram-v2
     [*] --> Idle
     Idle --> Recording: start recording
-    Idle --> Transcribed: type the transcript instead
+    Idle --> Transcribed: type or paste the consultation
     Recording --> Transcribed: stop (speech is turned into text)
     Transcribed --> Approved: doctor edits and approves the text
     Approved --> Drafted: model drafts the note
@@ -106,9 +106,10 @@ Nothing typed is lost.
 
 ![The consultation screen with a synthetic consultation](docs/screenshots/workspace.png)
 
-Left to right: the recording controls, the transcript the clinician corrects and approves, and the
-drafted note. A clinician who does not want to record can choose "Type the transcript instead" and
-type it; the typed text goes through the same approval and checks as a spoken one (AMD-39). The
+Left to right: starting the consultation, the transcript the clinician corrects and approves, and
+the drafted note. The main path is "Type or paste the consultation". Dictation is offered beside
+it as a beta, because speech recognition can mishear words; a dictated transcript goes through the
+same approval and checks as a typed one (AMD-39, AMD-48). The
 clinician's own assessment is separate from the model's text, which is labelled as AI-generated. "Finalize and save" stays disabled until the assessment is written and all three
 history boxes are ticked; here one is ticked and two are still to do. The main step on each panel is shown in the
 brand colour, and the program follows the Windows light or dark setting.
