@@ -56,7 +56,7 @@ notes themselves, for example the most common diagnoses, would show clinical con
   It does not say whether that assessment was right.
 - Notes saved before an update keep their old values; nothing is recalculated.
 
-## Update, 2026-11-12: analytics for the health records officer (AMD-47)
+## Update, 2026-11-12: facility analytics (AMD-47)
 Supervisor feedback: a report must show why the data matters, not only summarise it. The Reports
 tab now draws four charts with the counts: busiest hours of the day and days of the week (for
 staffing), consultations saved per day, and the conditions the facility sees (for disease
@@ -65,4 +65,4 @@ note's assessment and accepted suggestions against a fixed list of common primar
 conditions (`reports.CONDITIONS`, whole words only); only the list's own labels are counted, so
 no note text can reach a report. A condition with fewer than 3 cases in the period is counted
 under "Other conditions" (small-cell suppression), so a rare case cannot point to one patient.
-The tab belongs to the health records officer (AMD-46).
+The tab belongs to the System Administrator (AMD-46).

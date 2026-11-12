@@ -274,15 +274,6 @@ def _admin(services):
     return services.auth.login("admin", "admin synthetic password 1")
 
 
-def _records_officer(services):
-    """A health records officer, made by the ICT officer, logged in."""
-    if not services.auth.has_users():
-        _admin(services)
-    ict = services.auth.login("admin", "admin synthetic password 1")
-    services.auth.create_user(ict, "hro", "records synthetic password 3", "HRO", "records_officer")
-    return services.auth.login("hro", "records synthetic password 3")
-
-
 def _clinician(services, username: str = "dr.one"):
     """A clinician account, made by the administrator, logged in."""
     if not services.auth.has_users():
@@ -779,22 +770,10 @@ def test_admin_lands_on_the_overview_and_sees_no_patient_work(qapp, services):
     admin = _admin(services)
     window = MainWindow(services, admin, login_again=lambda n: None)
     assert window.tabs.currentWidget() is window.overview
-    assert _visible(window) == ["Overview", "Audit and accounts", "Database"]
-    assert "1 ICT officer" in window.overview.accounts_label.text()
+    assert _visible(window) == ["Overview", "Audit and accounts", "Database", "Reports"]
+    assert "1 system administrator" in window.overview.accounts_label.text()
     assert "Intact" in window.overview.audit_label.text()
     assert "No backup" in window.overview.backup_label.text()
-    window.close()
-
-
-def test_records_officer_sees_only_the_reports(qapp, services):
-    """The health records officer reads the usage reports and nothing else: no notes, no
-    accounts, no database."""
-    officer = _records_officer(services)
-    window = MainWindow(services, officer, login_again=lambda n: None)
-    assert window.tabs.currentWidget() is window.reports
-    assert _visible(window) == ["Reports"]
-    window.admin.reload()
-    assert window.admin.account_message.text() == MESSAGES["forbidden"]
     window.close()
 
 
@@ -825,7 +804,7 @@ def test_switching_user_switches_the_landing_page(qapp, services):
     window = MainWindow(services, doctor, login_again=lambda n: admin)
     window.lock_screen("")
     assert window.tabs.currentWidget() is window.overview
-    assert _visible(window) == ["Overview", "Audit and accounts", "Database"]
+    assert _visible(window) == ["Overview", "Audit and accounts", "Database", "Reports"]
     window.close()
 
 
@@ -1124,7 +1103,7 @@ def test_the_next_step_wraps_instead_of_being_cut_off(qapp, services):
 def test_reports_tab_shows_counts_and_saves_a_csv(qapp, services, tmp_path):
     from clinassist.ui.reports import ReportsView
 
-    admin = _records_officer(services)
+    admin = _admin(services)
     target = tmp_path / "report.csv"
     view = ReportsView(
         services.reports,
@@ -1326,7 +1305,7 @@ def test_switching_user_greets_the_new_user(qapp, services):
     admin = services.auth.login("admin", "admin synthetic password 1")
     window = MainWindow(services, doctor, login_again=lambda n: admin)
     window.log_out()
-    assert window.toast.text() == "Logged in as Synthetic Admin (ICT Officer)"
+    assert window.toast.text() == "Logged in as Synthetic Admin (System Administrator)"
     window.close()
 
 

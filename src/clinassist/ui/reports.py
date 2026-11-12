@@ -1,4 +1,4 @@
-"""The Reports tab, for the health records officer: how the facility is working.
+"""The Reports tab, for the system administrator: how the facility is working.
 
 Four charts answer the questions a facility manager or the county health office asks: when the
 facility is busiest (by hour and by day, for staffing), how many consultations are documented
@@ -43,7 +43,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from clinassist.domain import RECORDS_OFFICER
+from clinassist.domain import ADMIN
 from clinassist.reports import PERIODS, period_text, summary_rows
 from clinassist.ui.messages import message_for
 from clinassist.ui.theme import DARK, LIGHT, is_dark, mark, tone
@@ -132,7 +132,7 @@ class ReportsView(QWidget):
 
     def reload(self) -> None:
         try:
-            self._auth.require(self._admin(), RECORDS_OFFICER)
+            self._auth.require(self._admin(), ADMIN)
             self.report = self._reports.build(self.period.currentText())
         except Exception as exc:
             self.report = None
@@ -200,7 +200,7 @@ class ReportsView(QWidget):
         if self.report is None:
             return
         try:
-            self._auth.require(self._admin(), RECORDS_OFFICER)
+            self._auth.require(self._admin(), ADMIN)
             path = self._ask_save_path(f"clinassist-report-{date.today().isoformat()}.csv")
             if not path:
                 return
