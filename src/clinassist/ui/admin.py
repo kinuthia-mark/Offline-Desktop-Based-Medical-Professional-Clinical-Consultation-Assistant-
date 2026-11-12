@@ -35,7 +35,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from clinassist.domain import ICT_OFFICER, ROLE_LABELS, ROLES
+from clinassist.domain import ADMIN, ROLE_LABELS, ROLES
 from clinassist.ui.messages import message_for
 from clinassist.ui.workers import error_code, run_in_background
 
@@ -336,7 +336,7 @@ class AdminView(QWidget):
     # ----- backup and restore -----
     def make_backup(self) -> None:
         try:
-            self._auth.require(self._admin(), ICT_OFFICER)
+            self._auth.require(self._admin(), ADMIN)
             path = self._ask_save_path(self._backups.default_name())
             if not path:
                 return
@@ -351,7 +351,7 @@ class AdminView(QWidget):
 
     def restore(self) -> None:
         try:
-            self._auth.require(self._admin(), ICT_OFFICER)
+            self._auth.require(self._admin(), ADMIN)
             path = self._ask_open_path()
             if not path:
                 return
@@ -403,7 +403,7 @@ class AdminView(QWidget):
     # ----- offline model update (FR-10b) -----
     def update_model(self) -> None:
         try:
-            self._auth.require(self._admin(), ICT_OFFICER)
+            self._auth.require(self._admin(), ADMIN)
             folder = self._ask_folder()
             if not folder:
                 return
@@ -455,7 +455,7 @@ class AdminView(QWidget):
 
     def switch_protection(self) -> None:
         try:
-            self._auth.require(self._admin(), ICT_OFFICER)
+            self._auth.require(self._admin(), ADMIN)
             turn_on = not self._protection_on
             if not turn_on and not self._confirm(
                 "Turn offline protection off? Other programs on this PC will be able to reach "

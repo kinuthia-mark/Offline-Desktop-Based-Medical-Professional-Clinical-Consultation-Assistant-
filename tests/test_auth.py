@@ -242,25 +242,11 @@ def test_v1_vault_upgrades_to_v2_keeping_sessions(tmp_path, monkeypatch):
     assert not AuthService(reopened, hasher=FAST).has_users()
 
 
-def test_v4_admin_becomes_an_ict_officer_and_can_still_log_in(tmp_path, monkeypatch):
-    """Schema v5 replaces the one 'admin' role with the facility's real jobs. An administrator
-    from an older vault must keep working, as an ICT officer."""
-    from clinassist.security import schema
+def test_the_admin_role_is_shown_as_system_administrator():
+    """The stored role code is 'admin'; people see the job title."""
+    from clinassist.domain import ADMIN, ROLE_LABELS, ROLES
 
-    monkeypatch.setattr(schema, "LATEST", 4)
-    vault, _ = Vault.create(tmp_path / "v", "a long synthetic passphrase 42", kdf=TEST_KDF)
-    with vault.connect() as conn, conn:
-        conn.execute(
-            "INSERT INTO users (user_id, username, display_name, role, password_hash, created_at)"
-            " VALUES ('u1', 'oldadmin', 'Old Admin', 'admin', ?, '2026-10-01T00:00:00')",
-            (FAST.hash(ADMIN_PW),),
-        )
-    monkeypatch.setattr(schema, "LATEST", len(schema.MIGRATIONS))
-    reopened = Vault.unlock(tmp_path / "v", "a long synthetic passphrase 42")
-    session = AuthService(reopened, hasher=FAST).login("oldadmin", ADMIN_PW)
-    assert session.role == "ict_officer"
-    with reopened.connect() as conn, pytest.raises(Exception, match="CHECK"):
-        conn.execute("UPDATE users SET role = 'admin' WHERE user_id = 'u1'")
+    assert ROLES == ("clinician", "admin") and ROLE_LABELS[ADMIN] == "System Administrator"
 
 
 def test_admin_can_list_accounts_without_password_hashes(rig):
