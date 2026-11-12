@@ -22,6 +22,7 @@ from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QApplication,
+    QButtonGroup,
     QComboBox,
     QFrame,
     QHBoxLayout,
@@ -136,8 +137,6 @@ class MainWindow(QMainWindow):
         header.addStretch(1)
         header.addWidget(self.network_label)
         header.addWidget(self.status_label)
-        header.addWidget(self.user_label)
-        header.addWidget(self.theme_box)
         header.addWidget(self.password_button)
         header.addWidget(logout)
 
@@ -183,14 +182,61 @@ class MainWindow(QMainWindow):
         self.reports_index = self.tabs.addTab(self.reports, "Reports")
         self.tabs.currentChanged.connect(self._tab_opened)
 
+        # Navigation is a sidebar, like the index tabs of a patient file. The tab widget stays
+        # underneath (its bar hidden), so which screens a role sees is decided in one place.
+        self.tabs.setObjectName("mainTabs")
+        self.tabs.tabBar().hide()
+        side = QFrame()
+        side.setObjectName("sideNav")
+        side.setFixedWidth(200)
+        nav = QVBoxLayout(side)
+        nav.setContentsMargins(0, 14, 0, 14)
+        nav.setSpacing(2)
+        self.nav_group = QButtonGroup(self)
+        self.nav_group.setExclusive(True)
+        self.nav_buttons: list[QPushButton] = []
+        for index in range(self.tabs.count()):
+            button = QPushButton(self.tabs.tabText(index))
+            button.setObjectName("navItem")
+            button.setCheckable(True)
+            # Focus only from the keyboard (Tab): a mouse click left a focus box that clashed
+            # with the green edge; keyboard users still see where they are.
+            button.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+            button.clicked.connect(lambda _=False, i=index: self.tabs.setCurrentIndex(i))
+            self.nav_group.addButton(button)
+            self.nav_buttons.append(button)
+            nav.addWidget(button)
+        nav.addStretch(1)
+        # Who is logged in, and the light or dark choice, live at the foot of the sidebar: one
+        # place, instead of a badge in the header as well.
+        self.role_label = QLabel()
+        self.role_label.setWordWrap(True)
+        self.role_label.setContentsMargins(16, 0, 12, 6)
+        nav.addWidget(self.role_label)
+        self.user_label.hide()  # kept for the tests and screen readers; the sidebar shows the user
+        theme_row = QHBoxLayout()
+        theme_row.setContentsMargins(12, 0, 12, 0)
+        theme_row.addWidget(self.theme_box)
+        nav.addLayout(theme_row)
+        self.tabs.currentChanged.connect(
+            lambda i: (
+                self.nav_buttons[i].setChecked(True) if 0 <= i < len(self.nav_buttons) else None
+            )
+        )
+
         body = QWidget()
         layout = QVBoxLayout(body)
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         layout.addWidget(header_bar)
+        row = QHBoxLayout()
+        row.setSpacing(0)
+        row.addWidget(side)
         content = QVBoxLayout()
-        content.setContentsMargins(12, 8, 12, 12)
+        content.setContentsMargins(0, 0, 0, 0)
         content.addWidget(self.tabs, 1)
-        layout.addLayout(content, 1)
+        row.addLayout(content, 1)
+        layout.addLayout(row, 1)
         self.setCentralWidget(body)
         self._show_user()
 
@@ -308,9 +354,8 @@ class MainWindow(QMainWindow):
 
     def _show_user(self) -> None:
         """Show the tabs of the logged-in role and open its landing page."""
-        who = (
-            f"{self.session.display_name} ({ROLE_LABELS.get(self.session.role, self.session.role)})"
-        )
+        label = ROLE_LABELS.get(self.session.role, self.session.role)
+        who = f"{self.session.display_name} ({label})"
         self.user_label.setText(f"Logged in as {who}")
         self.show_toast(f"Logged in as {who}")
         # Each role sees only its own screens: clinicians the consultations, the system
@@ -323,7 +368,10 @@ class MainWindow(QMainWindow):
         mine = tabs_for.get(role, ())
         for index in range(self.tabs.count()):
             self.tabs.setTabVisible(index, index in mine)
+            self.nav_buttons[index].setVisible(index in mine)
+        self.role_label.setText(f"{self.session.display_name}\n{label}")
         landing = mine[0] if mine else self.workspace_index
+        self.nav_buttons[landing].setChecked(True)  # also when it is already the open page
         if self.tabs.currentIndex() == landing:
             self._tab_opened(landing)  # already open: still refresh it for this user
         else:

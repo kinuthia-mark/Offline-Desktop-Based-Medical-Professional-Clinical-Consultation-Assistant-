@@ -67,6 +67,14 @@ _NOT_A_DIAGNOSIS = re.compile(
     r"vaccin\w*|immuni[sz]ation|risk)\b",
     re.I,
 )
+# A suggestion that is only a symptom ("Fever", "Vomiting") is not a diagnosis: seen in a hand
+# test, where the model offered them as suggestions 2 and 3. Only the whole text is matched, so
+# "Fever of unknown origin" is kept.
+_SYMPTOM_ONLY = re.compile(
+    r"^\s*(fever|vomiting|nausea|cough|headache|chills|fatigue|rash|dizziness|diarrhoea|"
+    r"diarrhea|sore throat|pain|(abdominal|chest|back|joint) pain)\s*\.?\s*$",
+    re.I,
+)
 # Finds <transcript> or </transcript> typed inside the transcript itself, which could otherwise
 # be used to "close" the data section early and slip in instructions.
 _TRANSCRIPT_TAG = re.compile(r"<\s*/?\s*transcript\s*>", re.I)
@@ -151,9 +159,15 @@ def parse_draft(content: str, transcript: str, include_suggestions: bool = False
             for i in items
         ):
             raise GenerationFailed("invalid_output", content)
-        # Drop allergies, exposures and preventive measures listed as diagnoses, then rank what
+        # Drop allergies, exposures, preventive measures and bare symptoms listed as diagnoses, then
+        # rank what
         # is left from 1.
-        conditions = [i for i in items if not _NOT_A_DIAGNOSIS.search(i["diagnosis"])]
+        conditions = [
+            i
+            for i in items
+            if not _NOT_A_DIAGNOSIS.search(i["diagnosis"])
+            and not _SYMPTOM_ONLY.match(i["diagnosis"])
+        ]
         suggestions = tuple(
             AiSuggestion(i["diagnosis"], i["rationale"], i["management"], rank)
             for rank, i in enumerate(conditions, start=1)

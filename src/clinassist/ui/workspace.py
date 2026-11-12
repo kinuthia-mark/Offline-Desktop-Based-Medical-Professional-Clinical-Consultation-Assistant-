@@ -163,7 +163,7 @@ class ConsultationWorkspace(QWidget):
         self.new_button.clicked.connect(self.new_consultation)
         audio = QGroupBox("1. Consultation")
         a = QVBoxLayout(audio)
-        for w in (self.session_label, self.date_label, QLabel("Sample rate: 16 kHz, mono")):
+        for w in (self.session_label, self.date_label):
             a.addWidget(w)
         a.addWidget(self.type_button)
         a.addSpacing(8)
@@ -513,6 +513,10 @@ class ConsultationWorkspace(QWidget):
         self.start_button.setEnabled(can_start)
         self.type_button.setEnabled(can_start)
         self.stop_button.setEnabled(not busy and state is State.RECORDING)
+        # The clock and the level meter only mean something while dictating.
+        dictating = state is State.RECORDING
+        self.duration_label.setVisible(dictating)
+        self.level_bar.setVisible(dictating)
         self.discard_button.setEnabled(not busy and not idle_or_done)
         self.new_button.setEnabled(not busy and state is State.FINALIZED)
 

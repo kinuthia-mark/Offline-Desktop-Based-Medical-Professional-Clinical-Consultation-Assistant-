@@ -82,6 +82,7 @@ class OverviewView(QWidget):
         )
         for i, (title, label) in enumerate(boxes):
             box = QGroupBox(title)
+            box.setProperty("kind", "row")  # a register row, ruled underneath (ui/theme.py)
             QVBoxLayout(box).addWidget(label)
             grid.addWidget(box, i // 2, i % 2)
         buttons = QHBoxLayout()
@@ -90,11 +91,13 @@ class OverviewView(QWidget):
         buttons.addStretch(1)
 
         layout = QVBoxLayout(self)
-        heading = QLabel("Administration overview")
-        heading.setStyleSheet("font-size: 16pt; font-weight: bold;")
+        layout.setContentsMargins(24, 16, 24, 16)
+        heading = QLabel("System overview")
+        heading.setStyleSheet('font-family: "Bahnschrift"; font-size: 16pt; font-weight: 600;')
         layout.addWidget(heading)
         note = QLabel(
-            "Administrators manage accounts, the audit log and backups. Patient notes are only "
+            "The system administrator keeps the system running for the facility: accounts, the "
+            "audit log, backups, updates and the facility's reports. Patient notes are only "
             "shown to clinicians."
         )
         note.setWordWrap(True)

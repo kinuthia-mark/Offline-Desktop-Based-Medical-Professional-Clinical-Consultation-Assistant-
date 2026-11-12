@@ -111,12 +111,17 @@ the drafted note. The main path is "Type or paste the consultation". Dictation i
 it as a beta, because speech recognition can mishear words; a dictated transcript goes through the
 same approval and checks as a typed one (AMD-39, AMD-48). The
 clinician's own assessment is separate from the model's text, which is labelled as AI-generated. "Finalize and save" stays disabled until the assessment is written and all three
-history boxes are ticked; here one is ticked and two are still to do. The main step on each panel is shown in the
-brand colour, and the program follows the Windows light or dark setting.
+history boxes are ticked; here all three are ticked. Navigation is a sidebar, the main step on each
+panel is in register green, and the program follows the Windows light or dark setting (AMD-49).
 
-Administrators land on their own overview instead (AMD-41), and never see patient notes:
+The System Administrator lands on a system overview instead (AMD-41, AMD-46), and never sees patient notes:
 
-![The administrator overview](docs/screenshots/admin-overview.png)
+![The System Administrator's system overview](docs/screenshots/admin-overview.png)
+
+The System Administrator also sees the facility's reports: the busiest hours and days, consultations
+per day and the conditions seen (AMD-47). Synthetic data:
+
+![The Reports tab with charts](docs/screenshots/reports.png)
 
 ---
 
@@ -223,7 +228,7 @@ is recorded.
 | Evaluation: 8 scripted consultations with key facts and traps, scored end to end | FR-05, NFR-03, NFR-06 | built and run; public datasets with clinicians' notes replace clinician scoring (ADR-016) |
 | Windows installer and offline model bundle (Ollama included, pinned and checked), with a self-test | release, AMD-15 | built and installed on the reference PC; a second PC is still to do |
 
-732 tests run on every push, on Windows with Python 3.11 and 3.12, together with
+733 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
 
 **Still to do:** installing on a second, clean PC, and submitting the final report. The report

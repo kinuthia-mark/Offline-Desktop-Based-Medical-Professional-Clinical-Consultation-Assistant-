@@ -91,6 +91,7 @@ class DatabaseView(QWidget):
         rb.addWidget(self.rows, 1)
 
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(16, 12, 16, 12)
         layout.addWidget(disk)
         layout.addWidget(top, 2)
         layout.addWidget(rows_box, 2)
