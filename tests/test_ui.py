@@ -1139,6 +1139,10 @@ def test_reports_tab_shows_counts_and_saves_a_csv(qapp, services, tmp_path):
     }
     assert measures["Notes finalized and saved"] == "0"
     assert measures["Failed logins"] == "0"
+    # The four charts are drawn even with no data yet: busiest hours and days, daily count,
+    # and conditions seen.
+    assert set(view.chart_views) == {"hours", "days", "daily", "conditions"}
+    assert all(v.chart().series() for v in view.chart_views.values())
     assert "Last 30 days" in view.period_label.text()
     view.save_button.click()
     assert target.read_text(encoding="utf-8-sig").splitlines()[3] == "Section,Measure,Value"
