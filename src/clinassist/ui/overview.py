@@ -94,8 +94,9 @@ class OverviewView(QWidget):
         heading.setStyleSheet('font-family: "Bahnschrift"; font-size: 16pt; font-weight: 600;')
         layout.addWidget(heading)
         note = QLabel(
-            "The ICT officer keeps the system running: accounts, the audit log, backups and "
-            "updates. Patient notes are only shown to clinicians."
+            "The system administrator keeps the system running for the facility: accounts, the "
+            "audit log, backups, updates and the facility's reports. Patient notes are only "
+            "shown to clinicians."
         )
         note.setWordWrap(True)
         layout.addWidget(note)

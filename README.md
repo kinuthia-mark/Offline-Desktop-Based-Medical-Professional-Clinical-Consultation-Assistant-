@@ -114,11 +114,11 @@ clinician's own assessment is separate from the model's text, which is labelled 
 history boxes are ticked; here all three are ticked. Navigation is a sidebar, the main step on each
 panel is in register green, and the program follows the Windows light or dark setting (AMD-49).
 
-The ICT officer lands on a system overview instead (AMD-41, AMD-46), and never sees patient notes:
+The System Administrator lands on a system overview instead (AMD-41, AMD-46), and never sees patient notes:
 
-![The ICT officer's system overview](docs/screenshots/admin-overview.png)
+![The System Administrator's system overview](docs/screenshots/admin-overview.png)
 
-The health records officer sees the facility's reports: the busiest hours and days, consultations
+The System Administrator also sees the facility's reports: the busiest hours and days, consultations
 per day and the conditions seen (AMD-47). Synthetic data:
 
 ![The Reports tab with charts](docs/screenshots/reports.png)
