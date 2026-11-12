@@ -76,7 +76,7 @@ The application is a step-by-step process. The software will not let a step happ
 stateDiagram-v2
     [*] --> Idle
     Idle --> Recording: start recording
-    Idle --> Transcribed: type the transcript instead
+    Idle --> Transcribed: type or paste the consultation
     Recording --> Transcribed: stop (speech is turned into text)
     Transcribed --> Approved: doctor edits and approves the text
     Approved --> Drafted: model drafts the note
@@ -106,9 +106,10 @@ Nothing typed is lost.
 
 ![The consultation screen with a synthetic consultation](docs/screenshots/workspace.png)
 
-Left to right: the recording controls, the transcript the clinician corrects and approves, and the
-drafted note. A clinician who does not want to record can choose "Type the transcript instead" and
-type it; the typed text goes through the same approval and checks as a spoken one (AMD-39). The
+Left to right: starting the consultation, the transcript the clinician corrects and approves, and
+the drafted note. The main path is "Type or paste the consultation". Dictation is offered beside
+it as a beta, because speech recognition can mishear words; a dictated transcript goes through the
+same approval and checks as a typed one (AMD-39, AMD-48). The
 clinician's own assessment is separate from the model's text, which is labelled as AI-generated. "Finalize and save" stays disabled until the assessment is written and all three
 history boxes are ticked; here one is ticked and two are still to do. The main step on each panel is shown in the
 brand colour, and the program follows the Windows light or dark setting.
@@ -212,7 +213,7 @@ is recorded.
 | Offline update of the language model from a checked model bundle, from the admin screen | FR-10b | built and tested (ADR-015) |
 | Database tab for administrators: encryption shown on the real file, tables, rules and rows (read-only; clinical text never shown) | AMD-40 | built and tested |
 | Two roles: clinicians land on the consultation screen; the System Administrator runs the system for the facility (accounts, backups, model update, offline protection, audit log, database check, facility reports) and never sees patient notes | AMD-41, AMD-46 | built and tested |
-| Reports tab for administrators: consultations, how notes were written, how often AI text was kept, suggestions accepted, median drafting time, notes per clinician and per day, failed logins; saved as CSV; counts and times only, never patient text ([screenshot](docs/screenshots/reports.png), synthetic) | AMD-43 | built and tested ([ADR-019](docs/ADR/019-system-reports.md)) |
+| Reports tab for the System Administrator: charts of the busiest hours and days (staffing), consultations per day and conditions seen (disease surveillance, MOH 705 categories, fewer than 3 cases folded into Other), plus counts of how notes were written and AI text kept, suggestions accepted, median drafting time and failed logins; saved as CSV; never patient text | AMD-43 | built and tested ([ADR-019](docs/ADR/019-system-reports.md)) |
 | Input check (prompt injection, personal data) and checks on the model's reply | FR-05, AMD-11 | built and tested |
 | Microphone recorder | FR-01 | built and tested, including on the real microphone |
 | Speech-to-text (Faster-Whisper small, offline) | FR-02 | built and measured with synthetic speech |
@@ -222,7 +223,7 @@ is recorded.
 | Evaluation: 8 scripted consultations with key facts and traps, scored end to end | FR-05, NFR-03, NFR-06 | built and run; public datasets with clinicians' notes replace clinician scoring (ADR-016) |
 | Windows installer and offline model bundle (Ollama included, pinned and checked), with a self-test | release, AMD-15 | built and installed on the reference PC; a second PC is still to do |
 
-729 tests run on every push, on Windows with Python 3.11 and 3.12, together with
+732 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
 
 **Still to do:** installing on a second, clean PC, and submitting the final report. The report

@@ -1,4 +1,4 @@
-"""System reports for administrators: how the program is being used, as counts and times only.
+"""Reports for the system administrator: how the facility is working, as counts and times.
 
 A clinic manager or supervisor needs to know how many consultations were documented, how often
 the AI's draft was used, how often a clinician kept the AI's text as it was, how long drafting
@@ -13,6 +13,13 @@ these columns, never the transcript, the note sections or the diagnosis text:
     audit_logs:   ts, event, session_id, user_id
     users:        user_id, display_name, role
 
+To show which conditions the facility sees (disease surveillance, as in the monthly MOH 705
+return), the clinician's final assessment and the suggestions they accepted are also READ, but
+never shown: each is matched against the fixed list of conditions in CONDITIONS, and only that
+list's own label is counted. Text that matches nothing counts as "Other". A condition with fewer
+than SMALL_COUNT cases in the period is folded into "Other" too, so a rare case cannot point to
+one patient (small-cell suppression, as health statistics offices do).
+
 `tests/test_reports.py` puts a marker word in every clinical column and checks it never
 reaches a report or its CSV file.
 """
@@ -22,6 +29,7 @@ from __future__ import annotations
 import csv
 import io
 import json
+import re
 from collections import Counter
 from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, timedelta
@@ -29,6 +37,44 @@ from statistics import median
 
 # The periods offered on the screen, in days; None means everything stored.
 PERIODS: dict[str, int | None] = {"Last 7 days": 7, "Last 30 days": 30, "All time": None}
+
+# Common primary-care conditions, after the categories of Kenya's outpatient morbidity summary
+# (MOH 705). Each label is counted when one of its words appears in a saved note's assessment or
+# an accepted suggestion. Only these labels ever leave this module, never the note's own words.
+CONDITIONS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("Malaria", ("malaria",)),
+    (
+        "Upper respiratory tract infection",
+        ("upper respiratory", "urti", "common cold", "pharyngitis", "tonsillitis", "sinusitis"),
+    ),
+    ("Pneumonia", ("pneumonia",)),
+    ("Bronchitis or other chest infection", ("bronchitis", "chest infection", "lower respiratory")),
+    ("Tuberculosis", ("tuberculosis", "tb")),
+    ("Diarrhoea or gastroenteritis", ("diarrhoea", "diarrhea", "gastroenteritis")),
+    ("Urinary tract infection", ("urinary tract infection", "uti", "cystitis", "pyelonephritis")),
+    ("Hypertension", ("hypertension", "high blood pressure")),
+    ("Diabetes", ("diabetes",)),
+    ("Asthma", ("asthma",)),
+    ("Skin infection", ("cellulitis", "skin infection", "abscess", "impetigo", "wound infection")),
+    ("Typhoid", ("typhoid",)),
+    ("Anaemia", ("anaemia", "anemia")),
+)
+_CONDITION_PATTERNS = [
+    (label, re.compile(r"\b(" + "|".join(re.escape(w) for w in words) + r")\b", re.IGNORECASE))
+    for label, words in CONDITIONS
+]
+OTHER = "Other conditions"
+SMALL_COUNT = 3  # fewer cases than this in a period are folded into OTHER
+WEEKDAYS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+
+def conditions_in(texts) -> set[str]:
+    """The CONDITIONS labels found in `texts`; OTHER when none is found. Never the texts."""
+    found = {
+        label for label, pattern in _CONDITION_PATTERNS for t in texts if t and pattern.search(t)
+    }
+    return found or {OTHER}
+
 
 # A consultation starts with one of these events; its first one gives the start time.
 START_EVENTS = frozenset({"recording_started", "typed_transcript_started"})
@@ -64,6 +110,10 @@ class Report:
     per_day: dict[str, int] = field(default_factory=dict)  # finalized notes per date
     per_clinician: dict[str, int] = field(default_factory=dict)  # display name -> finalized
     models: dict[str, int] = field(default_factory=dict)  # "speech / language" -> notes
+    # When the facility is busiest, and what it sees (for staffing and disease surveillance)
+    per_hour: dict[int, int] = field(default_factory=dict)  # hour of day 0-23 -> saved notes
+    per_weekday: dict[str, int] = field(default_factory=dict)  # "Mon".."Sun" -> saved notes
+    conditions: dict[str, int] = field(default_factory=dict)  # CONDITIONS label -> consultations
     # Accounts
     failed_logins: int = 0
     lockouts: int = 0
@@ -97,6 +147,17 @@ def build_report(vault, period: str, now: datetime | None = None, tz=None) -> Re
             " generation_attempts, guardrail_flags, asr_model, model_version FROM sessions"
         ).fetchall()
         suggestions = conn.execute("SELECT session_id, accepted FROM suggestions").fetchall()
+        # Read only to be matched against CONDITIONS below; never copied into the report.
+        assessments = dict(
+            conn.execute(
+                "SELECT session_id, assessment FROM notes WHERE kind = 'clinician_final'"
+            ).fetchall()
+        )
+        accepted_dx: dict[str, list[str]] = {}
+        for sid, dx in conn.execute(
+            "SELECT session_id, diagnosis FROM suggestions WHERE accepted = 1"
+        ).fetchall():
+            accepted_dx.setdefault(sid, []).append(dx)
         events = conn.execute(
             "SELECT ts, event, session_id, user_id FROM audit_logs ORDER BY seq"
         ).fetchall()
@@ -106,6 +167,9 @@ def build_report(vault, period: str, now: datetime | None = None, tz=None) -> Re
     per_day: Counter[str] = Counter()
     per_clinician: Counter[str] = Counter()
     models: Counter[str] = Counter()
+    per_hour: Counter[int] = Counter()
+    per_weekday: Counter[str] = Counter()
+    conditions: Counter[str] = Counter()
     saved: set[str] = set()
     for sid, created, by, source, origin, attempts, flags, asr, llm in sessions:
         if not in_period(_parse(created)):
@@ -126,7 +190,11 @@ def build_report(vault, period: str, now: datetime | None = None, tz=None) -> Re
         if n_flags:
             counts["notes_with_flags"] += 1
             counts["flags_total"] += n_flags
-        per_day[_parse(created).astimezone(tz).date().isoformat()] += 1
+        local = _parse(created).astimezone(tz)
+        per_day[local.date().isoformat()] += 1
+        per_hour[local.hour] += 1
+        per_weekday[WEEKDAYS[local.weekday()]] += 1
+        conditions.update(conditions_in([assessments.get(sid, ""), *accepted_dx.get(sid, [])]))
         per_clinician[names.get(by, "(account removed)")] += 1
         models[f"{asr or 'typed'} / {llm or 'written by hand'}"] += 1
 
@@ -176,8 +244,23 @@ def build_report(vault, period: str, now: datetime | None = None, tz=None) -> Re
         per_day=dict(sorted(per_day.items())),
         per_clinician=dict(per_clinician.most_common()),
         models=dict(models.most_common()),
+        per_hour={h: per_hour[h] for h in range(24)},
+        per_weekday={d: per_weekday[d] for d in WEEKDAYS},
+        conditions=_suppress_small(conditions),
         **{k: v for k, v in counts.items()},
     )
+
+
+def _suppress_small(counts: Counter) -> dict[str, int]:
+    """Most common first; a condition with fewer than SMALL_COUNT cases joins OTHER."""
+    kept: Counter[str] = Counter()
+    for label, n in counts.items():
+        kept[label if n >= SMALL_COUNT and label != OTHER else OTHER] += n
+    other = kept.pop(OTHER, 0)
+    result = dict(kept.most_common())
+    if other:
+        result[OTHER] = other
+    return result
 
 
 def summary_rows(r: Report) -> list[tuple[str, str, str]]:
@@ -231,6 +314,11 @@ def summary_rows(r: Report) -> list[tuple[str, str, str]]:
     rows += [("Notes per clinician", name, str(n)) for name, n in r.per_clinician.items()]
     rows += [("Notes per model (speech / language)", m, str(n)) for m, n in r.models.items()]
     rows += [("Notes per day", day, str(n)) for day, n in r.per_day.items()]
+    rows += [("Conditions seen", c, str(n)) for c, n in r.conditions.items()]
+    rows += [("Busiest days", d, str(n)) for d, n in r.per_weekday.items() if n]
+    rows += [
+        ("Busiest hours", f"{h:02d}:00-{h:02d}:59", str(n)) for h, n in r.per_hour.items() if n
+    ]
     return rows
 
 

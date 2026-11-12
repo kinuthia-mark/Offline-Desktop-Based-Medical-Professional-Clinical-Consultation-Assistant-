@@ -181,3 +181,35 @@ def test_days_are_counted_in_the_clinics_time_zone(vault):
     nairobi = timezone(timedelta(hours=3))
     assert reports.build_report(vault, "All time", now=NOW, tz=UTC).per_day == {"2026-10-21": 1}
     assert reports.build_report(vault, "All time", now=NOW, tz=nairobi).per_day == {"2026-10-22": 1}
+
+
+# ----- when the facility is busiest, and what it sees (records officer) -----
+def test_busiest_hours_and_days_are_counted_in_local_time(filled):
+    r = reports.build_report(filled, "Last 7 days", now=NOW, tz=UTC)
+    assert sum(r.per_hour.values()) == r.finalized == 3
+    assert len(r.per_hour) == 24 and len(r.per_weekday) == 7
+    assert r.per_weekday["Tue"] == 3  # 20 October 2026 was a Tuesday
+
+
+def test_conditions_are_counted_from_a_fixed_list_never_from_the_notes_words(vault):
+    """Three pneumonias are counted by name; a single malaria is folded into 'Other' so a rare
+    case cannot point to one patient; free text never appears, only the list's own labels."""
+    clock = Clock(NOW - timedelta(days=1))
+    for i in range(3):
+        _consultation(
+            vault,
+            clock,
+            f"p{i}",
+            final_note=SoapNote("s", "o", f"Community-acquired pneumonia {SECRET}", "p"),
+        )
+    _consultation(vault, clock, "m1", final_note=SoapNote("s", "o", "Malaria, confirmed", "p"))
+    r = reports.build_report(vault, "Last 7 days", now=NOW, tz=UTC)
+    assert r.conditions == {"Pneumonia": 3, "Other conditions": 1}
+    text = repr(r) + reports.to_csv(r)
+    assert SECRET not in text and "Malaria" not in text and "Community-acquired" not in text
+
+
+def test_condition_matching_uses_whole_words():
+    assert reports.conditions_in(["Possible TB, refer"]) == {"Tuberculosis"}
+    assert reports.conditions_in(["Attribute to stress"]) == {"Other conditions"}
+    assert reports.conditions_in(["Malaria and UTI"]) == {"Malaria", "Urinary tract infection"}
