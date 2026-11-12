@@ -1,4 +1,4 @@
-"""Reports for the health records officer: how the facility is working, as counts and times.
+"""Reports for the system administrator: how the facility is working, as counts and times.
 
 A clinic manager or supervisor needs to know how many consultations were documented, how often
 the AI's draft was used, how often a clinician kept the AI's text as it was, how long drafting

@@ -35,7 +35,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from clinassist.domain import CLINICIAN, ICT_OFFICER, RECORDS_OFFICER, ROLE_LABELS
+from clinassist.domain import ADMIN, CLINICIAN, ROLE_LABELS
 from clinassist.ui import theme
 from clinassist.ui.admin import AdminView
 from clinassist.ui.database import DatabaseView
@@ -350,13 +350,12 @@ class MainWindow(QMainWindow):
         who = f"{self.session.display_name} ({label})"
         self.user_label.setText(f"Logged in as {who}")
         self.show_toast(f"Logged in as {who}")
-        # Each job sees only its own screens: clinicians the consultations, the ICT officer the
-        # system, the health records officer the usage reports. Nobody but a clinician sees notes.
+        # Each role sees only its own screens: clinicians the consultations, the system
+        # administrator the system and the facility's reports. Nobody but a clinician sees notes.
         role = self.session.role
         tabs_for = {
             CLINICIAN: (self.workspace_index, self.records_index),
-            ICT_OFFICER: (self.overview_index, self.admin_index, self.database_index),
-            RECORDS_OFFICER: (self.reports_index,),
+            ADMIN: (self.overview_index, self.admin_index, self.database_index, self.reports_index),
         }
         mine = tabs_for.get(role, ())
         for index in range(self.tabs.count()):
@@ -377,15 +376,15 @@ class MainWindow(QMainWindow):
 
     def _tab_opened(self, index: int) -> None:
         role, widget = self.session.role, self.tabs.widget(index)
-        if widget is self.overview and role == ICT_OFFICER:
+        if widget is self.overview and role == ADMIN:
             self.overview.reload()
         elif widget is self.records and role == CLINICIAN:
             self.records.reload()
-        elif widget is self.admin and role == ICT_OFFICER:
+        elif widget is self.admin and role == ADMIN:
             self.admin.reload()
-        elif widget is self.database and role == ICT_OFFICER:
+        elif widget is self.database and role == ADMIN:
             self.database.reload()
-        elif widget is self.reports and role == RECORDS_OFFICER:
+        elif widget is self.reports and role == ADMIN:
             self.reports.reload()
 
     def _restored(self) -> None:
