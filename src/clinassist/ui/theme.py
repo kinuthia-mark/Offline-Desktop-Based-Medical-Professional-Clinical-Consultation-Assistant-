@@ -28,79 +28,114 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QGuiApplication
 
+# The identity comes from the clinic itself: register green (the colour of the MOH registers and
+# facility signage) for actions, and record ink (a deep blue-slate) for the sidebar and headings,
+# on a cool clinic grey. Amber is kept for AI-generated text only.
 LIGHT = {
-    "bg": "#eef3f3",
+    "bg": "#eef2f4",
     "surface": "#ffffff",
     "input": "#ffffff",
-    "text": "#1d2a2a",
-    "muted": "#5f7070",
-    "border": "#cddbdb",
-    "primary": "#0f6e6e",
-    "primary_hover": "#0b5959",
+    "text": "#13262f",
+    "muted": "#526570",
+    "border": "#d3dde2",
+    "primary": "#0a6b47",
+    "primary_hover": "#08583a",
     "primary_text": "#ffffff",
-    "danger": "#b3261e",
-    "selection": "#cfe8e6",
-    "control_border": "#6f8584",  # outline of text boxes and buttons: at least 3:1 (WCAG 1.4.11)
-    "primary_button": "#0f6e6e",  # behind white button text: at least 4.5:1
+    "danger": "#b42318",
+    "selection": "#d6ebe1",
+    "control_border": "#6b7f89",  # outline of text boxes and buttons: at least 3:1 (WCAG 1.4.11)
+    "primary_button": "#0a6b47",  # behind white button text: at least 4.5:1
     "ai": "#8a5a00",
-    "error": "#b3261e",
-    "ok": "#1e7a33",
+    "error": "#b42318",
+    "ok": "#0a6b47",
     "warn": "#8a5a00",
-    "quiet": "#5f7070",
+    "quiet": "#526570",
+    # The sidebar, in record ink
+    "ink": "#12303f",
+    "ink_text": "#e6eef2",
+    "ink_muted": "#a9bdc7",
+    "ink_selected": "#1f4659",
+    "ink_mark": "#5cc79a",  # the selected item's edge: register green, lightened for the ink
 }
 DARK = {
-    "bg": "#161d1f",
-    "surface": "#1f282a",
-    "input": "#182022",
-    "text": "#e4ecec",
-    "muted": "#93a6a6",
-    "border": "#33413f",
-    "primary": "#2a9d8f",
-    "primary_hover": "#238579",
+    "bg": "#0f1a20",
+    "surface": "#16242c",
+    "input": "#121e25",
+    "text": "#e3ecef",
+    "muted": "#9ab0ba",
+    "border": "#2b3d47",
+    "primary": "#46b98a",
+    "primary_hover": "#3aa37a",
     "primary_text": "#ffffff",
-    "danger": "#ef6b64",
-    "selection": "#264845",
-    "control_border": "#6f8583",
-    # The brand teal is too light behind white text in the dark version (3.3:1), so buttons use
-    # a deeper teal (5.5:1); titles and tabs keep the brand teal, which passes as text.
-    "primary_button": "#1c756b",
+    "danger": "#f2766c",
+    "selection": "#1f4a3a",
+    "control_border": "#6d8591",
+    # The light green is too pale behind white text in the dark version, so buttons use a deeper
+    # green (over 4.5:1); titles and marks keep the lighter green, which passes as text.
+    "primary_button": "#1d7350",
     "ai": "#e0a33a",
-    "error": "#f07a73",
-    "ok": "#4cc26a",
+    "error": "#f2766c",
+    "ok": "#4cc28a",
     "warn": "#e0a33a",
-    "quiet": "#93a6a6",
+    "quiet": "#9ab0ba",
+    "ink": "#09141a",
+    "ink_text": "#dbe6eb",
+    "ink_muted": "#8fa6b1",
+    "ink_selected": "#17323f",
+    "ink_mark": "#46b98a",
 }
 TONES = ("ai", "error", "ok", "warn", "quiet")
 
 
 def stylesheet(c: dict) -> str:
     return f"""
-QWidget {{ font-size: 10pt; color: {c["text"]}; }}
+QWidget {{ font-family: "Segoe UI"; font-size: 10pt; color: {c["text"]}; }}
 QMainWindow, QDialog {{ background: {c["bg"]}; }}
 
-#appHeader {{ background: {c["surface"]}; border-bottom: 3px solid {c["primary"]}; }}
-#appTitle {{ font-size: 13pt; font-weight: 700; color: {c["primary"]}; }}
+/* Header: plain white strip with the name in the signage face; no coloured bar. */
+#appHeader {{ background: {c["surface"]}; border-bottom: 1px solid {c["border"]}; }}
+#appTitle {{
+    font-family: "Bahnschrift"; font-size: 14pt; font-weight: 600; color: {c["text"]};
+}}
 #appUser {{
-    color: {c["text"]}; background: {c["bg"]}; border: 1px solid {c["control_border"]};
-    border-radius: 11px; padding: 3px 10px;
+    color: {c["text"]}; background: {c["bg"]}; border: 1px solid {c["border"]};
+    border-radius: 3px; padding: 3px 10px;
 }}
 #toast, #notice {{
-    color: {c["text"]}; background: {c["surface"]}; border: 1px solid {c["primary"]};
-    border-left: 5px solid {c["primary"]}; border-radius: 6px; padding: 10px 14px;
+    color: {c["text"]}; background: {c["surface"]}; border: 1px solid {c["border"]};
+    border-left: 5px solid {c["primary"]}; border-radius: 3px; padding: 10px 14px;
     font-weight: 600;
 }}
 
+/* The sidebar: record ink, like the index tabs of a patient file. */
+#sideNav {{ background: {c["ink"]}; }}
+#sideNav QLabel {{ color: {c["ink_muted"]}; font-size: 9pt; }}
+#navItem {{
+    font-family: "Bahnschrift"; font-size: 11pt; text-align: left;
+    color: {c["ink_text"]}; background: transparent; border: none;
+    border-left: 4px solid transparent; border-radius: 0; padding: 11px 16px;
+}}
+#navItem:hover {{ background: {c["ink_selected"]}; }}
+#navItem:checked {{
+    background: {c["ink_selected"]}; color: #ffffff; border-left: 4px solid {c["ink_mark"]};
+}}
+#navItem:focus {{ border: 2px solid {c["ink_mark"]}; }}
+QTabWidget#mainTabs::pane {{ border: none; background: transparent; }}
+
+/* Panels are flat sheets with a hairline edge, titled in the signage face. */
 QGroupBox {{
-    background: {c["surface"]}; border: 1px solid {c["border"]}; border-radius: 8px;
-    margin-top: 16px; padding: 12px 10px 10px 10px; font-weight: 600;
+    background: {c["surface"]}; border: 1px solid {c["border"]}; border-radius: 4px;
+    margin-top: 20px; padding: 14px 10px 10px 10px;
 }}
 QGroupBox::title {{
-    subcontrol-origin: margin; left: 12px; padding: 0 4px; color: {c["primary"]};
+    subcontrol-origin: margin; left: 2px; padding: 0 2px; color: {c["text"]};
+    font-family: "Bahnschrift"; font-size: 11pt; font-weight: 600;
 }}
 QGroupBox QLabel {{ font-weight: normal; }}
 
 QPushButton {{
-    background: {c["surface"]}; border: 1px solid {c["control_border"]}; border-radius: 6px;
+    font-family: "Bahnschrift"; font-size: 10pt;
+    background: {c["surface"]}; border: 1px solid {c["control_border"]}; border-radius: 4px;
     padding: 6px 14px; min-height: 18px;
 }}
 QPushButton:hover {{ border-color: {c["primary"]}; }}
@@ -117,22 +152,19 @@ QPushButton[kind="primary"]:disabled {{
 QPushButton[kind="danger"] {{ color: {c["danger"]}; border-color: {c["danger"]}; }}
 QPushButton[kind="danger"]:disabled {{ color: {c["muted"]}; border-color: {c["border"]}; }}
 
+/* Tabs inside a panel (SOAP note, Diagnostics): an underline, not a folder tab. */
 QTabWidget::pane {{
-    border: 1px solid {c["border"]}; border-radius: 8px; background: {c["bg"]}; top: -1px;
+    border: 1px solid {c["border"]}; border-radius: 4px; background: {c["surface"]}; top: -1px;
 }}
 QTabBar::tab {{
-    background: {c["bg"]}; color: {c["muted"]}; padding: 8px 18px; margin-right: 2px;
-    border: 1px solid {c["border"]}; border-bottom: none;
-    border-top-left-radius: 6px; border-top-right-radius: 6px;
+    font-family: "Bahnschrift"; background: transparent; color: {c["muted"]};
+    padding: 7px 16px; margin-right: 4px; border: none; border-bottom: 3px solid transparent;
 }}
-QTabBar::tab:selected {{
-    background: {c["surface"]}; color: {c["primary"]}; font-weight: 600;
-    border-top: 3px solid {c["primary"]};
-}}
+QTabBar::tab:selected {{ color: {c["text"]}; border-bottom: 3px solid {c["primary"]}; }}
 QTabBar::tab:hover:!selected {{ color: {c["text"]}; }}
 
 QPlainTextEdit, QTextEdit, QLineEdit, QListWidget, QTableWidget, QComboBox {{
-    background: {c["input"]}; border: 1px solid {c["control_border"]}; border-radius: 6px;
+    background: {c["input"]}; border: 1px solid {c["control_border"]}; border-radius: 4px;
     padding: 4px; selection-background-color: {c["selection"]}; selection-color: {c["text"]};
 }}
 QPlainTextEdit:focus, QTextEdit:focus, QLineEdit:focus, QComboBox:focus,

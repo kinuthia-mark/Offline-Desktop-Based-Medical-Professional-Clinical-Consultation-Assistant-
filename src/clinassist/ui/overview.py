@@ -90,12 +90,12 @@ class OverviewView(QWidget):
         buttons.addStretch(1)
 
         layout = QVBoxLayout(self)
-        heading = QLabel("Administration overview")
-        heading.setStyleSheet("font-size: 16pt; font-weight: bold;")
+        heading = QLabel("System overview")
+        heading.setStyleSheet('font-family: "Bahnschrift"; font-size: 16pt; font-weight: 600;')
         layout.addWidget(heading)
         note = QLabel(
-            "Administrators manage accounts, the audit log and backups. Patient notes are only "
-            "shown to clinicians."
+            "The ICT officer keeps the system running: accounts, the audit log, backups and "
+            "updates. Patient notes are only shown to clinicians."
         )
         note.setWordWrap(True)
         layout.addWidget(note)

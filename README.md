@@ -111,12 +111,17 @@ the drafted note. The main path is "Type or paste the consultation". Dictation i
 it as a beta, because speech recognition can mishear words; a dictated transcript goes through the
 same approval and checks as a typed one (AMD-39, AMD-48). The
 clinician's own assessment is separate from the model's text, which is labelled as AI-generated. "Finalize and save" stays disabled until the assessment is written and all three
-history boxes are ticked; here one is ticked and two are still to do. The main step on each panel is shown in the
-brand colour, and the program follows the Windows light or dark setting.
+history boxes are ticked; here all three are ticked. Navigation is a sidebar, the main step on each
+panel is in register green, and the program follows the Windows light or dark setting (AMD-49).
 
-Administrators land on their own overview instead (AMD-41), and never see patient notes:
+The ICT officer lands on a system overview instead (AMD-41, AMD-46), and never sees patient notes:
 
-![The administrator overview](docs/screenshots/admin-overview.png)
+![The ICT officer's system overview](docs/screenshots/admin-overview.png)
+
+The health records officer sees the facility's reports: the busiest hours and days, consultations
+per day and the conditions seen (AMD-47). Synthetic data:
+
+![The Reports tab with charts](docs/screenshots/reports.png)
 
 ---
 
