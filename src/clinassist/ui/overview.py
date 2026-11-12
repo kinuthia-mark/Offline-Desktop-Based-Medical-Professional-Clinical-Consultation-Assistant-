@@ -27,6 +27,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from clinassist.domain import ADMIN
 from clinassist.ui.messages import message_for
 from clinassist.ui.theme import mark, tone
 from clinassist.ui.workers import error_code
@@ -105,7 +106,7 @@ class OverviewView(QWidget):
 
     def reload(self) -> None:
         try:
-            self._auth.require(self._admin(), "admin")
+            self._auth.require(self._admin(), ADMIN)
             users = self._auth.list_users(self._admin())
             result = self._auditor.verify()
             events = self._auditor.events(1000)
@@ -115,11 +116,11 @@ class OverviewView(QWidget):
             return
         self.message.clear()
 
-        clinicians = [u for u in users if u["role"] == "clinician"]
-        admins = [u for u in users if u["role"] == "admin"]
+        clinicians = sum(u["role"] == "clinician" for u in users)
+        admins = sum(u["role"] == ADMIN for u in users)
         off = [u["username"] for u in users if not u["active"]]
         locked = [u["username"] for u in users if u["locked"]]
-        lines = [f"{len(clinicians)} clinician(s), {len(admins)} administrator(s)"]
+        lines = [f"{clinicians} clinician(s), {admins} system administrator(s)"]
         if off:
             lines.append("Turned off: " + ", ".join(off))
         if locked:

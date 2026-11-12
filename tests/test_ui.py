@@ -771,7 +771,7 @@ def test_admin_lands_on_the_overview_and_sees_no_patient_work(qapp, services):
     window = MainWindow(services, admin, login_again=lambda n: None)
     assert window.tabs.currentWidget() is window.overview
     assert _visible(window) == ["Overview", "Audit and accounts", "Database", "Reports"]
-    assert "1 administrator" in window.overview.accounts_label.text()
+    assert "1 system administrator" in window.overview.accounts_label.text()
     assert "Intact" in window.overview.audit_label.text()
     assert "No backup" in window.overview.backup_label.text()
     window.close()
@@ -1270,8 +1270,8 @@ def test_login_shows_who_is_logged_in_in_the_corner_and_the_header(qapp, service
     window = MainWindow(services, doctor, login_again=lambda n: None)
     window.resize(1200, 800)
     window.show()
-    assert window.user_label.text() == "Logged in as dr.one (clinician)"
-    assert window.toast.isVisible() and window.toast.text() == "Logged in as dr.one (clinician)"
+    assert window.user_label.text() == "Logged in as dr.one (Clinician)"
+    assert window.toast.isVisible() and window.toast.text() == "Logged in as dr.one (Clinician)"
     # top right, level with the tabs, clear of "Finalize and save" at the bottom
     assert window.toast.x() > window.width() / 2 and window.toast.y() < window.height() / 4
     from PySide6.QtCore import Qt
@@ -1301,7 +1301,7 @@ def test_switching_user_greets_the_new_user(qapp, services):
     admin = services.auth.login("admin", "admin synthetic password 1")
     window = MainWindow(services, doctor, login_again=lambda n: admin)
     window.log_out()
-    assert window.toast.text() == "Logged in as Synthetic Admin (admin)"
+    assert window.toast.text() == "Logged in as Synthetic Admin (System Administrator)"
     window.close()
 
 

@@ -35,6 +35,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from clinassist.domain import ADMIN, ROLE_LABELS, ROLES
 from clinassist.ui.messages import message_for
 from clinassist.ui.workers import error_code, run_in_background
 
@@ -101,7 +102,8 @@ class AdminView(QWidget):
         self.password = QLineEdit()
         self.password.setEchoMode(QLineEdit.EchoMode.Password)
         self.role = QComboBox()
-        self.role.addItems(["clinician", "admin"])
+        for code in ROLES:
+            self.role.addItem(ROLE_LABELS[code], code)
         create = QPushButton("Create account")
         create.clicked.connect(self.create_user)
         self.users = QTableWidget(0, 5)
@@ -256,7 +258,7 @@ class AdminView(QWidget):
             values = (
                 u["username"],
                 u["display_name"],
-                u["role"],
+                ROLE_LABELS.get(u["role"], u["role"]),
                 "yes" if u["active"] else "no",
                 "yes" if u["locked"] else "",
             )
@@ -274,7 +276,7 @@ class AdminView(QWidget):
                 self.username.text(),
                 self.password.text(),
                 self.display_name.text(),
-                self.role.currentText(),
+                self.role.currentData(),
             )
         except Exception as exc:
             self.account_message.setText(message_for(error_code(exc)))
@@ -334,7 +336,7 @@ class AdminView(QWidget):
     # ----- backup and restore -----
     def make_backup(self) -> None:
         try:
-            self._auth.require(self._admin(), "admin")
+            self._auth.require(self._admin(), ADMIN)
             path = self._ask_save_path(self._backups.default_name())
             if not path:
                 return
@@ -349,7 +351,7 @@ class AdminView(QWidget):
 
     def restore(self) -> None:
         try:
-            self._auth.require(self._admin(), "admin")
+            self._auth.require(self._admin(), ADMIN)
             path = self._ask_open_path()
             if not path:
                 return
@@ -401,7 +403,7 @@ class AdminView(QWidget):
     # ----- offline model update (FR-10b) -----
     def update_model(self) -> None:
         try:
-            self._auth.require(self._admin(), "admin")
+            self._auth.require(self._admin(), ADMIN)
             folder = self._ask_folder()
             if not folder:
                 return
@@ -453,7 +455,7 @@ class AdminView(QWidget):
 
     def switch_protection(self) -> None:
         try:
-            self._auth.require(self._admin(), "admin")
+            self._auth.require(self._admin(), ADMIN)
             turn_on = not self._protection_on
             if not turn_on and not self._confirm(
                 "Turn offline protection off? Other programs on this PC will be able to reach "

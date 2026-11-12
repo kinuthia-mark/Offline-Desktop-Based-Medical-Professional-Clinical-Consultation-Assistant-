@@ -242,6 +242,13 @@ def test_v1_vault_upgrades_to_v2_keeping_sessions(tmp_path, monkeypatch):
     assert not AuthService(reopened, hasher=FAST).has_users()
 
 
+def test_the_admin_role_is_shown_as_system_administrator():
+    """The stored role code is 'admin'; people see the job title."""
+    from clinassist.domain import ADMIN, ROLE_LABELS, ROLES
+
+    assert ROLES == ("clinician", "admin") and ROLE_LABELS[ADMIN] == "System Administrator"
+
+
 def test_admin_can_list_accounts_without_password_hashes(rig):
     auth, admin, doc_id, *_ = rig
     users = auth.list_users(admin)

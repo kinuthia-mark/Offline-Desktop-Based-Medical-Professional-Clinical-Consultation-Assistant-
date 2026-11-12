@@ -37,6 +37,14 @@ class GenerationFailed(RuntimeError):
 # one part of the program from quietly altering a note another part is relying on.
 
 
+# The two roles. The system administrator runs the system for the facility: accounts, backups,
+# model updates, offline protection, the audit log, and the facility's reports. Only clinicians
+# see consultation notes. The stored code stays "admin"; people see the job title.
+CLINICIAN, ADMIN = "clinician", "admin"
+ROLES = (CLINICIAN, ADMIN)
+ROLE_LABELS = {CLINICIAN: "Clinician", ADMIN: "System Administrator"}
+
+
 @dataclass(frozen=True)
 class GuardVerdict:
     # The input check's answer: hold the text back (quarantined) or pass on a cleaned copy.
