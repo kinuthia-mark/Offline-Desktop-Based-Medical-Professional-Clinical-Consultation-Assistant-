@@ -140,6 +140,7 @@ class RecordsView(QWidget):
         splitter.setStretchFactor(1, 3)
         splitter.setSizes([420, 980])  # wide enough for the date, the clinician and the session id
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(16, 12, 16, 12)
         layout.addWidget(splitter, 1)
         self.include_transcript = QCheckBox("Include the transcript")
         self.export_button = QPushButton("Export as PDF...")

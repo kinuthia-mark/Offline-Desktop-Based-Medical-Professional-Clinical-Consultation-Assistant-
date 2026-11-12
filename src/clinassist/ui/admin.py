@@ -215,6 +215,7 @@ class AdminView(QWidget):
         scroll.setWidget(column)
         scroll.setWidgetResizable(True)
         layout = QHBoxLayout(self)
+        layout.setContentsMargins(16, 12, 16, 12)
         layout.addWidget(audit, 3)
         layout.addWidget(scroll, 2)
 
@@ -227,7 +228,11 @@ class AdminView(QWidget):
             # The audit log stores ids only (no names in the hash chain); the screen shows the
             # username so an administrator can see who did what.
             user = self._usernames.get(user_id, user_id) if user_id else ""
-            for col, value in enumerate((seq, ts, event, session_id, user)):
+            # Readable at a glance: the time to the second, and the short session id the
+            # clinician's screen shows. The stored entry keeps the full values.
+            when = ts[:19].replace("T", " ")
+            short = session_id[:8].upper()
+            for col, value in enumerate((seq, when, event, short, user)):
                 self.table.setItem(row, col, QTableWidgetItem(str(value)))
 
     def verify(self) -> None:

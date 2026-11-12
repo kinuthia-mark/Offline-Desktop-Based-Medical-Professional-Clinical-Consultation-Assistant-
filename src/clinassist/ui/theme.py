@@ -101,15 +101,18 @@ QMainWindow, QDialog {{ background: {c["bg"]}; }}
     color: {c["text"]}; background: {c["bg"]}; border: 1px solid {c["border"]};
     border-radius: 3px; padding: 3px 10px;
 }}
+/* A plain notice in record ink, square, like a system message: no floating card. */
 #toast, #notice {{
-    color: {c["text"]}; background: {c["surface"]}; border: 1px solid {c["border"]};
-    border-left: 5px solid {c["primary"]}; border-radius: 3px; padding: 10px 14px;
-    font-weight: 600;
+    color: {c["ink_text"]}; background: {c["ink"]}; border: none; border-radius: 0;
+    padding: 8px 14px;
 }}
 
 /* The sidebar: record ink, like the index tabs of a patient file. */
 #sideNav {{ background: {c["ink"]}; }}
 #sideNav QLabel {{ color: {c["ink_muted"]}; font-size: 9pt; }}
+#sideNav QComboBox {{
+    background: {c["ink_selected"]}; color: {c["ink_text"]}; border: 1px solid {c["ink_muted"]};
+}}
 #navItem {{
     font-family: "Bahnschrift"; font-size: 11pt; text-align: left;
     color: {c["ink_text"]}; background: transparent; border: none;
@@ -122,16 +125,19 @@ QMainWindow, QDialog {{ background: {c["bg"]}; }}
 #navItem:focus {{ border: 2px solid {c["ink_mark"]}; }}
 QTabWidget#mainTabs::pane {{ border: none; background: transparent; }}
 
-/* Panels are flat sheets with a hairline edge, titled in the signage face. */
+/* The work area is one sheet, like a paper form: sections are not boxed, only divided by a
+   rule on their right, and titled inside the sheet in the signage face. */
+QTabWidget#mainTabs > QWidget {{ background: {c["surface"]}; }}
 QGroupBox {{
-    background: {c["surface"]}; border: 1px solid {c["border"]}; border-radius: 4px;
-    margin-top: 20px; padding: 14px 10px 10px 10px;
+    background: {c["surface"]}; border: none; border-right: 1px solid {c["border"]};
+    border-radius: 0; margin-top: 30px; padding: 6px 14px 12px 14px;
 }}
 QGroupBox::title {{
-    subcontrol-origin: margin; left: 2px; padding: 0 2px; color: {c["text"]};
-    font-family: "Bahnschrift"; font-size: 11pt; font-weight: 600;
+    subcontrol-origin: margin; left: 14px; top: 8px; padding: 0; color: {c["text"]};
+    font-family: "Bahnschrift"; font-size: 12pt; font-weight: 600;
 }}
 QGroupBox QLabel {{ font-weight: normal; }}
+QGroupBox[kind="row"] {{ border-right: none; border-bottom: 1px solid {c["border"]}; }}
 
 QPushButton {{
     font-family: "Bahnschrift"; font-size: 10pt;

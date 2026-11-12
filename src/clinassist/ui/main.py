@@ -137,8 +137,6 @@ class MainWindow(QMainWindow):
         header.addStretch(1)
         header.addWidget(self.network_label)
         header.addWidget(self.status_label)
-        header.addWidget(self.user_label)
-        header.addWidget(self.theme_box)
         header.addWidget(self.password_button)
         header.addWidget(logout)
 
@@ -206,10 +204,17 @@ class MainWindow(QMainWindow):
             self.nav_buttons.append(button)
             nav.addWidget(button)
         nav.addStretch(1)
+        # Who is logged in, and the light or dark choice, live at the foot of the sidebar: one
+        # place, instead of a badge in the header as well.
         self.role_label = QLabel()
         self.role_label.setWordWrap(True)
-        self.role_label.setContentsMargins(16, 0, 12, 0)
+        self.role_label.setContentsMargins(16, 0, 12, 6)
         nav.addWidget(self.role_label)
+        self.user_label.hide()  # kept for the tests and screen readers; the sidebar shows the user
+        theme_row = QHBoxLayout()
+        theme_row.setContentsMargins(12, 0, 12, 0)
+        theme_row.addWidget(self.theme_box)
+        nav.addLayout(theme_row)
         self.tabs.currentChanged.connect(
             lambda i: (
                 self.nav_buttons[i].setChecked(True) if 0 <= i < len(self.nav_buttons) else None
@@ -225,7 +230,7 @@ class MainWindow(QMainWindow):
         row.setSpacing(0)
         row.addWidget(side)
         content = QVBoxLayout()
-        content.setContentsMargins(14, 10, 14, 14)
+        content.setContentsMargins(0, 0, 0, 0)
         content.addWidget(self.tabs, 1)
         row.addLayout(content, 1)
         layout.addLayout(row, 1)

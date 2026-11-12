@@ -124,6 +124,7 @@ class ReportsView(QWidget):
         body.addWidget(charts, 3)
         body.addWidget(self.table, 2)
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(16, 12, 16, 12)
         layout.addLayout(bar)
         layout.addWidget(self.period_label)
         layout.addLayout(body, 1)
