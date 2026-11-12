@@ -37,15 +37,12 @@ class GenerationFailed(RuntimeError):
 # one part of the program from quietly altering a note another part is relying on.
 
 
-# The three jobs in a facility that use the system. The ICT officer runs it; the health records
-# officer reads the usage reports; neither sees consultation notes.
-CLINICIAN, RECORDS_OFFICER, ICT_OFFICER = "clinician", "records_officer", "ict_officer"
-ROLES = (CLINICIAN, RECORDS_OFFICER, ICT_OFFICER)
-ROLE_LABELS = {
-    CLINICIAN: "Clinician",
-    RECORDS_OFFICER: "Health Records Officer",
-    ICT_OFFICER: "ICT Officer",
-}
+# The two roles. The system administrator runs the system for the facility: accounts, backups,
+# model updates, offline protection, the audit log, and the facility's reports. Only clinicians
+# see consultation notes. The stored code stays "admin"; people see the job title.
+CLINICIAN, ADMIN = "clinician", "admin"
+ROLES = (CLINICIAN, ADMIN)
+ROLE_LABELS = {CLINICIAN: "Clinician", ADMIN: "System Administrator"}
 
 
 @dataclass(frozen=True)

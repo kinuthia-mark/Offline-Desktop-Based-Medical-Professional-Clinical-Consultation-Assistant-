@@ -212,8 +212,8 @@ is recorded.
 | Backup and restore of the encrypted vault, from the admin screen | FR-10c | built and tested (ADR-014) |
 | Offline update of the language model from a checked model bundle, from the admin screen | FR-10b | built and tested (ADR-015) |
 | Database tab for administrators: encryption shown on the real file, tables, rules and rows (read-only; clinical text never shown) | AMD-40 | built and tested |
-| Three roles from a real facility: clinicians land on the consultation screen; the ICT officer runs the system (accounts, backups, model update, offline protection, audit log); the health records officer reads the usage reports. Only clinicians see patient notes | AMD-41, AMD-46 | built and tested |
-| Reports tab for the health records officer: charts of the busiest hours and days (staffing), consultations per day and conditions seen (disease surveillance, MOH 705 categories, fewer than 3 cases folded into Other), plus counts of how notes were written and AI text kept, suggestions accepted, median drafting time and failed logins; saved as CSV; never patient text | AMD-43 | built and tested ([ADR-019](docs/ADR/019-system-reports.md)) |
+| Two roles: clinicians land on the consultation screen; the System Administrator runs the system for the facility (accounts, backups, model update, offline protection, audit log, database check, facility reports) and never sees patient notes | AMD-41, AMD-46 | built and tested |
+| Reports tab for the System Administrator: charts of the busiest hours and days (staffing), consultations per day and conditions seen (disease surveillance, MOH 705 categories, fewer than 3 cases folded into Other), plus counts of how notes were written and AI text kept, suggestions accepted, median drafting time and failed logins; saved as CSV; never patient text | AMD-43 | built and tested ([ADR-019](docs/ADR/019-system-reports.md)) |
 | Input check (prompt injection, personal data) and checks on the model's reply | FR-05, AMD-11 | built and tested |
 | Microphone recorder | FR-01 | built and tested, including on the real microphone |
 | Speech-to-text (Faster-Whisper small, offline) | FR-02 | built and measured with synthetic speech |
@@ -223,7 +223,7 @@ is recorded.
 | Evaluation: 8 scripted consultations with key facts and traps, scored end to end | FR-05, NFR-03, NFR-06 | built and run; public datasets with clinicians' notes replace clinician scoring (ADR-016) |
 | Windows installer and offline model bundle (Ollama included, pinned and checked), with a self-test | release, AMD-15 | built and installed on the reference PC; a second PC is still to do |
 
-733 tests run on every push, on Windows with Python 3.11 and 3.12, together with
+732 tests run on every push, on Windows with Python 3.11 and 3.12, together with
 lint and format checks.
 
 **Still to do:** installing on a second, clean PC, and submitting the final report. The report
