@@ -297,6 +297,29 @@ def test_allergies_exposures_and_prevention_are_not_kept_as_suggestions():
     ]
 
 
+def test_bare_symptoms_are_not_kept_as_suggestions():
+    """Seen in a hand test: "Fever" and "Vomiting" came back as suggestions 2 and 3. A symptom
+    alone is not a diagnosis; a named condition that mentions one is kept."""
+    import json
+
+    from clinassist.adapters.soap_generator import parse_draft
+
+    reply = {
+        "subjective": "s", "objective": "o", "assessment": "not stated", "plan": "p",
+        "suggestions": [
+            {"diagnosis": "Uncomplicated malaria", "rationale": "r", "management": "m"},
+            {"diagnosis": "Fever", "rationale": "r", "management": "m"},
+            {"diagnosis": "Vomiting.", "rationale": "r", "management": "m"},
+            {"diagnosis": "Fever of unknown origin", "rationale": "r", "management": "m"},
+        ],
+    }  # fmt: skip
+    draft = parse_draft(json.dumps(reply), "transcript", include_suggestions=True)
+    assert [s.diagnosis for s in draft.suggestions] == [
+        "Uncomplicated malaria",
+        "Fever of unknown origin",
+    ]
+
+
 # ----- long real consultations (ADR-016) -----
 def test_the_format_line_names_every_key_once():
     """The model must never be told "exactly these keys" and then asked for one more."""

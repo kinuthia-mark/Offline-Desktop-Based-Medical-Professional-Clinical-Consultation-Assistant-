@@ -199,12 +199,15 @@ class FirstAdminDialog(QDialog):
 
     def __init__(self, create: Callable[[str, str, str], object]) -> None:
         super().__init__()
-        self.setWindowTitle("Create the administrator account")
+        self.setWindowTitle("Create the System Administrator account")
         self._create = create
         self.username = QLineEdit()
         self.display_name = QLineEdit()
         self.password = _password_field()
-        self.message = QLabel("This account can create the clinicians' accounts.")
+        self.message = QLabel(
+            "The System Administrator runs the system for the facility and creates the "
+            "clinicians' accounts."
+        )
         self.message.setWordWrap(True)
         button = QPushButton("Create")
         button.clicked.connect(self.submit)

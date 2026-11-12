@@ -199,6 +199,9 @@ class MainWindow(QMainWindow):
             button = QPushButton(self.tabs.tabText(index))
             button.setObjectName("navItem")
             button.setCheckable(True)
+            # Focus only from the keyboard (Tab): a mouse click left a focus box that clashed
+            # with the green edge; keyboard users still see where they are.
+            button.setFocusPolicy(Qt.FocusPolicy.TabFocus)
             button.clicked.connect(lambda _=False, i=index: self.tabs.setCurrentIndex(i))
             self.nav_group.addButton(button)
             self.nav_buttons.append(button)
