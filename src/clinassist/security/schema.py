@@ -87,6 +87,31 @@ MIGRATIONS: tuple[str, ...] = (
     ALTER TABLE sessions ADD COLUMN asr_confidence REAL
         CHECK (asr_confidence IS NULL OR (asr_confidence >= 0 AND asr_confidence <= 1));
     """,
+    # v5: the one "admin" role becomes the two jobs a facility actually has: the ICT officer runs
+    # the system (accounts, backups, updates), the health records officer reads the usage
+    # reports. SQLite cannot change a CHECK in place, so the table is rebuilt; every existing
+    # administrator becomes an ICT officer, so no vault loses access.
+    """
+    CREATE TABLE users_v5 (
+        user_id         TEXT PRIMARY KEY CHECK (length(user_id) > 0),
+        username        TEXT NOT NULL UNIQUE COLLATE NOCASE CHECK (length(username) > 0),
+        display_name    TEXT NOT NULL,
+        role            TEXT NOT NULL
+                        CHECK (role IN ('clinician', 'records_officer', 'ict_officer')),
+        password_hash   TEXT NOT NULL CHECK (password_hash LIKE '$argon2id$%'),
+        failed_attempts INTEGER NOT NULL DEFAULT 0 CHECK (failed_attempts >= 0),
+        locked_until    TEXT,
+        active          INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0, 1)),
+        created_at      TEXT NOT NULL,
+        must_change_password INTEGER NOT NULL DEFAULT 0 CHECK (must_change_password IN (0, 1))
+    );
+    INSERT INTO users_v5 SELECT user_id, username, display_name,
+        CASE role WHEN 'admin' THEN 'ict_officer' ELSE role END,
+        password_hash, failed_attempts, locked_until, active, created_at, must_change_password
+        FROM users;
+    DROP TABLE users;
+    ALTER TABLE users_v5 RENAME TO users;
+    """,
 )
 
 LATEST = len(MIGRATIONS)

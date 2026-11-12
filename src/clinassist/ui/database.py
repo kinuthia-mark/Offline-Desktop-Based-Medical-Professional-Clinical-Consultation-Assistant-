@@ -27,6 +27,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from clinassist.domain import ICT_OFFICER
 from clinassist.ui.messages import message_for
 from clinassist.ui.theme import tone
 from clinassist.ui.workers import error_code
@@ -97,7 +98,7 @@ class DatabaseView(QWidget):
 
     def reload(self) -> None:
         try:
-            self._auth.require(self._admin(), "admin")
+            self._auth.require(self._admin(), ICT_OFFICER)
             info = self._inspector.summary()
             self._tables = self._inspector.tables()
         except Exception as exc:
@@ -151,7 +152,7 @@ class DatabaseView(QWidget):
         if table is None:
             return
         try:
-            self._auth.require(self._admin(), "admin")
+            self._auth.require(self._admin(), ICT_OFFICER)
             columns, rows = self._inspector.rows(table["name"], self._admin().user_id)
         except Exception as exc:
             self.message.setText(message_for(error_code(exc)))

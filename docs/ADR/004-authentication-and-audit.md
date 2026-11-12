@@ -84,3 +84,11 @@ skipped; free text accepted as an event; anchor ignored.
 - AMD-12: the audit chain and lockout are now applied in code.
 - The controller is unchanged; the UI must call `AuthService.require` before each action and pass
   the logged-in `user_id` as `clinician_id`.
+
+## Update, 2026-11-12: facility roles (AMD-46)
+The `admin` role is replaced by two facility jobs: `ict_officer` (accounts, backups, model update,
+offline protection, audit log, database check) and `records_officer` (usage and diagnosis
+reports). Neither sees consultation notes; only `clinician` does. Schema v5 rebuilds the users
+table, because SQLite cannot change a CHECK constraint in place, and turns every `admin` into an
+`ict_officer`. The first account made on a new vault is an ICT officer. Role names live in
+`domain.py`, so the screens show them without importing the security package.

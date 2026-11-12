@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from clinassist.domain import CLINICIAN, ICT_OFFICER, RECORDS_OFFICER, ROLE_LABELS
 from clinassist.ui import theme
 from clinassist.ui.admin import AdminView
 from clinassist.ui.database import DatabaseView
@@ -307,20 +308,23 @@ class MainWindow(QMainWindow):
 
     def _show_user(self) -> None:
         """Show the tabs of the logged-in role and open its landing page."""
-        who = f"{self.session.display_name} ({self.session.role})"
+        who = (
+            f"{self.session.display_name} ({ROLE_LABELS.get(self.session.role, self.session.role)})"
+        )
         self.user_label.setText(f"Logged in as {who}")
         self.show_toast(f"Logged in as {who}")
-        is_admin = self.session.role == "admin"
-        for index in (
-            self.overview_index,
-            self.admin_index,
-            self.database_index,
-            self.reports_index,
-        ):
-            self.tabs.setTabVisible(index, is_admin)
-        for index in (self.workspace_index, self.records_index):
-            self.tabs.setTabVisible(index, not is_admin)
-        landing = self.overview_index if is_admin else self.workspace_index
+        # Each job sees only its own screens: clinicians the consultations, the ICT officer the
+        # system, the health records officer the usage reports. Nobody but a clinician sees notes.
+        role = self.session.role
+        tabs_for = {
+            CLINICIAN: (self.workspace_index, self.records_index),
+            ICT_OFFICER: (self.overview_index, self.admin_index, self.database_index),
+            RECORDS_OFFICER: (self.reports_index,),
+        }
+        mine = tabs_for.get(role, ())
+        for index in range(self.tabs.count()):
+            self.tabs.setTabVisible(index, index in mine)
+        landing = mine[0] if mine else self.workspace_index
         if self.tabs.currentIndex() == landing:
             self._tab_opened(landing)  # already open: still refresh it for this user
         else:
@@ -332,15 +336,16 @@ class MainWindow(QMainWindow):
         )
 
     def _tab_opened(self, index: int) -> None:
-        if self.tabs.widget(index) is self.overview and self.session.role == "admin":
+        role, widget = self.session.role, self.tabs.widget(index)
+        if widget is self.overview and role == ICT_OFFICER:
             self.overview.reload()
-        elif self.tabs.widget(index) is self.records and self.session.role == "clinician":
+        elif widget is self.records and role == CLINICIAN:
             self.records.reload()
-        elif self.tabs.widget(index) is self.admin and self.session.role == "admin":
+        elif widget is self.admin and role == ICT_OFFICER:
             self.admin.reload()
-        elif self.tabs.widget(index) is self.database and self.session.role == "admin":
+        elif widget is self.database and role == ICT_OFFICER:
             self.database.reload()
-        elif self.tabs.widget(index) is self.reports and self.session.role == "admin":
+        elif widget is self.reports and role == RECORDS_OFFICER:
             self.reports.reload()
 
     def _restored(self) -> None:

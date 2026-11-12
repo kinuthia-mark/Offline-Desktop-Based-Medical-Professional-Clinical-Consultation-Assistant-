@@ -27,6 +27,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from clinassist.domain import RECORDS_OFFICER
 from clinassist.reports import PERIODS, period_text, summary_rows
 from clinassist.ui.messages import message_for
 from clinassist.ui.theme import mark, tone
@@ -91,7 +92,7 @@ class ReportsView(QWidget):
 
     def reload(self) -> None:
         try:
-            self._auth.require(self._admin(), "admin")
+            self._auth.require(self._admin(), RECORDS_OFFICER)
             self.report = self._reports.build(self.period.currentText())
         except Exception as exc:
             self.report = None
@@ -110,7 +111,7 @@ class ReportsView(QWidget):
         if self.report is None:
             return
         try:
-            self._auth.require(self._admin(), "admin")
+            self._auth.require(self._admin(), RECORDS_OFFICER)
             path = self._ask_save_path(f"clinassist-report-{date.today().isoformat()}.csv")
             if not path:
                 return

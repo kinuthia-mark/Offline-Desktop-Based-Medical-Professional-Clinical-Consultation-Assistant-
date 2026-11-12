@@ -19,10 +19,10 @@ from datetime import UTC, datetime, timedelta
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError, VerifyMismatchError
 
+from clinassist.domain import ICT_OFFICER, ROLES
 from clinassist.ports import Auditor, NullAuditor
 from clinassist.security.vault import Vault, VaultError, check_passphrase
 
-ROLES = ("clinician", "admin")
 MAX_FAILED_ATTEMPTS = 5
 LOCKOUT = timedelta(minutes=15)
 IDLE_TIMEOUT = timedelta(minutes=10)
@@ -79,24 +79,25 @@ class AuthService:
             return conn.execute("SELECT 1 FROM users LIMIT 1").fetchone() is not None
 
     def create_first_admin(self, username: str, password: str, display_name: str) -> str:
-        """Only allowed while there are no accounts at all (first run)."""
+        """The first account, an ICT officer, who then creates everyone else. Only allowed while
+        there are no accounts at all (first run)."""
         if self.has_users():
             raise AuthError("setup_already_done")
-        user_id = self._insert(username, password, display_name, "admin")
+        user_id = self._insert(username, password, display_name, ICT_OFFICER)
         self._auditor.record("first_admin_created", NO_SESSION, user_id)
         return user_id
 
     def create_user(
         self, admin: UserSession, username: str, password: str, display_name: str, role: str
     ) -> str:
-        self.require(admin, "admin")
+        self.require(admin, ICT_OFFICER)
         user_id = self._insert(username, password, display_name, role)
         self._auditor.record("user_created", NO_SESSION, admin.user_id)
         return user_id
 
     def list_users(self, admin: UserSession) -> list[dict]:
         """Accounts for the administrator's screen. Never includes password hashes."""
-        self.require(admin, "admin")
+        self.require(admin, ICT_OFFICER)
         now = self._clock()
         with self._vault.connect() as conn:
             rows = conn.execute(
@@ -116,7 +117,7 @@ class AuthService:
         ]
 
     def set_active(self, admin: UserSession, user_id: str, active: bool) -> None:
-        self.require(admin, "admin")
+        self.require(admin, ICT_OFFICER)
         if user_id == admin.user_id and not active:
             raise AuthError("cannot_deactivate_self")
         with self._vault.connect() as conn, conn:
@@ -130,7 +131,7 @@ class AuthService:
         )
 
     def unlock_account(self, admin: UserSession, user_id: str) -> None:
-        self.require(admin, "admin")
+        self.require(admin, ICT_OFFICER)
         with self._vault.connect() as conn, conn:
             changed = conn.execute(
                 "UPDATE users SET failed_attempts = 0, locked_until = NULL WHERE user_id = ?",
@@ -145,7 +146,7 @@ class AuthService:
         which also clears any lockout; the user must replace it at their next login, so the
         administrator never knows the password actually in use. An administrator changes their
         own password with change_password, which needs the current one."""
-        self.require(admin, "admin")
+        self.require(admin, ICT_OFFICER)
         if user_id == admin.user_id:
             raise AuthError("cannot_reset_own_password")
         with self._vault.connect() as conn:

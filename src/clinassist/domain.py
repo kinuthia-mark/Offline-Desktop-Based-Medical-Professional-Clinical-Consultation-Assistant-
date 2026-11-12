@@ -37,6 +37,17 @@ class GenerationFailed(RuntimeError):
 # one part of the program from quietly altering a note another part is relying on.
 
 
+# The three jobs in a facility that use the system. The ICT officer runs it; the health records
+# officer reads the usage reports; neither sees consultation notes.
+CLINICIAN, RECORDS_OFFICER, ICT_OFFICER = "clinician", "records_officer", "ict_officer"
+ROLES = (CLINICIAN, RECORDS_OFFICER, ICT_OFFICER)
+ROLE_LABELS = {
+    CLINICIAN: "Clinician",
+    RECORDS_OFFICER: "Health Records Officer",
+    ICT_OFFICER: "ICT Officer",
+}
+
+
 @dataclass(frozen=True)
 class GuardVerdict:
     # The input check's answer: hold the text back (quarantined) or pass on a cleaned copy.
