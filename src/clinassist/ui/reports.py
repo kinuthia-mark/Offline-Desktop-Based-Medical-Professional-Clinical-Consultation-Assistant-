@@ -1,4 +1,7 @@
-"""The Reports tab, for the system administrator: how the facility is working.
+"""The Reports tab, for clinicians: how the facility's clinical work is going.
+
+Reading conditions and how notes were written needs a clinical background, so the report belongs
+to the clinicians, not the system administrator, whose screens are technical only (AMD-50).
 
 Four charts answer the questions a facility manager or the county health office asks: when the
 facility is busiest (by hour and by day, for staffing), how many consultations are documented
@@ -7,7 +10,7 @@ return). Beside them, the table: the officer picks a period (the last 7 days, 30
 everything) and sees how many
 consultations were started, saved and discarded, how the notes were written, how often the
 AI's text was kept as it was, how often diagnosis suggestions were accepted, the median time
-to draft a note, notes per clinician, per model and per day, and failed logins. The report can
+to draft a note, and notes per clinician, per model and per day. The report can
 be saved as a CSV file for a spreadsheet; saving is written to the audit log.
 
 No patient text is shown or saved: reports.py reads only counts, codes and times.
@@ -42,7 +45,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from clinassist.domain import ADMIN
+from clinassist.domain import CLINICIAN
 from clinassist.reports import PERIODS, period_text, summary_rows
 from clinassist.ui.messages import message_for
 from clinassist.ui.theme import DARK, LIGHT, is_dark, mark, tone
@@ -64,12 +67,12 @@ class ReportsView(QWidget):
         self,
         reports,
         auth,
-        admin_session: Callable[[], object],
+        session: Callable[[], object],
         ask_save_path: Callable[[str], str] | None = None,
     ) -> None:
         """`reports` is app.Reports; `ask_save_path(suggested)` returns where to save, or ""."""
         super().__init__()
-        self._reports, self._auth, self._admin = reports, auth, admin_session
+        self._reports, self._auth, self._session = reports, auth, session
         self._ask_save_path = ask_save_path or self._dialog_save_path
         self.report = None
 
@@ -142,7 +145,7 @@ class ReportsView(QWidget):
 
     def reload(self) -> None:
         try:
-            self._auth.require(self._admin(), ADMIN)
+            self._auth.require(self._session(), CLINICIAN)
             self.report = self._reports.build(self.period.currentText())
         except Exception as exc:
             self.report = None
@@ -215,11 +218,11 @@ class ReportsView(QWidget):
         if self.report is None:
             return
         try:
-            self._auth.require(self._admin(), ADMIN)
+            self._auth.require(self._session(), CLINICIAN)
             path = self._ask_save_path(f"clinassist-report-{date.today().isoformat()}.csv")
             if not path:
                 return
-            self._reports.save_csv(self.report, path, self._admin().user_id)
+            self._reports.save_csv(self.report, path, self._session().user_id)
         except Exception as exc:
             self.message.setText(message_for(error_code(exc)))
             return

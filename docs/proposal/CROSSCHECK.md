@@ -59,6 +59,7 @@ Not numbered: Authenticate / Log In, and four administrator use cases.
 | Backup Encrypted Database | administrator | FR-10c |
 | Review Security Audit Logs | administrator | FR-10d |
 | (added) Turn offline protection off and on | administrator | NFR-01, AMD-45: not in the proposal's diagram; added to Figure 4.1 as UC-16, and described in 4.3 and 4.7 of the report |
+| (added) View facility reports | clinician | AMD-43, AMD-50: not in the proposal's diagram; UC-15 in Figure 4.1, moved from the administrator to the clinician on 13 Nov |
 
 ## 3. Class diagram (Figure 4.2) against the implementation
 | Proposal class | Members in the proposal | Implementation |
@@ -117,7 +118,7 @@ confirmation, the recovery code at setup. The "Air-Gapped" label must reflect a 
 defined anywhere in the text.
 
 How the build meets it today: the same three panels and the SOAP and Diagnostics tabs (ADR-009,
-AMD-42); the header shows what the network check found; navigation depends on the role (AMD-41), and administrators have a Reports tab of counts and times (AMD-43, ADR-019);
+AMD-42); the header shows what the network check found; navigation depends on the role (AMD-41), and clinicians have a Reports tab of counts, times and charts (AMD-43, AMD-50, ADR-019), while the System Administrator's screens are technical only;
 the session id is shown as its first 8 characters, not `SESS-YYYYMMDD-NN`; the speech confidence
 is defined and labelled as a hint (AMD-28); "Export / Save" is a PDF export of one finalized note
 (AMD-36); finalizing saves the session; the panel shows "Model: medgemma:4b (quantized, runs on this computer)".
