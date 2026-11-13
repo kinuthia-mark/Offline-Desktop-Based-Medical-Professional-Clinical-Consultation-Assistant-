@@ -497,6 +497,10 @@ python scripts/try_note.py spikes/transcripts/synthetic_consult_01.txt
 python scripts/try_note.py spikes/transcripts/synthetic_consult_long.txt --attempt 2
 ```
 
+`spikes/transcripts/typed/` holds 16 synthetic summaries written the way a clinician types
+them (no conversation, no diagnosis), with the assessment to type for each in its README; a check
+of four is in [docs/spikes/typed-summaries-check.md](docs/spikes/typed-summaries-check.md).
+
 **Run the evaluation** (8 scripted consultations through the whole system; about 15 minutes):
 
 ```powershell
