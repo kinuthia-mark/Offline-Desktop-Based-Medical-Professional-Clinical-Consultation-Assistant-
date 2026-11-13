@@ -770,7 +770,7 @@ def test_admin_lands_on_the_overview_and_sees_no_patient_work(qapp, services):
     admin = _admin(services)
     window = MainWindow(services, admin, login_again=lambda n: None)
     assert window.tabs.currentWidget() is window.overview
-    assert _visible(window) == ["Overview", "Audit and accounts", "Database", "Reports"]
+    assert _visible(window) == ["Overview", "Audit and accounts", "Database"]
     assert "1 system administrator" in window.overview.accounts_label.text()
     assert "Intact" in window.overview.audit_label.text()
     assert "No backup" in window.overview.backup_label.text()
@@ -781,7 +781,7 @@ def test_clinician_lands_on_the_consultation_and_sees_no_admin_work(qapp, servic
     doctor = _clinician(services)
     window = MainWindow(services, doctor, login_again=lambda n: None)
     assert window.tabs.currentWidget() is window.workspace
-    assert _visible(window) == ["Consultation", "Session records"]
+    assert _visible(window) == ["Consultation", "Session records", "Reports"]
     window.close()
 
 
@@ -804,7 +804,7 @@ def test_switching_user_switches_the_landing_page(qapp, services):
     window = MainWindow(services, doctor, login_again=lambda n: admin)
     window.lock_screen("")
     assert window.tabs.currentWidget() is window.overview
-    assert _visible(window) == ["Overview", "Audit and accounts", "Database", "Reports"]
+    assert _visible(window) == ["Overview", "Audit and accounts", "Database"]
     window.close()
 
 
@@ -1102,16 +1102,16 @@ def test_the_next_step_wraps_instead_of_being_cut_off(qapp, services):
     assert ws.status_label.wordWrap() and ws.medicine_label.wordWrap()
 
 
-# ----- the Reports tab (admin, counts only) -----
+# ----- the Reports tab (clinicians, counts only) -----
 def test_reports_tab_shows_counts_and_saves_a_csv(qapp, services, tmp_path):
     from clinassist.ui.reports import ReportsView
 
-    admin = _admin(services)
+    doctor = _clinician(services)
     target = tmp_path / "report.csv"
     view = ReportsView(
         services.reports,
         services.auth,
-        admin_session=lambda: admin,
+        session=lambda: doctor,
         ask_save_path=lambda s: str(target),
     )
     view.reload()
@@ -1120,7 +1120,7 @@ def test_reports_tab_shows_counts_and_saves_a_csv(qapp, services, tmp_path):
         for r in range(view.table.rowCount())
     }
     assert measures["Notes finalized and saved"] == "0"
-    assert measures["Failed logins"] == "0"
+    assert "Failed logins" not in measures  # account security is the administrator's
     # The four charts are drawn even with no data yet: busiest hours and days, daily count,
     # and conditions seen.
     assert set(view.chart_views) == {"hours", "days", "daily", "conditions"}
@@ -1131,14 +1131,14 @@ def test_reports_tab_shows_counts_and_saves_a_csv(qapp, services, tmp_path):
     assert services.auditor.events(1)[0][2] == "report_exported"
 
 
-def test_reports_tab_is_only_for_admins(qapp, services):
+def test_reports_tab_is_only_for_clinicians(qapp, services):
     from clinassist.ui.reports import ReportsView
 
-    doctor = _clinician(services)
-    view = ReportsView(services.reports, services.auth, admin_session=lambda: doctor)
+    admin = _admin(services)
+    view = ReportsView(services.reports, services.auth, session=lambda: admin)
     view.reload()
     assert view.message.text() == MESSAGES["forbidden"] and view.table.rowCount() == 0
-    window = MainWindow(services, doctor, login_again=lambda n: None)
+    window = MainWindow(services, admin, login_again=lambda n: None)
     assert not window.tabs.isTabVisible(window.reports_index)
     window.close()
 

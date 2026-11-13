@@ -87,7 +87,7 @@ skipped; free text accepted as an event; anchor ignored.
 
 ## Update, 2026-11-12: the System Administrator (AMD-46)
 The `admin` role is shown as "System Administrator", with its duties stated for the facility:
-accounts, backups, the model update, offline protection, the audit log, the database check and
-the facility's reports. It never sees consultation notes; only `clinician` does. The stored code
+accounts, backups, the model update, offline protection, the audit log and the database check
+(the facility's reports moved to clinicians on 13 Nov, AMD-50). It never sees consultation notes; only `clinician` does. The stored code
 stays `admin`, so existing vaults need no migration. Role names and labels live in `domain.py`,
 so the screens show them without importing the security package.
