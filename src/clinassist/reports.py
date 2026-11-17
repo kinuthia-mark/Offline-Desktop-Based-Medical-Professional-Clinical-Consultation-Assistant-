@@ -1,9 +1,10 @@
-"""Reports for the system administrator: how the facility is working, as counts and times.
+"""Reports for clinicians: how the facility's clinical work is going, as counts and times.
 
-A clinic manager or supervisor needs to know how many consultations were documented, how often
-the AI's draft was used, how often a clinician kept the AI's text as it was, how long drafting
-takes and whether there were failed logins. None of that needs patient text, and
-administrators are not allowed to see it (data minimisation, AMD-41). So this module reads only
+The clinicians in charge of a facility need to know how many consultations were documented, how
+often the AI's draft was used, how often a clinician kept the AI's text as it was, how long
+drafting takes and which conditions are seen. Reading that needs a clinical background, so the
+report is for clinicians, not the system administrator (AMD-50). It still never shows patient
+text: a report may be printed or sent to the county as a spreadsheet. So this module reads only
 these columns, never the transcript, the note sections or the diagnosis text:
 
     sessions:     session_id, created_at, finalized_by, draft_source, assessment_origin,
@@ -114,9 +115,6 @@ class Report:
     per_hour: dict[int, int] = field(default_factory=dict)  # hour of day 0-23 -> saved notes
     per_weekday: dict[str, int] = field(default_factory=dict)  # "Mon".."Sun" -> saved notes
     conditions: dict[str, int] = field(default_factory=dict)  # CONDITIONS label -> consultations
-    # Accounts
-    failed_logins: int = 0
-    lockouts: int = 0
 
 
 def _parse(ts: str) -> datetime:
@@ -225,11 +223,6 @@ def build_report(vault, period: str, now: datetime | None = None, tz=None) -> Re
             counts["drafts_failed"] += 1
         elif event == "quarantined":
             counts["quarantined"] += 1
-        elif event == "login_failed":
-            counts["failed_logins"] += 1
-        elif event == "account_locked":
-            counts["lockouts"] += 1
-            counts["failed_logins"] += 1  # the wrong password that locked the account
         elif event == "draft_generated" and sid in approved_at:
             draft_times.append((ts - approved_at[sid]).total_seconds())
         elif event == "finalized" and sid in first_seen:
@@ -308,8 +301,6 @@ def summary_rows(r: Report) -> list[tuple[str, str, str]]:
             if r.median_consultation_minutes is None
             else f"{r.median_consultation_minutes:.1f} min",
         ),
-        ("Accounts", "Failed logins", str(r.failed_logins)),
-        ("Accounts", "Accounts locked", str(r.lockouts)),
     ]
     rows += [("Notes per clinician", name, str(n)) for name, n in r.per_clinician.items()]
     rows += [("Notes per model (speech / language)", m, str(n)) for m, n in r.models.items()]

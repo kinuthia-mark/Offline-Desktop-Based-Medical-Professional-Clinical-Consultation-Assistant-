@@ -178,7 +178,7 @@ class MainWindow(QMainWindow):
         self.admin_index = self.tabs.addTab(self.admin, "Audit and accounts")
         self.database = DatabaseView(services.database, auth, admin_session=lambda: self.session)
         self.database_index = self.tabs.addTab(self.database, "Database")
-        self.reports = ReportsView(services.reports, auth, admin_session=lambda: self.session)
+        self.reports = ReportsView(services.reports, auth, session=lambda: self.session)
         self.reports_index = self.tabs.addTab(self.reports, "Reports")
         self.tabs.currentChanged.connect(self._tab_opened)
 
@@ -358,12 +358,13 @@ class MainWindow(QMainWindow):
         who = f"{self.session.display_name} ({label})"
         self.user_label.setText(f"Logged in as {who}")
         self.show_toast(f"Logged in as {who}")
-        # Each role sees only its own screens: clinicians the consultations, the system
-        # administrator the system and the facility's reports. Nobody but a clinician sees notes.
+        # Each role sees only its own screens: clinicians the consultations and the facility's
+        # reports, which need a clinical background to read; the system administrator the
+        # technical side only (accounts, audit, database). Nobody but a clinician sees notes.
         role = self.session.role
         tabs_for = {
-            CLINICIAN: (self.workspace_index, self.records_index),
-            ADMIN: (self.overview_index, self.admin_index, self.database_index, self.reports_index),
+            CLINICIAN: (self.workspace_index, self.records_index, self.reports_index),
+            ADMIN: (self.overview_index, self.admin_index, self.database_index),
         }
         mine = tabs_for.get(role, ())
         for index in range(self.tabs.count()):
@@ -392,7 +393,7 @@ class MainWindow(QMainWindow):
             self.admin.reload()
         elif widget is self.database and role == ADMIN:
             self.database.reload()
-        elif widget is self.reports and role == ADMIN:
+        elif widget is self.reports and role == CLINICIAN:
             self.reports.reload()
 
     def _restored(self) -> None:

@@ -118,8 +118,9 @@ The System Administrator lands on a system overview instead (AMD-41, AMD-46), an
 
 ![The System Administrator's system overview](docs/screenshots/admin-overview.png)
 
-The System Administrator also sees the facility's reports: the busiest hours and days, consultations
-per day and the conditions seen (AMD-47). Synthetic data:
+Clinicians also see the facility's reports: the busiest hours and days, consultations per day and
+the conditions seen (AMD-47). Reading these needs a clinical background, so they are not on the
+System Administrator's side, which is technical only (AMD-50). Synthetic data:
 
 ![The Reports tab with charts](docs/screenshots/reports.png)
 
@@ -217,8 +218,8 @@ is recorded.
 | Backup and restore of the encrypted vault, from the admin screen | FR-10c | built and tested (ADR-014) |
 | Offline update of the language model from a checked model bundle, from the admin screen | FR-10b | built and tested (ADR-015) |
 | Database tab for administrators: encryption shown on the real file, tables, rules and rows (read-only; clinical text never shown) | AMD-40 | built and tested |
-| Two roles: clinicians land on the consultation screen; the System Administrator runs the system for the facility (accounts, backups, model update, offline protection, audit log, database check, facility reports) and never sees patient notes | AMD-41, AMD-46 | built and tested |
-| Reports tab for the System Administrator: charts of the busiest hours and days (staffing), consultations per day and conditions seen (disease surveillance, MOH 705 categories, fewer than 3 cases folded into Other), plus counts of how notes were written and AI text kept, suggestions accepted, median drafting time and failed logins; saved as CSV; never patient text | AMD-43 | built and tested ([ADR-019](docs/ADR/019-system-reports.md)) |
+| Two roles: clinicians land on the consultation screen and also see the facility's reports; the System Administrator does the technical work only (accounts, backups, model update, offline protection, audit log, database check) and never sees patient notes or clinical figures | AMD-41, AMD-46, AMD-50 | built and tested |
+| Reports tab for clinicians: charts of the busiest hours and days (staffing), consultations per day and conditions seen (disease surveillance, MOH 705 categories, fewer than 3 cases folded into Other), plus counts of how notes were written and AI text kept, suggestions accepted, median drafting time; saved as CSV; never patient text | AMD-43, AMD-50 | built and tested ([ADR-019](docs/ADR/019-system-reports.md)) |
 | Input check (prompt injection, personal data) and checks on the model's reply | FR-05, AMD-11 | built and tested |
 | Microphone recorder | FR-01 | built and tested, including on the real microphone |
 | Speech-to-text (Faster-Whisper small, offline) | FR-02 | built and measured with synthetic speech |

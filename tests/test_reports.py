@@ -138,11 +138,10 @@ def test_drafting_and_consultation_times_are_medians(filled):
     assert r.median_consultation_minutes == 10  # 5 + 2 + 3 for the middle one
 
 
-def test_breakdowns_and_accounts(filled):
+def test_breakdowns(filled):
     r = reports.build_report(filled, "Last 7 days", now=NOW, tz=UTC)
     assert r.per_clinician == {"Dr A": 3}
     assert r.per_day == {"2026-10-20": 3}
-    assert (r.failed_logins, r.lockouts) == (2, 1)
 
 
 def test_an_empty_vault_gives_zeros_not_errors(vault):

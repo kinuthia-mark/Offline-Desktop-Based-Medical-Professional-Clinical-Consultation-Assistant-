@@ -65,4 +65,15 @@ note's assessment and accepted suggestions against a fixed list of common primar
 conditions (`reports.CONDITIONS`, whole words only); only the list's own labels are counted, so
 no note text can reach a report. A condition with fewer than 3 cases in the period is counted
 under "Other conditions" (small-cell suppression), so a rare case cannot point to one patient.
-The tab belongs to the System Administrator (AMD-46).
+The tab belonged to the System Administrator (AMD-46) until the update below.
+
+## Update, 2026-11-13: reports belong to clinicians (AMD-50)
+A system administrator has a technical background and does not read clinical figures, so the
+Reports tab moves to the clinician role (`AuthService.require(session, CLINICIAN)`); the
+administrator's screens are technical only. The rule that a report never shows patient text
+stays, because a report can be printed or sent to the county as a spreadsheet. Failed logins
+and locked accounts are no longer in the report: they are account security, which the
+administrator already sees in the audit log and on the overview.
+
+Limit: every clinician sees the whole facility's figures, including notes per clinician. A
+facility that wants only a lead clinician to see them would need a third role.
