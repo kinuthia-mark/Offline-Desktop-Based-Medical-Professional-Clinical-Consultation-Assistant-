@@ -114,11 +114,11 @@ class ReportsView(QWidget):
         self.message.setWordWrap(True)
 
         # Charts: the reason the report exists. Each title says what the facility uses it for.
-        # Two rows; in the second, the conditions chart takes two thirds because its labels are
-        # the longest.
+        # Two rows. In the second, 3 to 5 is the split where 14 two-digit dates and the longest
+        # condition name both fit; a third for the dates cut "10" to "...", a half cut "Pneumonia".
         self.charts = QVBoxLayout()
         self.chart_views: dict[str, QChartView] = {}
-        rows = (((("hours", 1), ("days", 1))), (("daily", 1), ("conditions", 2)))
+        rows = (((("hours", 1), ("days", 1))), (("daily", 3), ("conditions", 5)))
         for row in rows:
             line = QHBoxLayout()
             for key, stretch in row:
