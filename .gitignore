@@ -27,6 +27,8 @@ data/
 *.db
 *.sqlite
 *.sqlite3
+# Vault backups made from the app (encrypted, but still patient data): never committed.
+*.clinbak
 
 # Editor (keep shared settings only)
 .vscode/*
