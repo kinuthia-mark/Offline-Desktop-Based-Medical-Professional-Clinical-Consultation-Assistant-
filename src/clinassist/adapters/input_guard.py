@@ -17,6 +17,10 @@ These are pattern checks. They lower the risk; they do not remove it. Measured r
 docs/spikes/guard-results.json, with the limits of that measurement in ADR-005.
 """
 
+# This file screens the doctor-approved transcript before the model sees it. It sits
+# between the transcript gate and the note generator: it blocks text that tries to
+# instruct the AI, and hides phone numbers, emails, ID numbers and links.
+# Everything is plain regular expressions (pattern matching), with no AI involved.
 from __future__ import annotations
 
 import re
@@ -29,17 +33,20 @@ from clinassist.domain import GuardVerdict
 # the consultation.
 MAX_TRANSCRIPT_CHARS = 60_000
 
+# Shared regex flags: ignore capital letters, and let "." also match a line break.
 _F = re.IGNORECASE | re.DOTALL
 
 # Words that only ever mean the AI, never a person in the clinic. "The assistant" and "the
 # system" are left out on purpose: in a clinic they usually mean a medical assistant or a
 # hospital system ("the assistant said to ignore the rash").
+# One regex fragment naming the AI; the override rules below reuse it.
 _AI_TARGET = (
     r"(system prompt|hidden prompt|the prompt|your prompt|language model|\bllm\b|\bthe ai\b|"
     r"\bai (model|assistant)\b|\bchatbot\b|your programming|your training)"
 )
 
 # Each rule is a strong sign that the text is talking to the AI. Any one match quarantines.
+# Rule name mapped to compiled pattern. The name goes in the audit reason, never the text.
 INJECTION_RULES: dict[str, re.Pattern[str]] = {
     # Markers that chat models use to separate speakers. They never occur in normal speech.
     "chat_template_tokens": re.compile(
@@ -89,8 +96,11 @@ INJECTION_RULES: dict[str, re.Pattern[str]] = {
 # general "long number" rule so they get the more useful label. The edges of each number pattern
 # stop it matching part of a decimal (12.5) but still match a number that ends a sentence
 # ("call me on 0712 345 678.").
+# Lookbehinds: do not start in the middle of a longer number or right after a decimal point.
 _NOT_AFTER_NUMBER = r"(?<!\d)(?<!\d\.)"
+# Lookahead: do not end inside a longer number or before a decimal part.
 _NOT_BEFORE_NUMBER = r"(?!\d|\.\d)"
+# List (not dict) of (label, pattern) so the order is kept and two patterns can share a label.
 _MASKS: list[tuple[str, re.Pattern[str]]] = [
     ("link", re.compile(r"\b(?:https?://|www\.)\S+", re.I)),
     ("email_address", re.compile(r"\b[\w.+-]+@[\w-]+(?:\.[\w-]+)+\b")),
@@ -120,13 +130,16 @@ _MASKS: list[tuple[str, re.Pattern[str]]] = [
 ]
 
 
+# Cleans the text first, so tricks like look-alike letters cannot get past the rules below.
 def normalize(text: str) -> str:
     """Undo common ways of hiding words from pattern checks.
 
     NFKC turns look-alike forms into plain ones (full-width "Ｉｇｎｏｒｅ" becomes "Ignore").
     Invisible and control characters are removed, so "Ig​nore" (with a zero-width space)
     is seen as "Ignore". Line breaks and tabs are kept."""
+    # NFKC folds look-alike characters into plain ones.
     text = unicodedata.normalize("NFKC", text)
+    # Drop invisible and control characters. Cc, Cf, Co, Cs are Unicode groups for these.
     return "".join(
         ch
         for ch in text
@@ -134,37 +147,49 @@ def normalize(text: str) -> str:
     )
 
 
+# Runs every rule over the text and lists the names of the ones that match.
 def scan_injection(text: str) -> list[str]:
     """Names of the rules that match. Empty for ordinary consultation text."""
     return [name for name, pattern in INJECTION_RULES.items() if pattern.search(text)]
 
 
+# Replaces phone numbers and the like, so they never reach the model.
 def mask_personal_details(text: str) -> tuple[str, dict[str, int]]:
     """Replace each personal detail with a label such as [phone number]. Returns the new text and
     how many of each kind were replaced."""
     counts: dict[str, int] = {}
     for kind, pattern in _MASKS:
+        # subn gives the new text and how many replacements were made.
         text, n = pattern.subn(f"[{kind.replace('_', ' ')}]", text)
         if n:
             counts[kind] = counts.get(kind, 0) + n
     return text, counts
 
 
+# The real guard the controller uses. It follows the port, so a fake can replace it in tests.
 class PatternInputGuard:
     """Implements the controller's InputGuard port."""
 
+    # Runs the three steps. Returns "blocked with a reason" or "clean text plus what was masked".
     def check(self, text: str) -> GuardVerdict:
+        # Step 1: normalise.
         clean = normalize(text)
+        # Refuse oversize text instead of cutting it, as the note above MAX_TRANSCRIPT_CHARS
+        # explains.
         if len(clean) > MAX_TRANSCRIPT_CHARS:
             return GuardVerdict(True, reason="transcript_too_long")
         # Screening runs before masking, so a link or address cannot hide an instruction.
+        # Step 2: screen.
         rules = scan_injection(clean)
         if rules:
             # The reason names the first rule that matched. It is a code, never the text itself.
             return GuardVerdict(True, reason=f"prompt_injection:{rules[0]}")
+        # Step 3: mask.
         masked_text, counts = mask_personal_details(clean)
         return GuardVerdict(
             False,
             clean_text=masked_text,
+            # Each item is a label and count such as "phone_number:1", sorted so the order is
+            # steady.
             masked=tuple(f"{kind}:{n}" for kind, n in sorted(counts.items())),
         )

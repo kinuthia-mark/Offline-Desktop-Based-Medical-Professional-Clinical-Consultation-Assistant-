@@ -12,6 +12,9 @@ the Kenya Data Protection Act 2019). So this page shows only what running the sy
 Buttons lead to the tabs where the work is done. Nothing here changes anything.
 """
 
+# This file is the administrator's landing tab (a Qt widget). It collects numbers about the system
+# (accounts, audit log, backups, stored consultations) and shows them as coloured boxes.
+# It never shows patient content. The go_to callback lets its buttons switch tabs.
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -35,6 +38,7 @@ from clinassist.ui.workers import error_code
 BACKUP_REMINDER = timedelta(days=1)  # a clinic should back up at the end of each day
 
 
+# Read-only landing page for the administrator. Each box is a label filled in by reload().
 class OverviewView(QWidget):
     def __init__(
         self,
@@ -44,6 +48,8 @@ class OverviewView(QWidget):
         admin_session: Callable[[], object],
         checks_summary: str = "",
         network=("warn", ""),
+        # go_to and clock have harmless defaults. clock is a function so the time can be swapped
+        # out.
         go_to: Callable[[str], None] = lambda name: None,
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
     ) -> None:
@@ -53,6 +59,7 @@ class OverviewView(QWidget):
         self._admin, self._clock = admin_session, clock
 
         self.system_label = _label()
+        # network is a (status, text) pair found when the program started.
         status, text = network
         self.system_label.setText(f"{text}\n{checks_summary}".strip())
         tone(self.system_label, _tone(status))
@@ -66,12 +73,14 @@ class OverviewView(QWidget):
         accounts_button.clicked.connect(lambda: go_to("accounts"))
         backup_button = QPushButton("Make a backup")
         mark(backup_button, "primary")  # the administrator's main daily task
+        # Backups are made on the accounts tab.
         backup_button.clicked.connect(lambda: go_to("accounts"))
         database_button = QPushButton("Look inside the database")
         database_button.clicked.connect(lambda: go_to("database"))
         refresh = QPushButton("Refresh")
         refresh.clicked.connect(self.reload)
 
+        # A two-column grid of boxes.
         grid = QGridLayout()
         boxes = (
             ("This computer", self.system_label),
@@ -80,6 +89,7 @@ class OverviewView(QWidget):
             ("Backups", self.backup_label),
             ("Stored consultations", self.records_label),
         )
+        # i // 2 is the grid row and i % 2 the column, so the boxes fill two across.
         for i, (title, label) in enumerate(boxes):
             box = QGroupBox(title)
             box.setProperty("kind", "row")  # a register row, ruled underneath (ui/theme.py)
@@ -107,18 +117,24 @@ class OverviewView(QWidget):
         layout.addWidget(self.message)
         layout.addStretch(1)
 
+    # Refreshes every box from the live data. Called when the tab is shown and by Refresh.
     def reload(self) -> None:
         try:
+            # Only an administrator may see this. Then gather everything the boxes need.
             self._auth.require(self._admin(), ADMIN)
             users = self._auth.list_users(self._admin())
             result = self._auditor.verify()
+            # Up to 1000 recent audit entries, searched below for the last backup.
             events = self._auditor.events(1000)
+            # Only the ids are read, so only a count is shown, never patient content.
             stored = len(self._store.session_ids())
+        # Any failure is shown as a plain sentence and the page is left as it was.
         except Exception as exc:
             self.message.setText(message_for(error_code(exc)))
             return
         self.message.clear()
 
+        # True counts as 1, so sum() counts the accounts that match.
         clinicians = sum(u["role"] == "clinician" for u in users)
         admins = sum(u["role"] == ADMIN for u in users)
         off = [u["username"] for u in users if not u["active"]]
@@ -129,8 +145,10 @@ class OverviewView(QWidget):
         if locked:
             lines.append("Locked after wrong passwords: " + ", ".join(locked))
         self.accounts_label.setText("\n".join(lines))
+        # Warn if any account is locked, otherwise ok.
         tone(self.accounts_label, "warn" if locked else "ok")
 
+        # verify() says whether the whole audit chain still checks out.
         if result.ok:
             self.audit_label.setText(f"Intact: all {result.checked} entries check out.")
             tone(self.audit_label, "ok")
@@ -140,11 +158,15 @@ class OverviewView(QWidget):
             )
             tone(self.audit_label, "error")
 
+        # Events come back newest first (ORDER BY seq DESC), so the first backup_created is the
+        # latest.
+        # Each event is a 5-part row, and only the time and the name are used.
         last = next((ts for _, ts, event, _, _ in events if event == "backup_created"), None)
         if last is None:
             self.backup_label.setText("No backup has been made yet. Make one today.")
             tone(self.backup_label, "warn")
         else:
+            # How old the last backup is. The timestamps are ISO text in UTC.
             age = self._clock() - datetime.fromisoformat(last)
             text = f"Last backup: {last[:16].replace('T', ' ')} UTC"
             if age > BACKUP_REMINDER:
@@ -157,11 +179,13 @@ class OverviewView(QWidget):
         )
 
 
+# A word-wrapping label, used for each box.
 def _label() -> QLabel:
     label = QLabel()
     label.setWordWrap(True)
     return label
 
 
+# Turns the start-up status word into a theme tone. Anything unknown shows as a warning.
 def _tone(status: str) -> str:
     return {"ok": "ok", "warn": "warn", "fail": "error"}.get(status, "warn")

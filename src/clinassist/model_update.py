@@ -27,6 +27,9 @@ and reported.
 To go back to an earlier model, apply the earlier bundle again.
 """
 
+# This file lets an administrator update the language model from a USB bundle, with no internet.
+# It reuses bundle.py to check the files, and refuses any model that was not evaluated.
+# check_update only looks. apply_update copies the files into Ollama's folder.
 from __future__ import annotations
 
 import json
@@ -47,6 +50,7 @@ EVALUATED_MODELS: dict[str, frozenset[str]] = {
 }
 
 
+# Raised with a short code that the screen turns into a message.
 class UpdateError(RuntimeError):
     """Raised with a stable code."""
 
@@ -67,30 +71,41 @@ class UpdateCheck:
     ollama_version: str = ""  # the Ollama installer in the bundle, if any (not run here)
 
 
+# Checks the bundle without changing anything, so the administrator can see what an update would do.
+
+
 def check_update(bundle: Path | str, llm: str, models_dir: Path | None = None) -> UpdateCheck:
     """Check the bundle completely and compare it with the installed model. Changes nothing."""
     bundle = Path(bundle)
     models_dir = models_dir or ollama_models_dir()
     if not (bundle / "manifest.json").is_file():
         raise UpdateError("not_a_model_bundle")
+    # verify_bundle returns a list of problems. Any problem means the bundle is damaged.
     if verify_bundle(bundle):
         raise UpdateError("update_bundle_damaged")
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    # A bundle for a different model is refused (see point 2 at the top).
     if manifest.get("llm") != llm:
         raise UpdateError("update_model_differs")
 
     model_manifest = bundle / "ollama-models" / _manifest_rel(llm)
     if not model_manifest.is_file():
         raise UpdateError("update_bundle_damaged")
+    # The model's manifest fingerprint must be on the approved list (point 4 at the top).
     if sha256_of(model_manifest) not in EVALUATED_MODELS.get(llm, frozenset()):
         raise UpdateError("update_model_not_evaluated")
     blobs = _blob_names(model_manifest)
+    # Every file the manifest lists must be in the bundle.
     if any(not (bundle / "ollama-models" / "blobs" / b).is_file() for b in blobs):
         raise UpdateError("update_bundle_damaged")
 
+    # Where the same model's manifest would be on this PC.
     installed = models_dir / _manifest_rel(llm)
+    # Same manifest fingerprint as the installed one means this exact model is already installed.
     same = installed.is_file() and sha256_of(installed) == sha256_of(model_manifest)
+    # How many model files are not on this PC yet.
     new = sum(1 for b in blobs if not (models_dir / "blobs" / b).is_file())
+    # Only the language model files, not the speech model files.
     model_files = [r for r in manifest["files"] if r.startswith("ollama-models/")]
     return UpdateCheck(
         llm=llm,
@@ -100,6 +115,9 @@ def check_update(bundle: Path | str, llm: str, models_dir: Path | None = None) -
         already_installed=same,
         ollama_version=str(manifest.get("ollama_version", "")),
     )
+
+
+# Installs the model. The bundle is checked again first.
 
 
 def apply_update(bundle: Path | str, llm: str, models_dir: Path | None = None) -> UpdateCheck:
@@ -113,6 +131,7 @@ def apply_update(bundle: Path | str, llm: str, models_dir: Path | None = None) -
     # The model's files first; each is named by its SHA-256, so an existing one is identical.
     for blob in _blob_names(source / _manifest_rel(llm)):
         target = models_dir / "blobs" / blob
+        # A file with this name already exists and, being named by its fingerprint, is identical.
         if target.is_file():
             continue
         _copy_checked(source / "blobs" / blob, target, blob.removeprefix("sha256-"))
@@ -122,12 +141,15 @@ def apply_update(bundle: Path | str, llm: str, models_dir: Path | None = None) -
     return check
 
 
+# Functions below are helpers used only in this file.
 # ----- internals -----
+# Path of a model's manifest file relative to the models folder.
 def _manifest_rel(llm: str) -> Path:
     name, _, tag = llm.partition(":")
     return OLLAMA_REGISTRY / name / (tag or "latest")
 
 
+# Names of all the files the manifest lists, in the form Ollama uses on disk.
 def _blob_names(manifest: Path) -> list[str]:
     data = json.loads(manifest.read_text(encoding="utf-8"))
     return [layer["digest"].replace(":", "-") for layer in [data["config"], *data["layers"]]]
@@ -136,13 +158,16 @@ def _blob_names(manifest: Path) -> list[str]:
 def _copy_checked(source: Path, target: Path, sha256: str) -> None:
     """Copy to a temporary name, check the copy, then put it in place in one step."""
     target.parent.mkdir(parents=True, exist_ok=True)
+    # Work on a temporary ".part" name, so a half-copied file is never mistaken for a good one.
     tmp = target.with_name(target.name + ".part")
     try:
         shutil.copyfile(source, tmp)
         if sha256_of(tmp) != sha256:
             raise UpdateError("update_copy_failed")
+        # os.replace swaps the file into place in one step.
         os.replace(tmp, target)
     except OSError:
         raise UpdateError("update_copy_failed") from None
+    # Always remove the temporary file, whether the copy worked or not.
     finally:
         tmp.unlink(missing_ok=True)

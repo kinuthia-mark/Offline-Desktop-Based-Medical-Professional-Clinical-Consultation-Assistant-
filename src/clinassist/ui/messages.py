@@ -5,8 +5,11 @@ turns each code into a sentence a clinician can act on. A code that is missing h
 a general message that still names the code, so support can look it up.
 """
 
+# This file is the one place that turns short error codes into sentences. Other code only
+# raises or returns codes, and the screens call message_for() or check_message() to show text.
 from __future__ import annotations
 
+# Error code -> sentence for the clinician. Plain words, saying what to do next.
 MESSAGES: dict[str, str] = {
     # workflow (controller)
     "empty_transcript": "The transcript is empty. Type or correct it before approving.",
@@ -141,6 +144,7 @@ MESSAGES: dict[str, str] = {
 }
 
 # Startup check codes, shown on the readiness screen.
+# Codes ending in _ok are passes. The rest are problems found at start-up.
 CHECKS: dict[str, str] = {
     "python_ok": "Python version is supported.",
     "python_too_old": "Python 3.11 or newer is needed.",
@@ -161,6 +165,7 @@ CHECKS: dict[str, str] = {
     "chosen_microphone_missing": "The chosen microphone is not connected.",
     "microphone_check_failed": "The microphone could not be checked.",
     "check_crashed": "This check could not run.",
+    # This warning names the script an administrator runs to set the firewall rules.
     "network_verified": "Offline: no connection leaves this PC, and the firewall rules are set.",
     "firewall_rule_missing": (
         "The app blocks network use itself, but the Windows firewall rules are not set. "
@@ -176,12 +181,16 @@ CHECKS: dict[str, str] = {
 }
 
 
+# Looks up the sentence for an error code.
 def message_for(code: str) -> str:
     """The sentence for a code. "prompt_injection:override_all" uses the "prompt_injection"
     entry; the part after the colon is a detail for the audit log, not for the screen."""
     base = code.split(":", 1)[0]
+    # Try the exact code, then the part before the colon, then the general message.
     return MESSAGES.get(code) or MESSAGES.get(base) or f"Something went wrong ({code})."
 
 
+# Looks up the sentence for a start-up check code.
 def check_message(code: str) -> str:
+    # An unknown check code is shown as the raw code.
     return CHECKS.get(code, code)

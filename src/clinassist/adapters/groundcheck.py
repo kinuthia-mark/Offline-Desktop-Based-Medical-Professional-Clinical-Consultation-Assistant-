@@ -4,6 +4,9 @@ They flag things for the clinician to look at. They never block, and they are no
 metric: the evaluation harness measures that properly. Limits are stated per check.
 """
 
+# This file compares the model's draft note with the transcript and raises warning flags.
+# It runs after the model writes a draft, and the flags show up on screen for the clinician.
+# It uses numbers.py to compare figures such as blood pressure.
 from __future__ import annotations
 
 import re
@@ -52,9 +55,11 @@ def merged_words(note: str, transcript_words: set[str]) -> list[str]:
     return found
 
 
+# Runs all the checks on one draft and returns the list of flags (empty if nothing looks wrong).
 def check_flags(sections: dict[str, str], transcript: str) -> tuple[str, ...]:
     """`sections` maps subjective/objective/assessment/plan to the model's text."""
     flags: list[str] = []
+    # All four sections joined into one text, so a check can search the whole note at once.
     note = " ".join(sections.values())
     transcript_words = _words(transcript)
 
@@ -83,16 +88,25 @@ def check_flags(sections: dict[str, str], transcript: str) -> tuple[str, ...]:
     # List numbering in the note ("1. Rest") is removed first so it is not flagged as a value.
     n_singles, n_pairs = find_numbers(_LIST_MARKER.sub(" ", note))
     if t_pairs:
+        # All the readings (for example 152/94) that the transcript can mean, as one set
+        # to look up in.
         known_pairs = set().union(*(p.readings for p in t_pairs))
         flags.extend(
-            f"number_not_in_transcript:{p.text}" for p in n_pairs if not (p.readings & known_pairs)
+            # Flag a pair in the note only if none of its readings is in the transcript.
+            f"number_not_in_transcript:{p.text}"
+            for p in n_pairs
+            if not (p.readings & known_pairs)
         )
     if t_singles:
         known = set().union(*(s.readings for s in t_singles))
+        # Positions of numbers that belong to a pair, so they are not also checked as
+        # single numbers.
         in_pairs = {pos for p in n_pairs for pos in p.starts}
         flags.extend(
             f"number_not_in_transcript:{s.text}"
             for s in n_singles
+            # Check a single number only if it is not already part of a pair and has
+            # no matching reading.
             if s.start not in in_pairs and not (s.readings & known)
         )
     # Remove duplicate flags but keep their order.

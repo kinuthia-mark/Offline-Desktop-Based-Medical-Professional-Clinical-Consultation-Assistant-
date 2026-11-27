@@ -5,8 +5,15 @@ Settings follow ADR-002 and are provisional until the evaluation harness:
   retry, a hard cap on generated tokens, a deadline, and early abort when output starts looping.
 """
 
+# This file turns an approved transcript into a draft SOAP note. It builds the prompt, sends it to
+# the local model (through ollama_client.py), watches the reply as it arrives, rejects bad or
+# unsafe replies, and returns a Draft. The controller calls it through the NoteGenerator port,
+# so it is the only place that knows how the model is prompted.
+# Lets the type hints refer to classes defined later in the file, without quotes.
 from __future__ import annotations
 
+# json reads the model's reply; re matches patterns; secrets makes the random marker;
+# time measures how long a request has run.
 import json
 import re
 import secrets
@@ -14,11 +21,14 @@ import time
 from collections.abc import Callable
 from dataclasses import dataclass
 
+# These bring in the other checks this file joins together: the grounding flags, the loop
+# check, the Ollama client and the shared note types.
 from clinassist.adapters.groundcheck import check_flags
 from clinassist.adapters.loopcheck import find_repetition
 from clinassist.adapters.ollama_client import DEFAULT_HOST, OllamaClient
 from clinassist.domain import AiSuggestion, Draft, GenerationFailed
 
+# The four parts of a SOAP note, in order. Used to check and read the model's reply.
 SECTIONS = ("subjective", "objective", "assessment", "plan")
 
 # The instructions given to the model before the transcript. Each rule answers a mistake seen in
@@ -115,13 +125,17 @@ class GeneratorSettings:
     include_suggestions: bool = False  # the app turns this on from config.ai_suggestions (ADR-013)
 
 
+# Builds the two messages sent to Ollama: the rules (system) and the transcript (user).
 def build_messages(
     transcript: str, include_suggestions: bool = False, canary: str | None = None
 ) -> list[dict]:
     safe = _TRANSCRIPT_TAG.sub("[tag removed]", transcript)  # keep the data inside its tags
+    # Ask for the longer reply format only when diagnosis suggestions are switched on.
     system = SYSTEM_PROMPT + (FORMAT_WITH_SUGGESTIONS if include_suggestions else FORMAT_NOTE)
+    # Add this request's secret marker to the rules, if one was given.
     if canary:
         system += f"\nConfidential marker, never write it anywhere: {canary}"
+    # Only the transcript goes in the user message, inside its tags, so it stays data.
     return [
         {"role": "system", "content": system},
         {"role": "user", "content": f"<transcript>\n{safe}\n</transcript>"},
@@ -132,6 +146,7 @@ def parse_draft(content: str, transcript: str, include_suggestions: bool = False
     """Validate the model's JSON and build a Draft. Raises GenerationFailed('invalid_output')."""
     # Step 1: the reply must be valid JSON.
     try:
+        # Strip any code fences first, then read the reply as JSON.
         data = json.loads(_FENCE.sub("", content.strip()))
     except json.JSONDecodeError as exc:
         raise GenerationFailed("invalid_output", content) from exc
@@ -141,10 +156,12 @@ def parse_draft(content: str, transcript: str, include_suggestions: bool = False
     # and rejecting it threw away a usable note (ADR-016). Anything else is still rejected.
     if not isinstance(data, dict):
         raise GenerationFailed("invalid_output", content)
+    # A section given as a list of strings becomes one text, one line per item.
     for key in SECTIONS:
         value = data.get(key)
         if isinstance(value, list) and value and all(isinstance(v, str) for v in value):
             data[key] = "\n".join(v.strip() for v in value)
+    # After that, every section must be text, otherwise the reply is rejected.
     if not all(isinstance(data.get(k), str) for k in SECTIONS):
         raise GenerationFailed("invalid_output", content)
 
@@ -153,6 +170,7 @@ def parse_draft(content: str, transcript: str, include_suggestions: bool = False
     suggestions: tuple[AiSuggestion, ...] = ()
     if include_suggestions and "suggestions" in data:
         items = data["suggestions"]
+        # Each suggestion must be an object holding three text fields.
         if not isinstance(items, list) or not all(
             isinstance(i, dict)
             and all(isinstance(i.get(k), str) for k in ("diagnosis", "rationale", "management"))
@@ -174,6 +192,7 @@ def parse_draft(content: str, transcript: str, include_suggestions: bool = False
         )
 
     # Step 4: build the draft and attach the advisory flags (groundcheck.py) for the clinician.
+    # Pull out just the four sections as a plain dictionary.
     sections = {k: data[k] for k in SECTIONS}
     return Draft(
         subjective=sections["subjective"],
@@ -189,14 +208,18 @@ def parse_draft(content: str, transcript: str, include_suggestions: bool = False
 class SoapGenerator:
     """Implements the controller's NoteGenerator port."""
 
+    # Builds a generator. Tests can pass in a fake client and different settings.
     def __init__(
         self,
         settings: GeneratorSettings | None = None,
         client: OllamaClient | None = None,
         progress: Callable[[int], None] | None = None,
     ) -> None:
+        # Use the default settings when none are given.
         self.settings = settings or GeneratorSettings()
+        # Same for the Ollama client, built with the settings' address and timeout.
         self._client = client or OllamaClient(self.settings.host, self.settings.read_timeout)
+        # Optional function told how many pieces have arrived, so the screen can show progress.
         self._progress = progress
 
     @property
@@ -208,27 +231,36 @@ class SoapGenerator:
         """Without the penalty, long consultations looped in 9 of 9 runs, so long input starts
         with it. Short input starts without it, since the penalty may cost word spacing."""
         s = self.settings
+        # These are the model's settings for this one request, sent to Ollama.
         options: dict = {
             "temperature": s.temperature,
             "num_ctx": s.num_ctx,
             "num_predict": s.num_predict,
         }
+        # Only send a seed if one is set.
         if s.seed is not None:
             options["seed"] = s.seed
+        # The repeat penalty is switched on for retries and for long input.
         if attempt >= 2 or words >= s.long_input_words:
             options["repeat_penalty"] = s.retry_repeat_penalty
+        # A retry also looks further back for repeated words.
         if attempt >= 2:
             options["repeat_last_n"] = s.retry_repeat_last_n
         return options
 
+    # Runs one attempt: asks the model, reads the reply as it arrives, checks it, returns a Draft.
+    # Any problem raises GenerationFailed with a short code, never with patient text in it.
     def generate(self, text: str, attempt: int) -> Draft:
         s = self.settings
         canary = new_canary()  # a new one for every request, so it cannot be learned
+        # Start the request. Nothing is read until the loop below pulls pieces from `stream`.
         stream = self._client.chat_stream(
             s.model, build_messages(text, s.include_suggestions, canary),
             self.options_for(attempt, len(text.split())), "json", s.keep_alive,
         )  # fmt: skip
+        # The clock for the time limit. monotonic cannot jump if the PC's time is changed.
         started = time.monotonic()
+        # parts collects the pieces of the reply; chunks counts them.
         parts: list[str] = []
         chunks = 0
         done_reason = None
@@ -237,22 +269,29 @@ class SoapGenerator:
         # as we go saves minutes on a loop that would otherwise run to the token cap.
         try:
             for chunk in stream:
+                # Each chunk is a dictionary; the new words are under message, then content.
                 piece = chunk.get("message", {}).get("content", "")
                 if piece:
                     parts.append(piece)
                     chunks += 1
+                    # Tell the screen how many pieces have arrived so far.
                     if self._progress:
                         self._progress(chunks)
+                # Ollama marks the last chunk as done and says why it stopped.
                 if chunk.get("done"):
                     done_reason = chunk.get("done_reason")
                     break
+                # Over the time limit: give up and keep what was written so far.
                 if time.monotonic() - started > s.max_seconds:
                     raise GenerationFailed("timeout", "".join(parts))
+                # Every few pieces, test the reply so far for a loop.
                 if piece and chunks % s.loop_check_every == 0 and find_repetition("".join(parts)):
                     raise GenerationFailed("repetition_detected", "".join(parts))
+        # finally runs however we leave the loop: normal end, error or early exit.
         finally:
             stream.close()  # also stops generation if we are leaving early
 
+        # Join the pieces into the full reply.
         content = "".join(parts)
         # "length" means the model hit the token cap mid-sentence, so the note is incomplete.
         if done_reason == "length":

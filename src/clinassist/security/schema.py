@@ -7,8 +7,12 @@ The CHECK constraints repeat the controller's gates (FR-12, FR-14, FR-15) inside
 so a bug that bypassed the controller still could not store an unconfirmed note.
 """
 
+# This file is the list of database table definitions for the encrypted vault.
+# The vault opens the database and calls migrate() so the tables always exist and are up to date.
+# It holds no patient data itself, only the structure (tables, columns and safety rules).
 from __future__ import annotations
 
+# Each string below is one migration. The list position is the version number (index 0 is v1).
 MIGRATIONS: tuple[str, ...] = (
     # v1: sessions, the model draft and the clinician's note kept apart (AMD-12, AMD-19).
     """
@@ -89,14 +93,18 @@ MIGRATIONS: tuple[str, ...] = (
     """,
 )
 
+# The newest version this program knows. It grows by one each time a migration is added.
 LATEST = len(MIGRATIONS)
 
 
+# Raised when the vault was made by a newer version of the app than the one running now.
 class SchemaError(RuntimeError):
     """The database is newer than this program understands. Message is a stable code."""
 
 
+# Reads the version number that SQLite stores inside the database file itself.
 def current_version(conn) -> int:
+    # PRAGMA returns one row with one column, so take [0] of the first row.
     return int(conn.execute("PRAGMA user_version").fetchone()[0])
 
 
@@ -108,15 +116,20 @@ def migrate(conn) -> int:
     # A vault made by a newer version of the app is refused rather than damaged.
     if version > LATEST:
         raise SchemaError("schema_newer_than_program")
+    # Run only the missing migrations, in order, one version at a time.
     for target in range(version + 1, LATEST + 1):
         # executescript commits any open transaction first; BEGIN...COMMIT makes the
         # migration and its version bump one unit. A failing statement leaves the
         # transaction open, so roll it back explicitly.
         try:
             conn.executescript(
+                # target - 1 because the tuple starts at index 0 but versions start at 1.
                 f"BEGIN;\n{MIGRATIONS[target - 1]}\nPRAGMA user_version = {target};\nCOMMIT;"
             )
         except Exception:
+            # Undo the half-finished migration so the database stays at the old version.
             conn.rollback()
+            # Pass the original error on, so the caller knows the migration failed.
             raise
+    # Read the version again from the database to report where it really ended.
     return current_version(conn)

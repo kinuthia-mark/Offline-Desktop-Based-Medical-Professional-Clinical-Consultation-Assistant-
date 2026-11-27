@@ -7,14 +7,20 @@
 The installer and support staff use these to confirm an installation works.
 """
 
+# This file is the program's front door. The installer and support staff run it with a flag
+# to check an install without opening the window. With no flag, it opens the normal app.
 import sys
 
+# sys.argv is the list of command-line words. Each flag is handled, then the program exits.
 if "--verify-bundle" in sys.argv:
     # Used by the installer before copying anything: every bundled file must be unchanged.
+    # Imported only when needed, so the other paths stay quick.
     from clinassist.bundle import verify_bundle
 
+    # The folder name is the word after the flag. Any problems are printed one per line.
     problems = verify_bundle(sys.argv[sys.argv.index("--verify-bundle") + 1])
     print("\n".join(problems) or "bundle_ok")
+    # Exit code 1 tells the installer the bundle is bad; 0 means all good.
     raise SystemExit(1 if problems else 0)
 
 if "--self-test" in sys.argv:
@@ -27,6 +33,7 @@ if "--check" in sys.argv:
 
     raise SystemExit(check())
 
+# No flag was given, so start the real app. noqa E402 allows this import below the code.
 from clinassist.ui.main import main  # noqa: E402
 
 raise SystemExit(main())
