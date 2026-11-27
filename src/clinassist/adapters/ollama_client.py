@@ -1,7 +1,13 @@
 """Minimal streaming client for a local Ollama server. Loopback only, standard library only."""
 
+# This file is the only code that talks to Ollama, the program that runs the language model on
+# this computer. soap_generator.py uses it to send a prompt and read the reply as it streams
+# back. It refuses any address that is not this computer, which keeps the app offline.
+# Lets the type hints refer to classes defined later in the file, without quotes.
 from __future__ import annotations
 
+# json builds and reads the messages; urllib is Python's built-in web client, so no extra
+# package is needed.
 import json
 import urllib.error
 import urllib.request
@@ -23,6 +29,7 @@ _DIRECT = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 class ChatStream:
     """Iterate the streamed JSON lines. Closing it drops the connection, which stops the model."""
 
+    # response is the open connection to Ollama.
     def __init__(self, response) -> None:
         self._response = response
 
@@ -32,10 +39,13 @@ class ChatStream:
         # Any network or format problem becomes a GenerationFailed code.
         try:
             for raw in self._response:
+                # Remove the line ending.
                 line = raw.strip()
+                # Skip blank lines between chunks.
                 if not line:
                     continue
                 try:
+                    # yield hands out one chunk at a time, so the caller can act early.
                     yield json.loads(line)
                 except json.JSONDecodeError as exc:
                     raise GenerationFailed("bad_stream") from exc
@@ -44,19 +54,24 @@ class ChatStream:
         except (OSError, ValueError) as exc:  # connection dropped mid-stream
             raise GenerationFailed("ollama_unreachable") from exc
 
+    # Closing the connection tells Ollama to stop, so an abandoned reply does not keep the PC busy.
     def close(self) -> None:
         self._response.close()
 
 
+# Talks to the local Ollama server over HTTP. Only soap_generator.py and the start-up check use it.
 class OllamaClient:
     def __init__(self, host: str = DEFAULT_HOST, read_timeout: float = 300.0) -> None:
         # Air-gap rule: refuse to even create a client that points anywhere but this computer.
         if urlparse(host).hostname not in _LOOPBACK:
             raise ValueError("non_loopback_host")
+        # Remove a trailing slash so the paths join cleanly.
         self._host = host.rstrip("/")
         self._read_timeout = read_timeout
 
+    # Sends a POST request and returns the open response. Every failure becomes a short code.
     def _open(self, path: str, payload: dict, timeout: float):
+        # Build the request: the address, the body as JSON bytes, and a header saying it is JSON.
         request = urllib.request.Request(
             self._host + path,
             data=json.dumps(payload).encode(),
@@ -80,6 +95,7 @@ class OllamaClient:
         except OSError as exc:
             raise GenerationFailed("ollama_unreachable") from exc
 
+    # Starts a chat request and returns a ChatStream to read the reply from.
     def chat_stream(
         self, model: str, messages: list[dict], options: dict, output_format: str | None,
         keep_alive: str,
@@ -102,12 +118,14 @@ class OllamaClient:
     def list_models(self, timeout: float = 5.0) -> list[str]:
         """Names of the models Ollama has installed. Used by the startup check. Raises
         GenerationFailed("ollama_unreachable") if Ollama is not running."""
+        # A GET request with no body, to the address that lists the installed models.
         request = urllib.request.Request(self._host + "/api/tags", method="GET")
         try:
             with _DIRECT.open(request, timeout=timeout) as response:  # loopback, no proxy
                 data = json.loads(response.read())
         except (OSError, ValueError) as exc:
             raise GenerationFailed("ollama_unreachable") from exc
+        # Each entry in the list has a name; take just the names.
         return [m.get("name", "") for m in data.get("models", [])]
 
     def unload(self, model: str) -> None:

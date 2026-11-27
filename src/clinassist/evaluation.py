@@ -22,6 +22,10 @@ treated as the same (clinassist.metrics). Every triggered trap and contradiction
 the clause that triggered it, because these are text rules and a person should confirm them.
 """
 
+# This file scores a drafted SOAP note against a list of facts that must be in it. The evaluation
+# scripts load a scenario (Scenario.load) and call score_note(). It finds missing facts,
+# contradictions and invented details (traps), using simple text rules with negation handling.
+# SOAP means Subjective, Objective, Assessment, Plan: the four parts of a clinical note.
 from __future__ import annotations
 
 import json
@@ -37,6 +41,7 @@ _NEGATION = {
     "no", "not", "denies", "denied", "without", "negative", "nil", "none", "never", "absent",
     "neither", "nor", "free",
 }  # fmt: skip
+# Words that turn a statement into conditional advice rather than a finding.
 _CONDITIONAL = {"if", "unless", "should", "whether"}
 # Phrases meaning "missing from the note", which must not count as a negation.
 _UNSTATED = re.compile(r"\b(not stated|not mentioned|not documented|not recorded|not known)\b")
@@ -50,6 +55,7 @@ _CLAUSE = re.compile(r"[.;\n]|\bbut\b|\bhowever\b|\bwhereas\b")
 _QUESTION = re.compile(r"[^.?!\n]*\w\?(?=\s|$)")
 
 
+# Removes direct questions with the pattern above, because a question states nothing.
 def drop_questions(text: str) -> str:
     return _QUESTION.sub(" ", text)
 
@@ -60,14 +66,19 @@ def norm(text: str) -> str:
     # "500mg" and "500 mg" must match each other, so digits and letters are split apart first.
     text = re.sub(r"(\d)([a-zA-Z])", r"\1 \2", text)
     text = re.sub(r"([a-zA-Z])(\d)", r"\1 \2", text)
+    # normalize() gives a list of words. Join them with single spaces and pad both ends.
     return " " + " ".join(normalize(text, numbers_as_digits=True, standard_spelling=True)) + " "
 
 
+# Checks a phrase against text that was already put through norm().
 def _has(text_norm: str, phrase: str) -> bool:
+    # True when the phrase, normalised the same way, appears as whole words in the text.
     return norm(phrase) in text_norm
 
 
+# Splits text into clauses, so a negation only counts inside its own clause.
 def _clauses(text: str) -> list[str]:
+    # "not stated" means missing, not denied, so it is renamed to stop it counting as a negation.
     text = _UNSTATED.sub(" unstated ", text.lower())
     return [c for c in _CLAUSE.split(text) if c.strip()]
 
@@ -78,11 +89,13 @@ def positive_mentions(text: str, terms: list[str], unless: list[str] = ()) -> li
     found = []
     for clause in _clauses(text):
         words = norm(clause).split()
+        # Padded with spaces like norm(), so a term only matches whole words.
         joined = " " + " ".join(words) + " "
         for term in terms:
             t = norm(term)
             if t not in joined:
                 continue
+            # The words before the term, and the first three words after it.
             before = joined[: joined.index(t)].split()
             after = joined[joined.index(t) + len(t) :].split()[:3]
             # "if" and "unless" make the rest conditional: "come back if you get a fever" does not
@@ -96,14 +109,17 @@ def positive_mentions(text: str, terms: list[str], unless: list[str] = ()) -> li
             # ("chest pain since yesterday, palpitations absent" would hide the chest pain).
             tail = joined.split()[-4:]
             negated = negated or any(w in ("not", "absent", "denied", "negative") for w in tail)
+            # An "unless" word in the clause excuses it (for example "brother" for "smokes").
             excused = any(_has(joined, u) for u in unless)
             if not negated and not excused:
+                # One hit per clause is enough, so stop checking the other terms.
                 found.append(clause.strip())
                 break
     return found
 
 
 # ----- scenarios -----
+# frozen=True: these are read-only once they have been loaded from the JSON file.
 @dataclass(frozen=True)
 class Fact:
     """`match`: groups of phrases, every group must match. `denied`: instead, these terms must be
@@ -116,14 +132,16 @@ class Fact:
     denied: tuple[str, ...] = ()
 
 
+# A thing the patient denied. The note must not state it as present.
 @dataclass(frozen=True)
 class Negative:
     id: str
     terms: tuple[str, ...]
     critical: bool = False
-    sections: tuple[str, ...] = ("subjective", "objective")
+    sections: tuple[str, ...] = ("subjective", "objective")  # the plan is not checked for negatives
 
 
+# A wrong detail a careless note might invent (a relative's illness, a test never ordered).
 @dataclass(frozen=True)
 class Trap:
     id: str
@@ -133,6 +151,7 @@ class Trap:
     exact: bool = False
 
 
+# One test case: the script of a consultation plus what its note must and must not contain.
 @dataclass(frozen=True)
 class Scenario:
     id: str
@@ -142,20 +161,24 @@ class Scenario:
     negatives: tuple[Negative, ...]
     traps: tuple[Trap, ...]
 
+    # Reads one scenario JSON file into the dataclasses above.
     @classmethod
     def load(cls, path: Path) -> Scenario:
         data = json.loads(Path(path).read_text(encoding="utf-8"))
+        # Fail early if a fact names a section that is not one of the four SOAP sections.
         for f in data["facts"]:
             if f["section"] not in SECTIONS:
                 raise ValueError(f"bad section in {path.name}: {f['id']}")
         return cls(
             id=data["id"],
             title=data["title"],
+            # The script file sits next to the JSON file.
             script=Path(path).with_name(data["script"]),
             facts=tuple(
                 Fact(
                     f["id"],
                     f["section"],
+                    # Lists become tuples, so each Fact cannot be changed afterwards.
                     tuple(tuple(g) for g in f.get("match", [])),
                     f.get("critical", False),
                     tuple(f.get("denied", [])),
@@ -179,13 +202,16 @@ class Scenario:
         )
 
 
+# Every scenario file in a folder, sorted so each run goes through them in the same order.
 def load_all(folder: Path) -> list[Scenario]:
     return [Scenario.load(p) for p in sorted(Path(folder).glob("*.json"))]
 
 
 # ----- scoring -----
+# The result for one note. score_note() fills in the lists.
 @dataclass
 class Score:
+    # default_factory gives each Score its own new list, not one list shared by all of them.
     facts_found: list[str] = field(default_factory=list)
     facts_missed: list[str] = field(default_factory=list)
     critical_missed: list[str] = field(default_factory=list)
@@ -195,10 +221,12 @@ class Score:
     facts_total: int = 0
     critical_total: int = 0
 
+    # The share of the scenario's facts that the note contained.
     @property
     def recall(self) -> float:
         return len(self.facts_found) / self.facts_total if self.facts_total else 0.0
 
+    # The share of critical facts found. It is 1.0 when there are none to find.
     @property
     def critical_recall(self) -> float:
         if not self.critical_total:
@@ -206,24 +234,34 @@ class Score:
         return (self.critical_total - len(self.critical_missed)) / self.critical_total
 
 
+# Is this fact in the note? A "denied" fact must be mentioned and negated. Any other fact needs
+# every group to match.
 def _fact_in(text_norm: str, fact: Fact, raw: str = "") -> bool:
     if fact.denied:
+        # Denied fact: it must be mentioned, and never in a positive (non-negated) way.
         mentioned = any(_has(text_norm, term) for term in fact.denied)
         return mentioned and not positive_mentions(raw, list(fact.denied))
+    # Every group must match, and a group matches if any one of its phrases is there.
     return all(any(_has(text_norm, phrase) for phrase in group) for group in fact.match)
 
 
+# The main function: checks every fact, negative and trap against the note and returns a Score.
 def score_note(scenario: Scenario, sections: dict[str, str]) -> Score:
     """`sections` maps subjective/objective/assessment/plan to the note's text."""
+    # Questions go first, because they state nothing.
     sections = {k: drop_questions(v) for k, v in sections.items()}
+    # All four sections joined and normalised, so a fact can be found anywhere in the note.
     whole = norm(" ".join(sections.get(s, "") for s in SECTIONS))
     s = Score(facts_total=len(scenario.facts))
     for fact in scenario.facts:
         if fact.critical:
             s.critical_total += 1
+        # The raw text is kept as well, because the negation check needs the original words.
         raw_all = " . ".join(sections.get(x, "") for x in SECTIONS)
         if _fact_in(whole, fact, raw_all):
             s.facts_found.append(fact.id)
+            # A fact found elsewhere but not in its own section is reported as in the wrong
+            # section.
             own = sections.get(fact.section, "")
             if not _fact_in(norm(own), fact, own):
                 s.wrong_section.append(fact.id)
@@ -231,18 +269,22 @@ def score_note(scenario: Scenario, sections: dict[str, str]) -> Score:
             s.facts_missed.append(fact.id)
             if fact.critical:
                 s.critical_missed.append(fact.id)
+    # The plain text of the whole note, used for the traps.
     text = " . ".join(sections.get(x, "") for x in SECTIONS)
     for neg in scenario.negatives:
+        # Each negative is only checked in the sections it lists (history and examination).
         history = " . ".join(sections.get(x, "") for x in neg.sections)
         clauses = positive_mentions(history, list(neg.terms))
         if clauses:
             s.contradictions[neg.id] = clauses
     for trap in scenario.traps:
+        # An exact trap is triggered by the phrase itself, whatever the rest of the clause says.
         if trap.exact:
             clauses = [
                 c.strip() for c in _clauses(text) if any(_has(norm(c), p) for p in trap.terms)
             ]
         else:
+            # Any other trap is triggered by its term in a clause that is not negated or excused.
             clauses = positive_mentions(text, list(trap.terms), list(trap.unless))
         if clauses:
             s.traps[trap.id] = clauses

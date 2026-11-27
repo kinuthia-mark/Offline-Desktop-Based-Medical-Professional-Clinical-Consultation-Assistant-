@@ -17,10 +17,14 @@ All three are automatic and approximate; the report lists each match so a person
 Implemented here rather than taken from a package, so it runs offline with nothing to install.
 """
 
+# This file scores a drafted note against notes written by real clinicians in public datasets.
+# It has no outside packages, so it works offline. ROUGE (word overlap), highlight coverage and
+# diagnosis rank are all computed here and are called from the public-data evaluation scripts.
 from __future__ import annotations
 
 import re
 
+# A word is letters and digits, with an optional apostrophe part ("patient's").
 _WORD = re.compile(r"[a-z0-9]+(?:'[a-z]+)?")
 
 # Words that carry no clinical content, left out when matching highlights and diagnoses.
@@ -88,15 +92,21 @@ _SPELLING = {"diarrhea": "diarrhoea", "esophageal": "oesophageal", "anemia": "an
              "hemorrhage": "haemorrhage"}  # fmt: skip
 
 
+# Prepares text for comparison, so shorthand and full words can match each other.
 def expand(text: str) -> str:
     """Lower-case the text and spell out clinical shorthand and UK durations."""
+    # "3/7" becomes "3 days".
     t = text.lower()
     t = _DURATION.sub(lambda m: f"{m.group(1)} {_UNIT[m.group(2)]}", t)
+    # Longest shorthand first, so a long key is replaced before a short key inside it.
     for short, long in sorted(SHORTHAND.items(), key=lambda kv: -len(kv[0])):
+        # (?<![a-z]) and (?![a-z]) make the shorthand match whole words only, so "mi" is not found
+        # inside "admit".
         t = re.sub(rf"(?<![a-z]){re.escape(short)}(?![a-z])", long, t)
     return t
 
 
+# The words of the text after shorthand is spelled out, with spellings made the same.
 def tokens(text: str) -> list[str]:
     words = _WORD.findall(expand(text))
     return [_SPELLING.get(w, w) for w in words]
@@ -105,20 +115,27 @@ def tokens(text: str) -> list[str]:
 def _stem(word: str) -> str:
     """A very small stemmer: plurals and -ing/-ed, so "headaches" matches "headache"."""
     for suffix in ("ing", "ed", "es", "s"):
+        # Only cut when at least four letters would be left, so short words stay whole.
         if len(word) > len(suffix) + 3 and word.endswith(suffix):
             return word[: -len(suffix)]
     return word
 
 
+# The meaningful words of a text: stop words dropped, the rest stemmed.
 def content(text: str) -> list[str]:
     return [_stem(w) for w in tokens(text) if w not in STOP]
 
 
 # ----- ROUGE -----
+# F1 score: one number from precision and recall, used by every ROUGE measure below.
 def _f1(overlap: int, ref_total: int, hyp_total: int) -> float:
+    # Nothing shared, or an empty side, scores 0.
     if not overlap or not ref_total or not hyp_total:
         return 0.0
+    # Precision is the share of the note's pieces that are right. Recall is the share of the
+    # reference found.
     precision, recall = overlap / hyp_total, overlap / ref_total
+    # F1 is the harmonic mean of precision and recall (low if either one is low).
     return round(2 * precision * recall / (precision + recall), 4)
 
 
@@ -126,10 +143,12 @@ def rouge_n(reference: str, hypothesis: str, n: int) -> float:
     """ROUGE-N F1: shared n-grams (each counted as often as it appears in both)."""
     from collections import Counter
 
+    # All runs of n words in a row, counted.
     def grams(words: list[str]) -> Counter:
         return Counter(tuple(words[i : i + n]) for i in range(len(words) - n + 1))
 
     ref, hyp = grams(tokens(reference)), grams(tokens(hypothesis))
+    # & keeps the smaller count of each shared gram, so a repeated phrase is not over-counted.
     overlap = sum((ref & hyp).values())
     return _f1(overlap, sum(ref.values()), sum(hyp.values()))
 
@@ -139,10 +158,14 @@ def rouge_l(reference: str, hypothesis: str) -> float:
     ref, hyp = tokens(reference), tokens(hypothesis)
     if not ref or not hyp:
         return 0.0
+    # Longest common subsequence by dynamic programming. previous[j] is the best length so far
+    # for the earlier reference words against the first j hypothesis words.
     previous = [0] * (len(hyp) + 1)
     for r in ref:
         current = [0]
         for j, h in enumerate(hyp, start=1):
+            # A match extends the diagonal by one. Otherwise take the better of skipping a word on
+            # either side.
             current.append(previous[j - 1] + 1 if r == h else max(previous[j], current[j - 1]))
         previous = current
     return _f1(previous[-1], len(ref), len(hyp))
@@ -152,9 +175,11 @@ def rouge_l(reference: str, hypothesis: str) -> float:
 def highlight_covered(highlight: str, note: str, threshold: float = 0.6) -> bool:
     """True when at least `threshold` of the highlight's content words are in the note."""
     wanted = set(content(highlight))
+    # A highlight with no content words has nothing to check, so it counts as covered.
     if not wanted:
         return True
     have = set(content(note))
+    # The share of the highlight's content words that the note has.
     return len(wanted & have) / len(wanted) >= threshold
 
 
@@ -172,6 +197,7 @@ _IN_SENTENCE = re.compile(
     r"\s+(?:an?\s+)?([a-z][a-z \-]{2,60})",
     re.I,
 )
+# Splits a list of diagnoses at a comma, a semicolon, a slash (not in "3/7"), "or" and "and".
 _SPLIT = re.compile(r"\s*(?:,|;|(?<!\d)/(?!\d)|\bor\b|\band\b)\s*", re.I)
 # A comment after the diagnosis: "Bell's Palsy- need to rule out ...", "TIAs- despite young age".
 _COMMENT = re.compile(r"\s*(?:-\s|\+|\bneeds?\b|\bdespite\b|\bpossibly secondary\b).*$", re.I)
@@ -181,8 +207,10 @@ _RULED_OUT = re.compile(
 )
 
 
+# Used for the diagnosis check: finds what the clinician thought the diagnosis was.
 def clinician_impression(note: str) -> str:
     """The clinician's working diagnosis from a labelled line ("Imp: gastroenteritis"), or ""."""
+    # The first labelled line in the note, if there is one.
     match = _IMPRESSION.search(note)
     return match.group(1).strip() if match else ""
 
@@ -195,10 +223,14 @@ def clinician_diagnoses(note: str) -> list[str]:
     clinician's working diagnosis of MI). Empty when the note states no diagnosis."""
     line = clinician_impression(note)
     if not line:
+        # No labelled line, so try the sentence patterns instead.
         found = _IN_SENTENCE.search(note)
         line = found.group(1) if found else ""
+    # Cut at the first full stop, bracket, "however", "but" or "for". A "?" becomes a space.
     line = re.split(r"[.(]|\bhowever\b|\bbut\b|\bfor\b", line.replace("?", " "), maxsplit=1)[0]
+    # Split into separate diagnoses, strip any trailing comment, and squeeze extra spaces.
     items = [" ".join(_COMMENT.sub("", part).split()) for part in _SPLIT.split(line)]
+    # Keep items that still have a real word and are not something ruled out.
     return [i for i in items if _core(i) and not _RULED_OUT.match(i)]
 
 
@@ -213,13 +245,17 @@ SYNONYMS = {
 }
 
 
+# The set of meaningful words of a diagnosis, after plain names are swapped for clinical ones
+# and hedging words are removed.
 def _core(diagnosis: str) -> set[str]:
     text = diagnosis.lower()
     for plain, clinical in SYNONYMS.items():
+        # Whole words only, so "stroke" is not replaced inside a longer word.
         text = re.sub(rf"(?<![a-z]){plain}(?![a-z])", clinical, text)
     return {w for w in content(text) if w not in QUALIFIERS}
 
 
+# Tolerates a small typing slip in a diagnosis name when matching.
 def _close(word: str, words: set[str], threshold: float = 0.85) -> bool:
     """The word, or a spelling of it close enough to be a typing slip ("labrynthitis" for
     "labyrinthitis"). Only words of six letters or more, so short ones never match by chance."""
@@ -229,13 +265,16 @@ def _close(word: str, words: set[str], threshold: float = 0.85) -> bool:
         return True
     if len(word) < 6:
         return False
+    # ratio() is 0 to 1. At 0.85 or more the two spellings count as the same word.
     return any(len(w) >= 6 and SequenceMatcher(None, word, w).ratio() >= threshold for w in words)
 
 
+# True when every word of a has a match (exact or close) in b.
 def _within(a: set[str], b: set[str]) -> bool:
     return all(_close(w, b) for w in a)
 
 
+# Says where the clinician's diagnosis appears in the program's list of suggestions.
 def diagnosis_rank(reference: str | list[str], suggestions: list[str]) -> int | None:
     """The rank (1 = first) of the first suggestion matching the clinician's diagnosis, or any
     of the clinician's listed diagnoses, or None.
@@ -243,12 +282,17 @@ def diagnosis_rank(reference: str | list[str], suggestions: list[str]) -> int | 
     A suggestion matches when it holds every core word of the clinician's diagnosis, or the
     clinician's diagnosis holds every core word of the suggestion ("gastroenteritis" and
     "viral gastroenteritis"); hedges such as "likely" or "viral" are ignored."""
+    # Accept one diagnosis as text, or a list of them.
     references = [reference] if isinstance(reference, str) else reference
+    # The core words of each reference diagnosis, skipping any that end up empty.
     cores = [c for c in (_core(r) for r in references) if c]
     if not cores:
         return None
+    # Suggestions are in ranked order, so the first match found gives the rank.
     for rank, suggestion in enumerate(suggestions, start=1):
         sug = _core(suggestion)
+        # Match either way round, so "gastroenteritis" and "viral gastroenteritis" count as the
+        # same.
         if sug and any(_within(ref, sug) or _within(sug, ref) for ref in cores):
             return rank
     return None
@@ -259,7 +303,9 @@ def diagnosis_rank(reference: str | list[str], suggestions: list[str]) -> int | 
 FILLERS = frozenset({"um", "uh", "umm", "uhm", "erm", "er", "hmm", "mm", "mhm", "ah"})
 
 
+# Used before the word error rate, so hesitation words do not count as mistakes.
 def drop_fillers(text: str) -> str:
+    # Lower case and strip punctuation before checking, so "Um," is caught too.
     return " ".join(w for w in text.split() if w.lower().strip(".,?!") not in FILLERS)
 
 
@@ -274,5 +320,7 @@ _DICTATED = re.compile(
 )
 
 
+# Used before the second word error rate for AfriSpeech clips.
 def drop_dictated_punctuation(text: str) -> str:
+    # Remove the spoken punctuation words, then squeeze the extra spaces they leave.
     return " ".join(_DICTATED.sub(" ", text).split())

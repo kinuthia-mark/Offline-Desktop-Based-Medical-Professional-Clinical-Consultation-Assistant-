@@ -20,6 +20,9 @@ used on, and the outline of text boxes and buttons at least 3:1; `tests/test_ui.
 this from the colour tables, so a change that breaks it fails a test.
 """
 
+# This file sets the colours and fonts for every screen. The colour tables below feed one
+# stylesheet (Qt's version of CSS). Screens never set their own colours; they call mark()
+# or tone() and the stylesheet does the rest, so the whole app looks consistent.
 from __future__ import annotations
 
 import json
@@ -31,6 +34,8 @@ from PySide6.QtGui import QGuiApplication
 # The identity comes from the clinic itself: register green (the colour of the MOH registers and
 # facility signage) for actions, and record ink (a deep blue-slate) for the sidebar and headings,
 # on a cool clinic grey. Amber is kept for AI-generated text only.
+# Each table maps a colour name to a hex code (#rrggbb). Both tables use the same names,
+# so the stylesheet works for either one.
 LIGHT = {
     "bg": "#eef2f4",
     "surface": "#ffffff",
@@ -57,6 +62,7 @@ LIGHT = {
     "ink_selected": "#1f4659",
     "ink_mark": "#5cc79a",  # the selected item's edge: register green, lightened for the ink
 }
+# The dark version: same names, different values.
 DARK = {
     "bg": "#0f1a20",
     "surface": "#16242c",
@@ -84,9 +90,13 @@ DARK = {
     "ink_selected": "#17323f",
     "ink_mark": "#46b98a",
 }
+# The allowed names for tone().
 TONES = ("ai", "error", "ok", "warn", "quiet")
 
 
+# Builds the stylesheet text for one colour table `c`. The `{{` and `}}` are single braces
+# in an f-string; `{c["name"]}` is where a colour is put in. Selectors like `#navItem`
+# match a widget by its object name, and `[kind="primary"]` matches a property set by mark().
 def stylesheet(c: dict) -> str:
     return f"""
 QWidget {{ font-family: "Segoe UI"; font-size: 10pt; color: {c["text"]}; }}
@@ -230,12 +240,14 @@ QToolTip {{
 """
 
 
+# Theme settings. `_current` is a small shared dictionary holding the choice and the app.
 # The user's choice of look, shown in the header: follow Windows, or always light or dark.
 CHOICES = {"system": "Follow Windows", "light": "Light", "dark": "Dark"}
 APPEARANCE_FILE = "appearance.json"  # beside settings.json in the data folder
 _current = {"choice": "system", "app": None}
 
 
+# Decide light or dark: an explicit choice wins, otherwise ask Windows.
 def is_dark() -> bool:
     """Whether the dark version is showing: the user's choice, or Windows' own setting."""
     choice = _current["choice"]
@@ -245,21 +257,27 @@ def is_dark() -> bool:
     return hints.colorScheme() == Qt.ColorScheme.Dark
 
 
+# Re-apply the stylesheet. `*_` accepts and ignores any argument Qt passes when it calls
+# this as a signal handler.
 def _restyle(*_) -> None:
     app = _current["app"]
     if app is not None:
         app.setStyleSheet(stylesheet(DARK if is_dark() else LIGHT))
 
 
+# Called once at start-up with the Qt application object.
 def apply_theme(app, choice: str = "system") -> None:
     """Style the whole program now, and again whenever Windows switches light or dark mode
     (which matters only while the choice is "system")."""
     _current["app"] = app
+    # An unknown saved value falls back to following Windows, so a bad file cannot break start-up.
     _current["choice"] = choice if choice in CHOICES else "system"
     _restyle()
+    # Windows tells Qt when light or dark mode changes; this makes the app follow at once.
     QGuiApplication.styleHints().colorSchemeChanged.connect(_restyle)
 
 
+# Called when the user picks a look from the header menu.
 def set_choice(choice: str) -> None:
     """Switch the look at once, for every open window."""
     if choice not in CHOICES:
@@ -268,10 +286,12 @@ def set_choice(choice: str) -> None:
     _restyle()
 
 
+# The choice now in use, so the menu can show it.
 def current_choice() -> str:
     return _current["choice"]
 
 
+# Read the saved choice from appearance.json in the data folder.
 def load_choice(folder) -> str:
     """The saved choice, or "system" if there is none or the file cannot be read. A look is
     not worth refusing to start over, so a damaged file is ignored."""
@@ -283,6 +303,7 @@ def load_choice(folder) -> str:
     return choice if choice in CHOICES else "system"
 
 
+# Save the choice to appearance.json, so it is remembered next time the program starts.
 def save_choice(folder, choice: str) -> None:
     if choice not in CHOICES:
         raise ValueError("unknown_theme")
@@ -290,16 +311,20 @@ def save_choice(folder, choice: str) -> None:
     path.write_text(json.dumps({"theme": choice}) + "\n", encoding="utf-8")
 
 
+# Colour a label by meaning (error, warning and so on) rather than by a fixed colour.
 def tone(label, name: str) -> None:
     """Give a label a meaning colour ("ai", "error", "ok", "warn", "quiet"); "" removes it. The
     stylesheet picks the shade for the light or dark version."""
     if name and name not in TONES:
         raise ValueError("unknown_tone")
     label.setProperty("tone", name)
+    # Qt only reads a property when the style is applied, so unpolish and polish force a
+    # restyle now. Without it the new colour would not show.
     label.style().unpolish(label)  # re-apply the stylesheet now that the property changed
     label.style().polish(label)
 
 
+# Sets a property on the button; the stylesheet rule `QPushButton[kind=...]` reads it.
 def mark(button, kind: str) -> None:
     """Give a button its role ("primary" or "danger"); the stylesheet does the rest."""
     button.setProperty("kind", kind)

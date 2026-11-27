@@ -12,8 +12,11 @@ supplements. It is a working list for this prototype, not a complete or authorit
 and a pharmacist should review it before any clinical use.
 """
 
+# This file is just data: the list of medicine names that medcheck.py compares the
+# transcript against. It also holds a few extra accepted spellings.
 from __future__ import annotations
 
+# The list of medicine names (lower case, generic). A tuple, so it cannot be changed by mistake.
 MEDICINES: tuple[str, ...] = (
     # pain and fever
     "paracetamol", "ibuprofen", "diclofenac", "aspirin", "tramadol", "morphine",
@@ -47,6 +50,7 @@ MEDICINES: tuple[str, ...] = (
 
 # Other correct words that are not on the list above: other spellings of listed medicines (for
 # example American spellings) and names of drug classes. They are never flagged as misheard.
+# A frozenset (fixed set) gives fast "is it in here" tests.
 ALSO_CORRECT: frozenset[str] = frozenset(
     {
         "beclomethasone", "cotrimoxazole", "sulfamethoxazole", "sulphamethoxazole",
@@ -58,11 +62,15 @@ ALSO_CORRECT: frozenset[str] = frozenset(
 )  # fmt: skip
 
 
+# Builds the text for Whisper's prompt hint. Not used by the app (see docstring above).
 def speech_prompt(limit_words: int = 120) -> str:
     """A short text Whisper reads before listening, so these words are expected. Whisper keeps
     only the last 224 tokens of a prompt, so the list is kept short."""
+    # All medicine names in one comma-separated string.
     names = ", ".join(MEDICINES)
+    # Split into words so the length can be counted.
     words = names.split()
+    # Too long: keep only the first limit_words words and drop a trailing comma.
     if len(words) > limit_words:
         names = " ".join(words[:limit_words]).rstrip(",")
     return f"Clinical consultation in a Kenyan clinic. Medicines that may be mentioned: {names}."

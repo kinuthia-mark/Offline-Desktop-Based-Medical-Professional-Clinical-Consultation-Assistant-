@@ -7,6 +7,9 @@ when none of its readings appears in the transcript. That favours missing an err
 wolf.
 """
 
+# This file finds numbers in text, whether typed as digits or spoken as words.
+# groundcheck.py uses it to see if a number in the note was really said in the consultation.
+# Spoken numbers are ambiguous, so each number keeps a set of possible readings.
 from __future__ import annotations
 
 import re
@@ -29,6 +32,7 @@ _WORDS = set(_UNITS) | set(_TEENS) | set(_TENS) | {"hundred", "point"}
 _TOKEN = re.compile(r"\d+(?:\.\d+)?|[a-z]+|/")
 
 
+# One number found in the text, with all the values it could mean and where it sits.
 @dataclass(frozen=True)
 class Occurrence:
     text: str  # as written in the source
@@ -37,6 +41,7 @@ class Occurrence:
     end: int
 
 
+# Two numbers written as A over B (a blood pressure), with every combination of readings.
 @dataclass(frozen=True)
 class Pair:
     text: str
@@ -44,6 +49,7 @@ class Pair:
     starts: frozenset[int]  # token positions of its two numbers
 
 
+# Turns a run of number words into the set of values it could mean, as text.
 def _int_readings(words: list[str]) -> set[str]:
     # First turn the words into small values: "one fifty two" -> [1, 52];
     # "one hundred fifty two" -> [100, 52] ("hundred" multiplies the value before it).
@@ -51,11 +57,14 @@ def _int_readings(words: list[str]) -> set[str]:
     i = 0
     while i < len(words):
         w = words[i]
+        # "hundred" multiplies the number just before it.
         if w == "hundred":
             if values:
                 values[-1] *= 100
         elif w in _TENS:
             v = _TENS[w]
+            # "twenty one": if a unit word follows a tens word, add it and skip it.
+            # Zero is not added.
             if i + 1 < len(words) and words[i + 1] in _UNITS and _UNITS[words[i + 1]] > 0:
                 v += _UNITS[words[i + 1]]
                 i += 1
@@ -76,6 +85,7 @@ def _int_readings(words: list[str]) -> set[str]:
     return readings
 
 
+# Handles spoken decimals and then falls back to whole numbers.
 def _word_readings(words: list[str]) -> set[str]:
     # Decimals: "thirty seven point five" -> 37.5. Digits after "point" are read one by one.
     if "point" in words:
@@ -92,6 +102,7 @@ def _canon(token: str) -> str:
     return str(int(token)) if token.isdigit() else token
 
 
+# Main function: scans the text once and returns single numbers and A-over-B pairs.
 def find_numbers(text: str) -> tuple[list[Occurrence], list[Pair]]:
     """Return every number, and every pair written as 'A over B' or 'A/B'."""
     tokens = [m.group() for m in _TOKEN.finditer(text.lower())]
@@ -106,11 +117,14 @@ def find_numbers(text: str) -> tuple[list[Occurrence], list[Pair]]:
             i += 1
         elif tok in _WORDS:
             j = i
+            # Keep gathering words while they are number words. "and" is allowed
+            # only in "hundred and" with a word after it.
             while j < len(tokens) and (
                 tokens[j] in _WORDS
                 or (tokens[j] == "and" and tokens[j - 1] == "hundred" and tokens[j + 1 : j + 2])
             ):
                 j += 1
+            # Drop "and" before working out the value.
             run = [t for t in tokens[i:j] if t != "and"]
             singles.append(Occurrence(" ".join(tokens[i:j]), frozenset(_word_readings(run)), i, j))
             i = j
@@ -119,7 +133,9 @@ def find_numbers(text: str) -> tuple[list[Occurrence], list[Pair]]:
 
     # Two numbers joined by "over" or "/" form a pair, the way blood pressure is written.
     pairs: list[Pair] = []
+    # Compare each number with the next one. strict=False because the lists differ in length by one.
     for a, b in zip(singles, singles[1:], strict=False):
+        # Pair only if the two numbers are next to each other with just "over" or "/" between them.
         if b.start == a.end + 1 and tokens[a.end] in {"over", "/"}:
             readings = frozenset((x, y) for x in a.readings for y in b.readings)
             pairs.append(Pair(f"{a.text}/{b.text}", readings, frozenset({a.start, b.start})))

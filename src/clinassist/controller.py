@@ -16,10 +16,20 @@ FR-14  the clinician's assessment is their own; the model's text is kept separat
 FR-15  required history is confirmed before finalizing
 """
 
+# This file is the brain of one consultation. The screens call its methods in order, and it
+# refuses any step taken out of order. It sits between the interface (above) and the parts
+# that do the real work (microphone, Whisper, Ollama, vault), which it only knows through
+# ports.py. It is also where the two clinician gates are enforced, so no screen can skip them.
+# Lets the type hints refer to classes defined later in the file, without quotes.
 from __future__ import annotations
 
+# uuid makes the random session ids.
 import uuid
+
+# Callable is only used to describe the type of id_factory below.
 from collections.abc import Callable
+
+# Enum with auto() gives each state a name without us choosing numbers.
 from enum import Enum, auto
 
 from clinassist.domain import (
@@ -54,6 +64,7 @@ class State(Enum):
     FINALIZED = auto()
 
 
+# One object per consultation screen. It holds the current stage and the data gathered so far.
 class ConsultationController:
     def __init__(
         self,
@@ -63,19 +74,22 @@ class ConsultationController:
         generator: NoteGenerator,
         store: SessionStore,
         auditor: Auditor | None = None,
-        max_attempts: int = 2,
+        max_attempts: int = 2,  # two model tries at most (see the comment below)
         id_factory: Callable[[], str] = lambda: uuid.uuid4().hex,
     ) -> None:
         # The controller is handed its parts instead of creating them. The real app passes the
         # microphone, Whisper, Ollama and the vault; the tests pass simple fakes, which is how
         # every rule here can be tested in seconds without any hardware or model.
+        # Keep each part on the controller. The leading underscore tells outside code to leave it.
         self._recorder, self._transcriber, self._guard = recorder, transcriber, guard
         self._generator, self._store = generator, store
+        # With no auditor given, use one that does nothing, so there is no need to check for None.
         self._auditor = auditor or NullAuditor()
         # At most two model attempts per transcript, so a failing model cannot keep the
         # clinician waiting. After that, the note is written by hand.
         self._max_attempts = max_attempts
         self._id_factory = id_factory
+        # Sets every per-consultation value to its starting value.
         self._clear()
 
     # ----- read-only view for the interface -----
@@ -108,6 +122,7 @@ class ConsultationController:
         return self._attempts < self._max_attempts
 
     # ----- workflow -----
+    # Starts the microphone. Only allowed from IDLE.
     def start_recording(self) -> None:
         self._require(State.IDLE)
         # A new random id for this consultation; it links the stored record and audit entries.
@@ -116,6 +131,7 @@ class ConsultationController:
         self._state = State.RECORDING
         self._audit("recording_started")
 
+    # Stops the microphone and returns the transcript text for the clinician to check.
     def stop_recording(self) -> str:
         self._require(State.RECORDING)
         # Stop the microphone and turn the audio into text. The audio itself is not kept here.
@@ -133,7 +149,9 @@ class ConsultationController:
         self._state = State.TRANSCRIBED
         # Note which speech model heard it, and its language and confidence, if the transcriber
         # reports them; they are stored with the record.
+        # The transcriber may or may not have these details, so getattr gives None when it does not.
         info = getattr(self._transcriber, "last_info", None)
+        # Stored as (speech model name, language, confidence) and read again in finalize().
         self._asr = (
             getattr(self._transcriber, "model_name", ""),
             getattr(info, "language", "") or "",
@@ -158,6 +176,7 @@ class ConsultationController:
     def approve_transcript(self, edited_text: str, clinician_id: str) -> None:
         """Gate 1 (FR-11): only approved text can ever reach the model."""
         self._require(State.TRANSCRIBED)
+        # An empty transcript gives the model nothing to work from, so it is refused.
         if not edited_text.strip():
             raise WorkflowError("empty_transcript")
         # The clinician's corrected text replaces the raw speech-to-text output, and we record
@@ -175,10 +194,12 @@ class ConsultationController:
         self._state = State.TRANSCRIBED
         self._audit("transcript_reopened", self._approved_by)
 
+    # Asks the model for a draft note. Used for the first try and for any retry.
     def generate_draft(self) -> Draft:
         """One attempt. On failure the state becomes GENERATION_FAILED and the error is raised,
         with the transcript preserved. Retries are limited to `max_attempts`."""
         self._require(State.APPROVED, State.GENERATION_FAILED)
+        # Stop at the limit, so a retry button cannot be used to try forever.
         if self._attempts >= self._max_attempts:
             raise WorkflowError("attempts_exhausted")
         # Screen the approved text before the model sees it. Text that looks like an attempt to
@@ -198,6 +219,7 @@ class ConsultationController:
             self._state = State.GENERATION_FAILED
             self._audit("generation_failed", self._approved_by)
             raise
+        # Success: keep the draft and move to DRAFTED so the clinician can review it.
         self._draft, self._state = draft, State.DRAFTED
         self._audit("draft_generated", self._approved_by)
         return draft
@@ -205,6 +227,7 @@ class ConsultationController:
     def start_manual_note(self) -> Draft:
         """Write the note without the model, for example after generation failed."""
         self._require(State.APPROVED, State.GENERATION_FAILED)
+        # An empty draft marked manual, so the clinician writes every part.
         self._draft = Draft(source="manual")
         self._state = State.DRAFTED
         self._audit("manual_note_started", self._approved_by)
@@ -219,7 +242,9 @@ class ConsultationController:
     ) -> SessionRecord:
         """Gate 2 (FR-12, FR-14, FR-15). The record is saved before the state changes, so a
         storage failure leaves the session editable."""
+        # Only a drafted note can be finalized (FR-12).
         self._require(State.DRAFTED)
+        # Safety check for the type checker; _require above already guarantees a draft exists.
         assert self._draft is not None
         # FR-15: allergies, medicines and pertinent negatives must all be ticked. In testing,
         # every model note read by hand left at least one of these out.
@@ -230,6 +255,7 @@ class ConsultationController:
         if not final_note.assessment.strip():
             raise WorkflowError("assessment_required")
         # Suggestions the clinician accepts are referred to by position in the draft's list.
+        # Reject a position that is not in the draft's list, instead of failing later.
         if any(not 0 <= i < len(self._draft.suggestions) for i in accepted_suggestions):
             raise WorkflowError("invalid_suggestion_index")
 
@@ -244,6 +270,7 @@ class ConsultationController:
         else:
             origin = "clinician_edited"
 
+        # Gather everything into one record: transcript, draft, final note, and who did what.
         record = SessionRecord(
             session_id=self._session_id or "",
             transcript=self._transcript,
@@ -256,6 +283,7 @@ class ConsultationController:
             checklist=checklist,
             generation_attempts=self._attempts,
             asr_model=self._asr[0],
+            # Only a model draft has a model version. A manual note has none.
             model_version=(
                 getattr(self._generator, "model_name", "") if self._draft.source == "model" else ""
             ),
@@ -284,6 +312,7 @@ class ConsultationController:
         self._clear()
 
     # ----- internals -----
+    # Puts every value back to its start. Used at start-up, on discard and on reset.
     def _clear(self) -> None:
         self._state = State.IDLE
         self._session_id: str | None = None
@@ -295,6 +324,7 @@ class ConsultationController:
         # the transcript was typed.
         self._asr: tuple[str, str, float | None] = ("", "", None)
 
+    # Raises an error unless the current state is one of the allowed ones.
     def _require(self, *allowed: State) -> None:
         # The guard on every action: refuse anything that is not allowed in the current stage.
         # The error is a code naming the stage, never anything from the consultation.

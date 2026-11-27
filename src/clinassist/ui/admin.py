@@ -10,6 +10,11 @@
   offline either way: its own network guard does not depend on the rules.
 """
 
+# This file is the whole screen for the System Administrator role. It is one tab in the
+# main window, shown only to admins. Admins manage the app (accounts, backups, the model,
+# the firewall, the audit log) and never see clinical text, so nothing here reads notes.
+# The screen only draws buttons and tables; the real work is done by the services passed in
+# (auth, auditor, backups, models, protection).
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -40,6 +45,8 @@ from clinassist.ui.messages import message_for
 from clinassist.ui.workers import error_code, run_in_background
 
 
+# The administrator's screen. It builds the widgets once, then reload() fills them with data.
+# It takes the services as arguments (dependency injection), so tests can pass fakes.
 class AdminView(QWidget):
     def __init__(
         self,
@@ -60,8 +67,11 @@ class AdminView(QWidget):
         """`backups` (app.Backups) enables backup and restore. `on_restored` is called after a
         restore, when the program must close. The `ask_*` and `confirm` callables show the file
         dialogs and questions; tests replace them."""
+        # Keep the services passed in. Each `ask_*` falls back to the real dialog method below,
+        # so tests can pass fakes and never open a window.
         super().__init__()
         self._auditor, self._auth, self._admin = auditor, auth, admin_session
+        # `on_restored or (lambda: None)` means: do nothing if no callback was given.
         self._backups, self._on_restored = backups, on_restored or (lambda: None)
         self._ask_save_path = ask_save_path or self._dialog_save_path
         self._ask_open_path = ask_open_path or self._dialog_open_path
@@ -74,6 +84,7 @@ class AdminView(QWidget):
         self._protection_on = True  # read from Windows each time the tab opens
 
         # Audit log
+        # The table has 5 columns, matching the header labels set on the next line.
         self.table = QTableWidget(0, 5)
         self.table.setHorizontalHeaderLabels(["#", "Time (UTC)", "Event", "Session", "User"])
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
@@ -83,11 +94,13 @@ class AdminView(QWidget):
         self.table.horizontalHeader().setStretchLastSection(True)
         self.verify_result = QLabel()
         self.verify_result.setWordWrap(True)
+        # Buttons are wired to methods with `clicked.connect`: Qt calls the method on click.
         reload_button = QPushButton("Refresh")
         verify_button = QPushButton("Check the whole log")
         reload_button.clicked.connect(self.reload)
         verify_button.clicked.connect(self.verify)
         audit = QGroupBox("Audit log")
+        # `a` is the vertical layout inside the audit box. The `1` gives the table the spare space.
         a = QVBoxLayout(audit)
         a.addWidget(self.table, 1)
         row = QHBoxLayout()
@@ -97,11 +110,13 @@ class AdminView(QWidget):
         a.addWidget(self.verify_result)
 
         # Accounts
+        # Fields for a new account. The password box hides what is typed.
         self.username = QLineEdit()
         self.display_name = QLineEdit()
         self.password = QLineEdit()
         self.password.setEchoMode(QLineEdit.EchoMode.Password)
         self.role = QComboBox()
+        # Fill the role list from the fixed set of roles. The label is shown, the code is stored.
         for code in ROLES:
             self.role.addItem(ROLE_LABELS[code], code)
         create = QPushButton("Create account")
@@ -119,6 +134,7 @@ class AdminView(QWidget):
         disable = QPushButton("Turn account off")
         enable = QPushButton("Turn account on")
         unlock = QPushButton("Unlock after wrong passwords")
+        # The lambdas pass True or False to one shared method, so there is one code path.
         disable.clicked.connect(lambda: self._set_active(False))
         enable.clicked.connect(lambda: self._set_active(True))
         unlock.clicked.connect(self.unlock_account)
@@ -162,8 +178,10 @@ class AdminView(QWidget):
         row.addWidget(self.restore_button)
         b.addLayout(row)
         b.addWidget(self.backup_message)
+        # Hide the whole backup box if no backup service was given.
         backups.setVisible(self._backups is not None)
 
+        # `right` is the column of panels on the right. The numbers are how much space each gets.
         right = QVBoxLayout()
         right.addWidget(accounts, 3)
         right.addWidget(backups, 1)
@@ -219,11 +237,13 @@ class AdminView(QWidget):
         layout.addWidget(audit, 3)
         layout.addWidget(scroll, 2)
 
+    # Refresh the whole screen: the user list, the firewall status and the newest 500 audit rows.
     def reload(self) -> None:
         self._reload_users()
         self._show_protection()
         events = self._auditor.events(500)
         self.table.setRowCount(len(events))
+        # Each event is a tuple of: entry number, time, event name, session id, user id.
         for row, (seq, ts, event, session_id, user_id) in enumerate(events):
             # The audit log stores ids only (no names in the hash chain); the screen shows the
             # username so an administrator can see who did what.
@@ -232,12 +252,17 @@ class AdminView(QWidget):
             # clinician's screen shows. The stored entry keeps the full values.
             when = ts[:19].replace("T", " ")
             short = session_id[:8].upper()
+            # Fill one table cell per column. Qt cells need text, so each value becomes a string.
             for col, value in enumerate((seq, when, event, short, user)):
                 self.table.setItem(row, col, QTableWidgetItem(str(value)))
 
+    # Run the hash chain check and show the result. Writing down the head (newest entry's
+    # number and fingerprint) off the PC is what lets later deletion of entries be spotted.
     def verify(self) -> None:
         result = self._auditor.verify()
+        # `head` is the newest entry. Only the first 16 characters of its hash are shown.
         head = self._auditor.head()
+        # `result.ok` is False when any entry was edited, removed or moved.
         if result.ok:
             self.verify_result.setText(
                 f"The log is intact: {result.checked} entries checked.\n"
@@ -250,12 +275,16 @@ class AdminView(QWidget):
                 f"({result.problem.replace('_', ' ')})."
             )
 
+    # Load the account list into the table. `self._admin()` gives the admin's current session,
+    # so the auth service can check the caller really is an administrator.
     def _reload_users(self) -> None:
         try:
             users = self._auth.list_users(self._admin())
+        # Any failure (for example the session ended) is turned into a plain message for the screen.
         except Exception as exc:
             self.account_message.setText(message_for(error_code(exc)))
             return
+        # Remember the ids in table order, so a selected row can be mapped back to a user id.
         self._user_ids = [u["user_id"] for u in users]
         self._usernames = {u["user_id"]: u["username"] for u in users}
         self.users.setRowCount(len(users))
@@ -270,10 +299,12 @@ class AdminView(QWidget):
             for col, value in enumerate(values):
                 self.users.setItem(row, col, QTableWidgetItem(value))
 
+    # The user id of the highlighted row, or an empty string if nothing is selected.
     def _selected_user(self) -> str:
         row = self.users.currentRow()
         return self._user_ids[row] if 0 <= row < len(self._user_ids) else ""
 
+    # Create an account from the form. The auth service checks the password rules and the role.
     def create_user(self) -> None:
         try:
             self._auth.create_user(
@@ -286,10 +317,13 @@ class AdminView(QWidget):
         except Exception as exc:
             self.account_message.setText(message_for(error_code(exc)))
             return
+        # Clear the password box so it does not stay on screen after use.
         self.account_message.setText(f"Account '{self.username.text().strip()}' created.")
         self.password.clear()
         self._reload_users()
 
+    # Turn the selected account on or off. The auth service refuses it if the caller is not an
+    # administrator.
     def _set_active(self, active: bool) -> None:
         try:
             self._auth.set_active(self._admin(), self._selected_user(), active)
@@ -320,6 +354,7 @@ class AdminView(QWidget):
         )
         self._reload_users()
 
+    # Pops up a box asking for the temporary password. Returns "" if the admin cancels.
     def _dialog_temporary_password(self) -> str:
         text, ok = QInputDialog.getText(
             self,
@@ -329,6 +364,7 @@ class AdminView(QWidget):
         )
         return text if ok else ""
 
+    # Clear the lock that wrong passwords put on the selected account.
     def unlock_account(self) -> None:
         try:
             self._auth.unlock_account(self._admin(), self._selected_user())
@@ -339,10 +375,13 @@ class AdminView(QWidget):
         self._reload_users()
 
     # ----- backup and restore -----
+    # Save the encrypted vault to a file. The admin check is repeated here as well as in the
+    # backup service, so a non-admin can never get as far as the file dialog.
     def make_backup(self) -> None:
         try:
             self._auth.require(self._admin(), ADMIN)
             path = self._ask_save_path(self._backups.default_name())
+            # An empty path means the admin cancelled the file dialog.
             if not path:
                 return
             info = self._backups.make(path, self._admin().user_id)
@@ -354,6 +393,8 @@ class AdminView(QWidget):
             "Copy it to a drive kept away from this PC."
         )
 
+    # Restore a backup in three steps: pick the file, give the passphrase or recovery code,
+    # then confirm. The program closes afterwards because the open vault has been replaced.
     def restore(self) -> None:
         try:
             self._auth.require(self._admin(), ADMIN)
@@ -380,6 +421,7 @@ class AdminView(QWidget):
         self.backup_message.setText("Restored. The program will now close.")
         self._on_restored()
 
+    # The next four methods are the real Qt dialogs. Tests swap them for fakes.
     def _dialog_save_path(self, suggested: str) -> str:
         path, _ = QFileDialog.getSaveFileName(
             self, "Save the backup", suggested, "ClinAssist backup (*.clinbak)"
@@ -406,6 +448,8 @@ class AdminView(QWidget):
         return answer == QMessageBox.StandardButton.Yes
 
     # ----- offline model update (FR-10b) -----
+    # Install a new model from a folder. The bundle is checked first, and only the model the
+    # program was evaluated with (matched by fingerprint) is accepted.
     def update_model(self) -> None:
         try:
             self._auth.require(self._admin(), ADMIN)
@@ -420,6 +464,7 @@ class AdminView(QWidget):
                     "nothing to update."
                 )
                 return
+            # Bytes to gigabytes (1 GB = 1e9 bytes) for the question text.
             size_gb = check.total_bytes / 1e9
             question = (
                 f"Every file in the bundle checked out. It holds {check.llm} ({check.files} "
@@ -441,11 +486,13 @@ class AdminView(QWidget):
         return QFileDialog.getExistingDirectory(self, "Choose the model bundle folder")
 
     # ----- offline protection (firewall rules) -----
+    # Ask Windows whether the firewall rules are set, without freezing the screen.
     def _show_protection(self) -> None:
         # Reading the rules starts PowerShell (about 1.6 s), so it runs off the screen's thread.
         if self._protection is not None:
             run_in_background(self._protection.is_on, self._shown_protection, lambda exc: None)
 
+    # Called when the background check finishes. Shows the status and the matching button text.
     def _shown_protection(self, on: bool) -> None:
         self._protection_on = on
         self.protection_status.setText(
@@ -458,6 +505,8 @@ class AdminView(QWidget):
             "Turn offline protection off..." if on else "Turn offline protection on"
         )
 
+    # Turn the firewall rules off or on. Turning off asks for confirmation first, because it
+    # leaves other programs free to use the internet. Turning on needs no question.
     def switch_protection(self) -> None:
         try:
             self._auth.require(self._admin(), ADMIN)
@@ -467,6 +516,7 @@ class AdminView(QWidget):
                 "the internet until you turn it back on. Windows will ask you to confirm."
             ):
                 return
+            # `sent` is False if the Windows permission prompt was refused.
             sent = self._protection.switch(turn_on, self._admin().user_id)
         except Exception as exc:
             self.protection_message.setText(message_for(error_code(exc)))

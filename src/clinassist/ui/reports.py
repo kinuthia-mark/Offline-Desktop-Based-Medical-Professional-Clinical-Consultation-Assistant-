@@ -16,6 +16,9 @@ be saved as a CSV file for a spreadsheet; saving is written to the audit log.
 No patient text is shown or saved: reports.py reads only counts, codes and times.
 """
 
+# This file draws the Reports tab for clinicians: four bar charts and a table of figures.
+# It only shows numbers. The numbers are worked out by the Reports service (clinassist.reports)
+# from the audit log, which holds counts and times and never any patient text.
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -51,6 +54,7 @@ from clinassist.ui.messages import message_for
 from clinassist.ui.theme import DARK, LIGHT, is_dark, mark, tone
 from clinassist.ui.workers import error_code
 
+# Long condition names are shortened so they fit under a narrow bar.
 # Chart labels only; the table and the CSV file keep the full names.
 SHORT_NAMES = {
     "Upper respiratory tract infection": "URTI",
@@ -62,6 +66,8 @@ SHORT_NAMES = {
 }
 
 
+# The Reports tab. It asks the service for a report for the chosen period, then fills the
+# table and the charts from it.
 class ReportsView(QWidget):
     def __init__(
         self,
@@ -72,10 +78,13 @@ class ReportsView(QWidget):
     ) -> None:
         """`reports` is app.Reports; `ask_save_path(suggested)` returns where to save, or ""."""
         super().__init__()
+        # Keep the services. `session` is a function that returns the current login session.
         self._reports, self._auth, self._session = reports, auth, session
         self._ask_save_path = ask_save_path or self._dialog_save_path
         self.report = None
 
+        # Period drop-down. Changing it rebuilds the report at once; the lambda drops the text Qt
+        # sends with the signal.
         self.period = QComboBox()
         self.period.addItems(list(PERIODS))
         self.period.setCurrentText("Last 30 days")
@@ -85,6 +94,7 @@ class ReportsView(QWidget):
         self.save_button = QPushButton("Save as CSV")
         mark(self.save_button, "primary")
         self.save_button.clicked.connect(self.save_csv)
+        # Top row: period, refresh, and the Save button pushed to the right by the stretch.
         bar = QHBoxLayout()
         bar.addWidget(QLabel("Period:"))
         bar.addWidget(self.period)
@@ -94,6 +104,7 @@ class ReportsView(QWidget):
 
         self.period_label = QLabel()
         tone(self.period_label, "quiet")
+        # The figures table has 3 columns: section, measure, value.
         self.table = QTableWidget(0, 3)
         self.table.setHorizontalHeaderLabels(["Section", "Measure", "Value"])
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
@@ -118,10 +129,12 @@ class ReportsView(QWidget):
         # condition name both fit; a third for the dates cut "10" to "...", a half cut "Pneumonia".
         self.charts = QVBoxLayout()
         self.chart_views: dict[str, QChartView] = {}
+        # Which charts go on which row, with their width share. The keys are used by _draw_charts.
         rows = (((("hours", 1), ("days", 1))), (("daily", 3), ("conditions", 5)))
         for row in rows:
             line = QHBoxLayout()
             for key, stretch in row:
+                # One empty chart view per key. _bar() puts the real chart into it later.
                 view = QChartView()
                 view.setRenderHint(QPainter.RenderHint.Antialiasing)
                 view.setMinimumHeight(220)
@@ -143,6 +156,7 @@ class ReportsView(QWidget):
         layout.addWidget(note)
         layout.addWidget(self.message)
 
+    # Rebuild the report. Only clinicians may see it, so the role is checked again here.
     def reload(self) -> None:
         try:
             self._auth.require(self._session(), CLINICIAN)
@@ -162,23 +176,31 @@ class ReportsView(QWidget):
         self.table.resizeRowsToContents()  # long measures wrap onto a second line
         self._draw_charts(self.report)
 
+    # Work out the data for each chart, then hand it to _bar. `r` is the report.
     def _draw_charts(self, r) -> None:
         # Short labels (8 for 08:00, 3 for the 3rd), so they fit under each bar.
         # The clinic day (7:00 to 19:00), stretched to include any hour that had consultations,
         # so an evening or night clinic is never left off the chart.
         busy = [h for h, n in r.per_hour.items() if n]
+        # `*busy` adds the busy hours to the list, so min and max can never cut off a busy hour.
         first, last = min([7, *busy]), max([19, *busy])
+        # Every hour from first to last, with 0 for hours that had no consultations.
         busiest_hours = {str(h): r.per_hour.get(h, 0) for h in range(first, last + 1)}
         self._bar("hours", "Busiest hours of the day (plan staffing)", busiest_hours)
+        # Keep the first two letters of each weekday name.
         days = {day[:2]: n for day, n in r.per_weekday.items()}  # "Mo", "Tu": fit narrow bars
         self._bar("days", "Busiest days of the week", days)
+        # Only the last 14 days. `day[8:]` is the day of the month in a date like 2026-11-05;
+        # `int()` drops a leading zero.
         daily = {str(int(day[8:])): n for day, n in list(r.per_day.items())[-14:]}
         self._bar("daily", "Consultations saved per day (last 14 days)", daily)
         conditions = {SHORT_NAMES.get(label, label): n for label, n in r.conditions.items()}
         self._bar("conditions", "Conditions seen (disease surveillance)", conditions)
 
+    # Build one chart from a dictionary of label to count.
     def _bar(self, key: str, title: str, data: dict) -> None:
         """One upright bar chart in the app's colours. `data` maps a label to a count."""
+        # Pick the light or dark colours to match the current look.
         c = DARK if is_dark() else LIGHT
         bars = QBarSet("count")
         bars.setColor(QColor(c["primary"]))
@@ -194,8 +216,10 @@ class ReportsView(QWidget):
         chart.setBackgroundBrush(QColor(c["surface"]))
         chart.setTitleBrush(QColor(c["text"]))
         labels = QBarCategoryAxis()
+        # If there is nothing to show, give the axis one label so the chart still draws.
         labels.append(list(data) or ["no data"])
         counts = QValueAxis()
+        # Top of the count axis. `1` is the minimum, so an empty chart still has a scale.
         top = max([*data.values(), 1])
         counts.setLabelFormat("%d")
         counts.setRange(0, top)
@@ -203,17 +227,21 @@ class ReportsView(QWidget):
             counts.setTickCount(top + 1)
         else:
             counts.applyNiceNumbers()  # ticks on round numbers (0, 10, 20), not 7, 15, 23
+        # Same small font and colours on both axes.
         small = QFont("Segoe UI", 8)
         for axis in (labels, counts):
             axis.setLabelsFont(small)
             axis.setLabelsColor(QColor(c["muted"]))
             axis.setGridLineColor(QColor(c["border"]))
+        # A chart needs each axis added and then attached to the series before bars appear.
         chart.addAxis(labels, Qt.AlignmentFlag.AlignBottom)
         chart.addAxis(counts, Qt.AlignmentFlag.AlignLeft)
         series.attachAxis(labels)
         series.attachAxis(counts)
         self.chart_views[key].setChart(chart)
 
+    # Save the report as a CSV file. The service writes the file and records the save in the
+    # audit log, which is why the user id is passed.
     def save_csv(self) -> None:
         if self.report is None:
             return
@@ -228,6 +256,7 @@ class ReportsView(QWidget):
             return
         self.message.setText(f"Report saved to {path}.")
 
+    # The real Windows save dialog. Tests swap it for a fake.
     def _dialog_save_path(self, suggested: str) -> str:
         path, _ = QFileDialog.getSaveFileName(
             self, "Save the report", suggested, "CSV file (*.csv)"

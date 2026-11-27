@@ -12,12 +12,19 @@ where they were; if someone else logs in, the open consultation is discarded fir
 clinician never sees another's unfinished notes.
 """
 
+# This file is the entry point of the desktop app. main() runs the start-up steps in order,
+# then MainWindow holds the tabs (consultation, records, admin) and the idle lock. The screens
+# themselves live in other files in this folder; this file only joins them together.
 from __future__ import annotations
 
+# sys gives the command-line arguments and the platform name.
 import sys
+
+# UTC makes every time zone-aware, so the idle timeout compares like with like.
 from datetime import UTC, datetime
 from pathlib import Path
 
+# QEvent is Qt's event type; QObject is the base class for the activity filter.
 from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
@@ -35,6 +42,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+# The role names. ADMIN and CLINICIAN decide which tabs a person sees.
 from clinassist.domain import ADMIN, CLINICIAN, ROLE_LABELS
 from clinassist.ui import theme
 from clinassist.ui.admin import AdminView
@@ -55,9 +63,11 @@ from clinassist.ui.reports import ReportsView
 from clinassist.ui.theme import apply_theme, tone
 from clinassist.ui.workspace import ConsultationWorkspace
 
+# The window title, also used as the application name.
 APP_TITLE = "Offline Clinical Consultation Assistant"
 
 
+# An event filter sees every event in the app before the widgets do. Here it resets the idle clock.
 class _ActivityFilter(QObject):
     """Counts any key press or mouse click anywhere in the app as activity."""
 
@@ -65,12 +75,15 @@ class _ActivityFilter(QObject):
         super().__init__()
         self._on_activity = on_activity
 
+    # Qt calls this for each event. The noqa comment is for the linter, as Qt fixes the name.
     def eventFilter(self, obj, event) -> bool:  # noqa: N802 - Qt's name
+        # Only key presses and mouse clicks count as activity.
         if event.type() in (QEvent.Type.KeyPress, QEvent.Type.MouseButtonPress):
             self._on_activity()
         return False  # never swallow the event
 
 
+# The main window: header bar, sidebar, the tabs, the idle timer and the toast notice.
 class MainWindow(QMainWindow):
     def __init__(
         self,
@@ -78,24 +91,29 @@ class MainWindow(QMainWindow):
         session,
         login_again,
         checks_summary: str = "",
+        # network is a (status, label) pair from the start-up check, shown in the header.
         network=("warn", ""),
         confirm_close=None,
     ) -> None:
         """`login_again(notice)` shows the login dialog and returns a session or None."""
         super().__init__()
         self.setWindowTitle(APP_TITLE)
+        # Keep the objects the window needs for later.
         self._services, self.session, self._login_again = services, session, login_again
         self._confirm_close = confirm_close or self._ask_close  # tests replace the dialog
         self._closing = False  # set when the program closes itself and must not ask
+        # auth is the login and accounts service; it is used in several places below.
         auth = services.auth
 
         self.user_label = QLabel()
         # The toast: a notice at the top right, beside the tabs (show_toast).
+        # A label that floats over the window, used as a short pop-up notice.
         self.toast = QLabel(self)
         self.toast.setObjectName("toast")
         # Clicks pass through it, so it never covers a button the clinician needs.
         self.toast.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.toast.hide()
+        # A single-shot timer hides the toast after a few seconds.
         self._toast_timer = QTimer(self)
         self._toast_timer.setSingleShot(True)
         self._toast_timer.timeout.connect(self.toast.hide)
@@ -105,16 +123,20 @@ class MainWindow(QMainWindow):
         self.network_label = QLabel(label)
         # Readable on light and dark Windows themes.
         # The words say what the check found; the colour repeats it (WCAG 1.4.1).
+        # Pick a colour for the status: ok, warn or error, and quiet when unknown.
         tone(self.network_label, {"ok": "ok", "warn": "warn", "fail": "error"}.get(status, "quiet"))
         self.network_label.setStyleSheet("font-weight: bold;")
+        # Log out locks the screen and asks for a login again.
         logout = QPushButton("Log out")
         logout.clicked.connect(self.log_out)
         self.password_button = QPushButton("Change password")
         self.password_button.clicked.connect(self.change_password)
         # Light, dark, or follow Windows; remembered on this PC for everyone (appearance.json).
         self.theme_box = QComboBox()
+        # Fill the drop-down from the theme choices; the key is stored with each name.
         for key, name in theme.CHOICES.items():
             self.theme_box.addItem(name, key)
+        # Select the choice that is saved now.
         self.theme_box.setCurrentIndex(list(theme.CHOICES).index(theme.current_choice()))
         self.theme_box.setToolTip("Appearance: light, dark, or the same as Windows")
         self.theme_box.setAccessibleName("Appearance")
@@ -125,6 +147,7 @@ class MainWindow(QMainWindow):
         header_bar.setObjectName("appHeader")
         header = QHBoxLayout(header_bar)
         header.setContentsMargins(14, 8, 14, 8)
+        # Show the logo only if the file exists, so a missing icon never stops the app.
         icon_path = window_icon_path()
         if icon_path.is_file():
             logo = QLabel()
@@ -144,15 +167,18 @@ class MainWindow(QMainWindow):
         # work only; administrators see the system only, never patient notes (data
         # minimisation). The consultation and records actions also check the role themselves,
         # so hiding a tab is not the only protection.
+        # Create one screen per tab. Each gets only what it needs, so it has no hidden links.
         self.overview = OverviewView(
             auth,
             services.auditor,
             services.store,
+            # A lambda reads self.session when called, so it always gives the current login.
             admin_session=lambda: self.session,
             checks_summary=checks_summary,
             network=network,
             go_to=self._go_to,
         )
+        # The consultation screen. Its before_action runs before every step to check the login.
         self.workspace = ConsultationWorkspace(
             services, user_id=lambda: self.session.user_id, before_action=self.require_clinician
         )
@@ -162,6 +188,7 @@ class MainWindow(QMainWindow):
             export=self.export_note,
             name_of=lambda user_id: auth.display_name(self.session, user_id),
         )
+        # The tab widget holds all the screens; addTab returns the position of each.
         self.tabs = QTabWidget()
         self.overview_index = self.tabs.addTab(self.overview, "Overview")
         self.workspace_index = self.tabs.addTab(self.workspace, "Consultation")
@@ -180,6 +207,7 @@ class MainWindow(QMainWindow):
         self.database_index = self.tabs.addTab(self.database, "Database")
         self.reports = ReportsView(services.reports, auth, session=lambda: self.session)
         self.reports_index = self.tabs.addTab(self.reports, "Reports")
+        # When a tab is opened, reload its data.
         self.tabs.currentChanged.connect(self._tab_opened)
 
         # Navigation is a sidebar, like the index tabs of a patient file. The tab widget stays
@@ -195,6 +223,7 @@ class MainWindow(QMainWindow):
         self.nav_group = QButtonGroup(self)
         self.nav_group.setExclusive(True)
         self.nav_buttons: list[QPushButton] = []
+        # Make one sidebar button for each tab.
         for index in range(self.tabs.count()):
             button = QPushButton(self.tabs.tabText(index))
             button.setObjectName("navItem")
@@ -202,7 +231,10 @@ class MainWindow(QMainWindow):
             # Focus only from the keyboard (Tab): a mouse click left a focus box that clashed
             # with the green edge; keyboard users still see where they are.
             button.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+            # The i=index default fixes this button's own number; without it every button would use
+            # the last.
             button.clicked.connect(lambda _=False, i=index: self.tabs.setCurrentIndex(i))
+            # The button group makes the buttons behave like radio buttons: only one is on.
             self.nav_group.addButton(button)
             self.nav_buttons.append(button)
             nav.addWidget(button)
@@ -218,12 +250,14 @@ class MainWindow(QMainWindow):
         theme_row.setContentsMargins(12, 0, 12, 0)
         theme_row.addWidget(self.theme_box)
         nav.addLayout(theme_row)
+        # When the tab changes by any route, tick the matching sidebar button.
         self.tabs.currentChanged.connect(
             lambda i: (
                 self.nav_buttons[i].setChecked(True) if 0 <= i < len(self.nav_buttons) else None
             )
         )
 
+        # Assemble the page: header at the top, then the sidebar and the tabs side by side.
         body = QWidget()
         layout = QVBoxLayout(body)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -238,8 +272,10 @@ class MainWindow(QMainWindow):
         row.addLayout(content, 1)
         layout.addLayout(row, 1)
         self.setCentralWidget(body)
+        # Set up the tabs and welcome notice for the person who logged in.
         self._show_user()
 
+        # Start watching all clicks and key presses for the idle timer.
         self._activity = _ActivityFilter(self._touch)
         QApplication.instance().installEventFilter(self._activity)
         # Check for idleness every 15 seconds; the timeout itself is 10 minutes.
@@ -249,6 +285,8 @@ class MainWindow(QMainWindow):
         self.idle_timer.start()
 
     # ----- login state -----
+    # These two methods are the login checks passed to the screens. auth.require raises if the
+    # session ended.
     def require(self) -> None:
         """Called before every action; raises session_expired after the idle timeout."""
         self._services.auth.require(self.session)
@@ -257,10 +295,12 @@ class MainWindow(QMainWindow):
         """Before every consultation and records action: also refuses a non-clinician."""
         self._services.auth.require(self.session, "clinician")
 
+    # Count a click or key press as activity, unless the session has already expired.
     def _touch(self) -> None:
         if not self.session.expired(datetime.now(UTC)):
             self.session.last_active = datetime.now(UTC)
 
+    # Called by the timer every 15 seconds to lock the window after 10 minutes of no activity.
     def check_idle(self) -> None:
         if self.workspace.keeps_session_alive and not self.session.ended:
             # Recording, transcribing or drafting: the clinician is working even without
@@ -270,13 +310,16 @@ class MainWindow(QMainWindow):
         if self.session.expired(datetime.now(UTC)):
             self.lock_screen(message_for("session_expired"))
 
+    # Log the person out and ask for a login again. Used by the idle lock and by Log out.
     def lock_screen(self, notice: str) -> None:
         # The idle check is paused while the login dialog is open: the ended session counts
         # as expired, and the timer would otherwise open another login dialog every 15 s.
         self.idle_timer.stop()
         self._services.auth.logout(self.session)
+        # Remember who was logged in, to compare with whoever logs in next.
         previous = self.session.user_id
         self.hide()
+        # The login dialog returns a new session, or None if the person cancelled.
         session = self._login_again(notice)
         if session is None:
             self._closing = True  # nobody is logged in: close without asking
@@ -296,11 +339,13 @@ class MainWindow(QMainWindow):
         # can see they are no longer logged in.
         self.lock_screen(f"{self.session.display_name} logged out. Log in to continue.")
 
+    # Runs when the drop-down changes: apply the look now, then save it for next time.
     def _theme_chosen(self, _index: int) -> None:
         choice = self.theme_box.currentData()
         theme.set_choice(choice)
         try:
             theme.save_choice(self._services.config.data_dir, choice)
+        # Saving can fail (for example a read-only disk); the look still changes.
         except OSError:
             self.show_toast("The look changed, but could not be saved for next time.")
 
@@ -308,29 +353,36 @@ class MainWindow(QMainWindow):
         """A short notice at the top right, beside the tabs, that closes by itself, so it never
         stops the clinician (for example "Logged in as Dr A (clinician)")."""
         self.toast.setText(text)
+        # adjustSize fits the label to its text.
         self.toast.adjustSize()
         self._place_toast()
         self.toast.raise_()
         self.toast.show()
         # At login the window is not laid out yet; place it again once it is.
+        # A zero-millisecond timer runs _place_toast once Qt has finished laying out the window.
         QTimer.singleShot(0, self._place_toast)
         self._toast_timer.start(milliseconds)
 
+    # Put the toast at the top right, level with the tab area.
     def _place_toast(self) -> None:
         # Level with the tab bar, whose right side is empty: the bottom corner covered
         # "Finalize and save".
         margin = 20
         tabs = getattr(self, "tabs", None)
+        # mapTo converts the tabs' position into this window's coordinates. tabs may not exist yet.
         top = tabs.mapTo(self, tabs.rect().topLeft()).y() if tabs is not None else margin
         self.toast.move(self.width() - self.toast.width() - margin, top)
 
+    # Qt calls this when the window changes size, so the toast stays in the corner.
     def resizeEvent(self, event) -> None:  # noqa: N802 - Qt's name
         super().resizeEvent(event)
         self._place_toast()
 
+    # Used by the records screen: make a PDF of a saved note and log it in the audit trail.
     def export_note(self, session_id: str, path: str, include_transcript: bool) -> str:
         """Write one saved consultation as a PDF (FR-17) and record the export in the audit
         log. Returns where the file was saved."""
+        # Imported here, not at the top, so the PDF code loads only when someone exports.
         from clinassist.ui.export import ExportDetails, note_html, write_pdf
 
         auth, store = self._services.auth, self._services.store
@@ -338,16 +390,20 @@ class MainWindow(QMainWindow):
         record = store.load(session_id)
         details = ExportDetails(
             saved_at=store.saved_at(session_id),
+            # Show the name of whoever finalized the note, not their user id.
             finalized_by=auth.display_name(self.session, record.finalized_by),
             exported_by=self.session.display_name,
             exported_at=datetime.now(UTC).isoformat(timespec="seconds"),
             include_transcript=include_transcript,
         )
+        # Write the PDF file; it returns the path it used.
         saved = write_pdf(note_html(record, details), path)
+        # The audit log notes whether the transcript was included.
         event = "note_exported_with_transcript" if include_transcript else "note_exported"
         self._services.auditor.record(event, session_id, self.session.user_id)
         return str(saved)
 
+    # The lambda adapts auth.change_password to the (old, new) form the dialog expects.
     def change_password(self) -> None:
         auth = self._services.auth
         ChangePasswordDialog(lambda old, new: auth.change_password(self.session, old, new)).exec()
@@ -361,16 +417,20 @@ class MainWindow(QMainWindow):
         # Each role sees only its own screens: clinicians the consultations and the facility's
         # reports, which need a clinical background to read; the system administrator the
         # technical side only (accounts, audit, database). Nobody but a clinician sees notes.
+        # Map each role to the tabs it may see.
         role = self.session.role
         tabs_for = {
             CLINICIAN: (self.workspace_index, self.records_index, self.reports_index),
             ADMIN: (self.overview_index, self.admin_index, self.database_index),
         }
+        # An unknown role sees no tabs.
         mine = tabs_for.get(role, ())
+        # Show or hide each tab and its sidebar button.
         for index in range(self.tabs.count()):
             self.tabs.setTabVisible(index, index in mine)
             self.nav_buttons[index].setVisible(index in mine)
         self.role_label.setText(f"{self.session.display_name}\n{label}")
+        # The first allowed tab is the landing page.
         landing = mine[0] if mine else self.workspace_index
         self.nav_buttons[landing].setChecked(True)  # also when it is already the open page
         if self.tabs.currentIndex() == landing:
@@ -378,11 +438,13 @@ class MainWindow(QMainWindow):
         else:
             self.tabs.setCurrentIndex(landing)
 
+    # Used by the Overview screen's links to jump to the accounts or database tab.
     def _go_to(self, name: str) -> None:
         self.tabs.setCurrentIndex(
             {"accounts": self.admin_index, "database": self.database_index}[name]
         )
 
+    # Reload a tab's data when it opens, only for the role allowed to see it.
     def _tab_opened(self, index: int) -> None:
         role, widget = self.session.role, self.tabs.widget(index)
         if widget is self.overview and role == ADMIN:
@@ -396,6 +458,7 @@ class MainWindow(QMainWindow):
         elif widget is self.reports and role == CLINICIAN:
             self.reports.reload()
 
+    # Called after a backup restore.
     def _restored(self) -> None:
         """After a restore the open vault no longer matches the files on disk, so the program
         closes. Starting it again opens the restored vault."""
@@ -408,6 +471,7 @@ class MainWindow(QMainWindow):
         self._services.backups.close_vault()
         QApplication.instance().quit()
 
+    # Qt calls this when the window is closing.
     def closeEvent(self, event) -> None:  # noqa: N802 - Qt's name
         # Closing the window with a consultation on screen would lose it without a word.
         if (
@@ -419,29 +483,37 @@ class MainWindow(QMainWindow):
         ):
             event.ignore()
             return
+        # Drop the open consultation, so the microphone is released and the discard is logged.
         if self.workspace.in_progress:
             self.workspace.abandon()  # releases the microphone and audits the discard
         self.idle_timer.stop()
+        # Stop watching events as the window goes away.
         QApplication.instance().removeEventFilter(self._activity)
         super().closeEvent(event)
 
+    # The default Yes/No popup. Tests replace it.
     def _ask_close(self, question: str) -> bool:
         answer = QMessageBox.question(self, "Please confirm", question)
         return answer == QMessageBox.StandardButton.Yes
 
 
+# Find the icon file: PyInstaller (the packaged build) sets sys._MEIPASS to its folder.
 def window_icon_path() -> Path:
     """The program's icon: bundled beside the program once installed, in release/art from source."""
+    # base is None when running from source.
     base = getattr(sys, "_MEIPASS", None)
     if base:
         return Path(base) / "art" / "clinassist.png"
+    # From source, climb three folders up from this file to the project root, then release/art.
     return Path(__file__).resolve().parents[3] / "release" / "art" / "clinassist.png"
 
 
+# The installer looks for this name so it can tell the program is running.
 # The name the installer looks for (AppMutex in release/clinassist.iss). Keep the two the same.
 RUNNING_MARKER = "ClinAssistRunning"
 
 
+# Hold a Windows mutex (a named lock) while the program runs.
 def hold_running_marker() -> int | None:
     """Tell the installer the program is open, so it asks the user to close it first.
 
@@ -449,22 +521,28 @@ def hold_running_marker() -> int | None:
     after the program had already closed. Instead, the program holds a named Windows mutex while
     it runs, and the installer and uninstaller wait until it is gone. Windows releases the mutex
     when the program exits, even after a crash, so there is nothing to clean up."""
+    # Only Windows has mutexes; on other systems do nothing.
     if sys.platform != "win32":
         return None
+    # ctypes calls Windows functions directly.
     import ctypes
 
+    # CreateMutexW creates the named lock; 'or None' turns a failure (0) into None.
     return ctypes.windll.kernel32.CreateMutexW(None, False, RUNNING_MARKER) or None
 
 
+# Message shown when an administrator has reset the password.
 RESET_NOTICE = (
     "An administrator reset your password. Choose a new one that only you know before "
     "continuing. Type the temporary password as the current password."
 )
 
 
+# Force a new password after an admin reset. 'run' is a parameter so tests can skip the real dialog.
 def replace_reset_password(auth, session, run=lambda dialog: dialog.exec()):
     """After login: if an administrator reset this password, the user must replace it before
     the main screen opens. Returns the session, or None (and logs out) if they decline."""
+    # must_change_password is set by the admin reset.
     if not session.must_change_password:
         return session
     dialog = ChangePasswordDialog(
@@ -476,9 +554,12 @@ def replace_reset_password(auth, session, run=lambda dialog: dialog.exec()):
     return None
 
 
+# Start-up, in order: network guard, checks, vault, first admin, login, then the main window.
 def main() -> int:
+    # Imported inside the function so the network guard can be installed before anything else loads.
     from clinassist.airgap import LABELS, install_network_guard, request_firewall_rules
 
+    # The network guard blocks outgoing connections, since the app is meant to be offline.
     install_network_guard()  # first, before any part of the program can open a connection
     hold_running_marker()
     from clinassist.app import build
@@ -491,30 +572,39 @@ def main() -> int:
     icon = window_icon_path()
     if icon.is_file():
         app.setWindowIcon(QIcon(str(icon)))
+    # AppConfig() gives the default folder; settings.json inside it can override the settings.
     data_dir = Path(AppConfig().data_dir)
     config = AppConfig.load(data_dir / "settings.json")
     # The saved look applies from the first window (start-up checks, unlock, login).
     apply_theme(app, theme.load_choice(config.data_dir))
 
+    # Check the PC is ready (for example the model files and the network).
     checks = run_checks(config)
+    # A dict is used so the inner function can change it.
     latest = {"checks": checks}
 
+    # Called by the readiness dialog's re-check button.
     def recheck():
         latest["checks"] = run_checks(config)
         return latest["checks"], can_start(latest["checks"])
 
     readiness = ReadinessDialog(checks, can_start(checks), recheck, request_firewall_rules)
+    # exec() runs the dialog and waits. Anything but Accepted means quit with code 1.
     if readiness.exec() != ReadinessDialog.DialogCode.Accepted:
         return 1
     checks = latest["checks"]
+    # Count warnings for the header text.
     warnings = [c for c in checks if c.status == "warn"]
     summary = f"{len(warnings)} warning(s) at start-up" if warnings else "All checks passed"
+    # Find the network check, if any.
     net = next((c for c in checks if c.name == "network"), None)
     network = (
         (net.status, LABELS.get(net.code, net.code)) if net else ("warn", "Network: not checked")
     )
 
+    # The vault is the encrypted store for patient data.
     vault_dir = Path(config.data_dir) / "vault"
+    # If a keyring file exists, the vault was made before, so unlock it; otherwise create one.
     if (vault_dir / KEYRING).exists():
         unlock = UnlockDialog(
             unlock=lambda p: Vault.unlock(vault_dir, p),
@@ -524,6 +614,7 @@ def main() -> int:
             return 1
         vault = unlock.vault
     else:
+        # A dict lets the inner create function hand the vault back to this scope.
         made = {}
 
         def create(passphrase: str) -> str:
@@ -533,15 +624,19 @@ def main() -> int:
         dialog = CreateVaultDialog(create)
         if dialog.exec() != CreateVaultDialog.DialogCode.Accepted:
             return 1
+        # Show the one-time recovery code so the user can write it down.
         RecoveryCodeDialog(dialog.recovery_code).exec()
         vault = made["vault"]
 
+    # Build every real part (database, model, services) from the config and the open vault.
     services = build(config, vault)
+    # With no accounts yet, the first administrator must be created.
     if not services.auth.has_users():
         first = FirstAdminDialog(services.auth.create_first_admin)
         if first.exec() != FirstAdminDialog.DialogCode.Accepted:
             return 1
 
+    # The login function is passed to MainWindow so it can ask again after a lock.
     def login(notice: str = ""):
         dialog = LoginDialog(services.auth.login, notice, recover=services.auth.recover_password)
         if dialog.exec() != LoginDialog.DialogCode.Accepted:
@@ -552,12 +647,16 @@ def main() -> int:
     if session is None:
         return 1
     window = MainWindow(services, session, login, summary, network)
+    # Starting size.
     window.resize(1400, 850)
     window.show()
+    # Run the Qt event loop until the window closes.
     code = app.exec()
+    # Lock the vault again so the data is protected when the program ends.
     vault.lock()
     return code
 
 
+# Runs main() only when this file is started directly.
 if __name__ == "__main__":
     raise SystemExit(main())

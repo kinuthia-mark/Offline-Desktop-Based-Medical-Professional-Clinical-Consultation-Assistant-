@@ -16,6 +16,9 @@ On Windows, a microphone blocked in the privacy settings often records silence i
 failing. So every recording is measured, and `last_info.silent` is True when nothing was heard.
 """
 
+# This file records the clinician's voice from the microphone and keeps it in memory.
+# The controller calls start() and stop(). stop() hands the audio to the transcriber.
+# It uses the sounddevice library, which talks to the Windows audio system (PortAudio).
 from __future__ import annotations
 
 import io
@@ -39,12 +42,14 @@ SILENCE_PEAK = 0.0005
 _LOOPBACK_WORDS = ("stereo mix", "what u hear", "wave out", "loopback", "mixage stéréo")
 
 
+# Raised for any recording problem. The code is a short word the screen turns into a message.
 class RecorderError(RuntimeError):
     def __init__(self, code: str) -> None:
         super().__init__(code)
         self.code = code
 
 
+# One microphone as listed by the audio system.
 @dataclass(frozen=True)
 class InputDevice:
     index: int
@@ -64,15 +69,21 @@ class RecordingInfo:
     overflows: int  # blocks where the computer was too busy and audio was lost
 
 
+# Called for every block while recording, so the level is known without scanning the whole
+# recording later.
 def _block_stats(pcm: bytes) -> tuple[int, int, int]:
     """Loudest sample, sum of squares and sample count of one block of 16-bit audio. Kept as
     running totals while recording, so the level of a 45-minute recording is known at once."""
     samples = array("h", pcm)
+    # Empty block: nothing to measure.
     if not samples:
         return 0, 0, 0
+    # Peak uses the larger of the top and bottom values because samples can be negative. The
+    # squares are for the average loudness (RMS).
     return max(max(samples), -min(samples)), sum(s * s for s in samples), len(samples)
 
 
+# Whisper wants a WAV file, so the raw samples get a small header. Done in memory, never on disk.
 def to_wav(pcm: bytes, sample_rate: int = SAMPLE_RATE) -> bytes:
     """Wrap raw 16-bit mono samples in a WAV header, in memory."""
     buffer = io.BytesIO()
@@ -84,6 +95,7 @@ def to_wav(pcm: bytes, sample_rate: int = SAMPLE_RATE) -> bytes:
     return buffer.getvalue()
 
 
+# Small function so the library is imported only when needed. Tests can pass a fake instead.
 def _sounddevice():
     import sounddevice  # loaded on first use, so the rest of the app works without it
 
@@ -97,14 +109,19 @@ def list_input_devices(sd=None) -> list[InputDevice]:
     Only devices on the same audio system as the Windows default input are listed, and inputs
     that record the computer's own sound output ("Stereo Mix") are left out."""
     sd = sd or _sounddevice()
+    # index 0 of the default device pair is the input (microphone) one.
     default_index = sd.default.device[0]
+    # None or a negative number means Windows has no default input.
     if default_index is None or default_index < 0:
         return []
     devices = sd.query_devices()
+    # The audio system (hostapi) of the default microphone. Only devices on it are listed.
     default_api = devices[default_index]["hostapi"]
     found = []
     for index, info in enumerate(devices):
         name = str(info["name"]).strip()
+        # Keep a device only if it can record, is on the same audio system, and is not a
+        # loopback input.
         if (
             info["max_input_channels"] > 0
             and info["hostapi"] == default_api
@@ -114,6 +131,7 @@ def list_input_devices(sd=None) -> list[InputDevice]:
     return found
 
 
+# This is the class the controller uses as its recorder.
 class SoundDeviceRecorder:
     """Records from one microphone into memory. `sd` is the sounddevice module; tests pass a
     fake one so no hardware is needed."""
@@ -126,11 +144,17 @@ class SoundDeviceRecorder:
     ) -> None:
         self._sd = sd
         self._device = device  # None means the Windows default microphone
+        # Maximum recording size in bytes: seconds x samples per second x bytes per sample.
         self._max_bytes = int(max_seconds * SAMPLE_RATE) * SAMPLE_WIDTH
+        # The audio callback runs on another thread, so this lock stops two threads
+        # changing the data at once.
         self._lock = threading.Lock()  # the audio arrives on another thread
         self._stream = None
         self._buffer = bytearray()
+        # Latest block loudness, for the level meter.
         self._level = 0.0
+        # Running totals (loudest sample, sum of squares, sample count) used to work out
+        # peak and RMS at the end.
         self._peak, self._sum_squares, self._count = 0, 0, 0
         self._limit_reached = False
         self._overflows = 0
@@ -138,10 +162,12 @@ class SoundDeviceRecorder:
         self.last_info: RecordingInfo | None = None
 
     # ----- the Recorder port -----
+    # Opens the microphone and starts capturing. Resets the counters from any earlier recording.
     def start(self) -> None:
         if self._stream is not None:
             raise RecorderError("already_recording")
         sd = self._sd or _sounddevice()
+        # Remember the library so stop and the callback use the same one.
         self._sd = sd
         if self._device is None and (sd.default.device[0] is None or sd.default.device[0] < 0):
             raise RecorderError("no_microphone")
@@ -150,24 +176,30 @@ class SoundDeviceRecorder:
             self._level, self._limit_reached, self._overflows = 0.0, False, 0
             self._peak, self._sum_squares, self._count = 0, 0, 0
         try:
+            # int16 means 16-bit samples. blocksize is the number of samples in each
+            # 0.1 second block.
             stream = sd.RawInputStream(
                 samplerate=SAMPLE_RATE,
                 channels=CHANNELS,
                 dtype="int16",
                 blocksize=int(SAMPLE_RATE * BLOCK_SECONDS),
                 device=self._device,
+                # The library calls this method each time a block of audio is ready.
                 callback=self._on_audio,
             )
             stream.start()
         except sd.PortAudioError as exc:
+            # from None hides the original message, which is turned into a short code.
             raise RecorderError(_error_code(str(exc))) from None
         self._stream = stream
+        # monotonic() is a clock that never goes backwards, even if Windows changes the time.
         self._started_at = time.monotonic()
 
     def stop(self) -> bytes:
         """Stop and return the recording as WAV bytes. Always releases the microphone."""
         if self._stream is None:
             raise RecorderError("not_recording")
+        # Swap the stream out first, so a second stop() call finds nothing and fails cleanly.
         stream, self._stream = self._stream, None
         try:
             stream.stop()
@@ -177,12 +209,15 @@ class SoundDeviceRecorder:
             pcm = bytes(self._buffer)
             self._buffer = bytearray()  # do not keep a second copy of the consultation
             limit, overflows = self._limit_reached, self._overflows
+            # Samples run from -32768 to 32767, so dividing by 32768 gives a level from 0 to 1.
             peak = min(self._peak / 32768, 1.0)
+            # RMS is the square root of the mean of the squares: the average loudness.
             rms = (self._sum_squares / self._count) ** 0.5 / 32768 if self._count else 0.0
         self.last_info = RecordingInfo(
             seconds=len(pcm) / (SAMPLE_RATE * SAMPLE_WIDTH),
             peak=round(peak, 5),
             rms=round(rms, 5),
+            # Quiet recording: probably a blocked microphone, which Windows records as silence.
             silent=peak < SILENCE_PEAK,
             limit_reached=limit,
             overflows=overflows,
@@ -190,6 +225,7 @@ class SoundDeviceRecorder:
         return to_wav(pcm)
 
     # ----- for the interface while recording -----
+    # True while a recording is running. Used by the screen to show the state.
     @property
     def recording(self) -> bool:
         return self._stream is not None
@@ -200,19 +236,23 @@ class SoundDeviceRecorder:
         return self._level
 
     @property
+    # How long the recording is so far, worked out from the bytes held.
     def seconds(self) -> float:
         with self._lock:
             return len(self._buffer) / (SAMPLE_RATE * SAMPLE_WIDTH)
 
     # ----- internals -----
+    # Called by the audio system for each block. frames, time_info and status are filled in by it.
     def _on_audio(self, indata, frames, time_info, status) -> None:
         """Called by the audio system on its own thread for every block. Kept short: copy the
         block, note the level, and stop once the maximum length is reached."""
         block = bytes(indata)
         with self._lock:
+            # input_overflow means the computer was too busy and lost audio.
             if status and getattr(status, "input_overflow", False):
                 self._overflows += 1
             # Keep only as much of the block as fits under the maximum length.
+            # Space left before reaching the maximum length.
             room = max(self._max_bytes - len(self._buffer), 0)
             kept = block[:room]
             self._buffer.extend(kept)
@@ -221,12 +261,14 @@ class SoundDeviceRecorder:
             self._sum_squares += squares
             self._count += count
             self._level = min(peak / 32768, 1.0)
+            # If the block did not fit with room to spare, the maximum has been reached.
             if len(block) >= room:
                 self._limit_reached = True
         if self._limit_reached:
             raise self._sd.CallbackStop  # tells the audio system to stop calling us
 
 
+# Maps the audio library's error text to one of the short codes listed at the top.
 def _error_code(message: str) -> str:
     """Turn a PortAudio message into one of our codes. The message is not passed on."""
     text = message.lower()
